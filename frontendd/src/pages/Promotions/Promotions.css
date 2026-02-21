@@ -1,0 +1,171 @@
+/* --- ISOLATION GLOBALE --- */
+.promotions-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f9f9f9;
+}
+
+/* CORRECTION MAJEURE :
+   On cible .container UNIQUEMENT s'il est dans .main-content 
+   Cela empêche de casser le Header et le Footer.
+*/
+.promotions-page .main-content .container {
+  display: block;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.promotions-page .main-content {
+  flex: 1;
+  padding: 60px 0;
+  width: 100%;
+}
+
+/* --- En-tête de la page --- */
+.promotions-page .page-header {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 50px auto;
+}
+
+.promotions-page .page-header h1 {
+  font-size: 36px;
+  color: var(--text);
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.promotions-page .page-header p {
+  color: var(--text-gray);
+  font-size: 18px;
+}
+
+
+
+
+
+.promotions-page .card-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background-color: #ff4d4f;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 14px;
+  z-index: 2;
+}
+
+.promotions-page .card-image {
+  width: 100%;
+  aspect-ratio: 1;
+  /* Carré parfait */
+  background-color: #f0f0f0;
+}
+
+.promotions-page .card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.promotions-page .card-info {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.promotions-page .card-info h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.promotions-page .description {
+  font-size: 14px;
+  color: var(--text-gray);
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+.promotions-page .price-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.promotions-page .old-price {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 16px;
+}
+
+.promotions-page .current-price {
+  color: #d4a373;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.promotions-page .card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Boutons */
+.promotions-page .btn-add-cart {
+  background-color: #000;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.promotions-page .btn-add-cart:hover {
+  background-color: #d4a373;
+}
+
+.promotions-page .btn-details {
+  background-color: transparent;
+  color: #000;
+  border: 1px solid #e0e0e0;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.promotions-page .btn-details:hover {
+  background-color: #f5f5f5;
+  border-color: #000;
+}
+
+/* --- Responsive --- */
+@media (max-width: 1024px) {
+  .promotions-page .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 colonnes tablette */
+  }
+}
+
+@media (max-width: 768px) {
+  .promotions-page .products-grid {
+    grid-template-columns: 1fr;
+    /* 1 colonne mobile */
+  }
+
+  .promotions-page .page-header h1 {
+    font-size: 28px;
+  }
+}

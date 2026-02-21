@@ -1,0 +1,408 @@
+/* ─────────────────────────────────────────────────────────────────
+   Support.css  —  DAWSM Support Page
+   Aesthetic: warm editorial luxury, beige-rose palette
+   ───────────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500&display=swap');
+
+/* ── Design tokens ──────────────────────────────────────────────── */
+:root {
+  --bg-base:       #fdf6f1;   /* warm off-white */
+  --bg-card:       rgba(255, 250, 247, 0.72);
+  --bg-card-hover: rgba(255, 255, 255, 0.88);
+
+  --rose-deep:     #261812;   /* near-black warm */
+  --rose-mid:      #8e6458;   /* body text */
+  --rose-light:    #b89080;   /* captions / icons */
+  --rose-accent:   #b07865;   /* accent */
+  --rose-border:   #e9d5cf;   /* dividers */
+  --rose-nav-bg:   rgba(255, 248, 245, 0.65);
+
+  --font-display: 'Cormorant Garamond', 'Georgia', serif;
+  --font-body:    'DM Sans', 'Helvetica Neue', sans-serif;
+
+  --radius-card:  1.75rem;
+  --radius-pill:  999px;
+  --shadow-soft:  0 4px 32px rgba(176, 120, 101, 0.08);
+  --shadow-lift:  0 12px 40px rgba(176, 120, 101, 0.14);
+}
+
+/* ── Base ───────────────────────────────────────────────────────── */
+.sp-page {
+  min-height: 100vh;
+  background-color: var(--bg-base);
+  background-image:
+    /* grain */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"),
+    /* radial blush top-right */
+    radial-gradient(ellipse 60% 50% at 90% 5%, rgba(210, 170, 158, 0.20) 0%, transparent 70%),
+    /* radial blush bottom-left */
+    radial-gradient(ellipse 50% 45% at 5% 95%, rgba(185, 148, 135, 0.14) 0%, transparent 65%);
+  font-family: var(--font-body);
+  color: var(--rose-mid);
+  position: relative;
+}
+
+/* ── Sticky header / nav ────────────────────────────────────────── */
+.sp-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(253, 246, 241, 0.78);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border-bottom: 1px solid var(--rose-border);
+  padding: 28px 24px 24px;
+  text-align: center;
+}
+
+.sp-header h1 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  color: var(--rose-deep);
+  margin: 0 0 24px;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+}
+
+/* italic flourish on first letter */
+.sp-header h1::first-letter {
+  font-style: italic;
+}
+
+.sp-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 16px;
+}
+
+.sp-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 20px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(233, 213, 207, 0.7);
+  background: var(--rose-nav-bg);
+  color: var(--rose-mid);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  backdrop-filter: blur(6px);
+}
+
+.sp-nav-link:hover {
+  background: var(--rose-accent);
+  color: #fdf6f1;
+  border-color: transparent;
+  box-shadow: 0 6px 20px rgba(176, 120, 101, 0.28);
+  transform: translateY(-1px);
+}
+
+.sp-nav-link svg {
+  opacity: 0.75;
+  transition: opacity 0.2s;
+}
+.sp-nav-link:hover svg { opacity: 1; }
+
+/* ── Main content wrapper ───────────────────────────────────────── */
+.sp-content {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 72px 24px 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+}
+
+/* ── Section ────────────────────────────────────────────────────── */
+.sp-section {
+  scroll-margin-top: 140px;
+  animation: sp-fadeup 0.55s ease both;
+}
+
+@keyframes sp-fadeup {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* stagger sections */
+.sp-section:nth-child(1) { animation-delay: 0.05s; }
+.sp-section:nth-child(2) { animation-delay: 0.12s; }
+.sp-section:nth-child(3) { animation-delay: 0.19s; }
+.sp-section:nth-child(4) { animation-delay: 0.26s; }
+
+/* ── Section header ─────────────────────────────────────────────── */
+.sp-section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 16px;
+  margin-bottom: 36px;
+  border-bottom: 1px solid var(--rose-border);
+  position: relative;
+}
+
+/* accent underline bar on the left */
+.sp-section-header::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 40px;
+  height: 2px;
+  background: var(--rose-accent);
+  border-radius: 2px;
+}
+
+.sp-section-header svg {
+  color: var(--rose-accent);
+  flex-shrink: 0;
+}
+
+.sp-section-header h2 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+  color: var(--rose-deep);
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+/* ── Cards (shared) ─────────────────────────────────────────────── */
+.sp-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(233, 213, 207, 0.55);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: box-shadow 0.35s ease, background 0.35s ease, transform 0.3s ease;
+}
+.sp-card:hover {
+  background: var(--bg-card-hover);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-2px);
+}
+
+/* ── FAQ ────────────────────────────────────────────────────────── */
+.sp-faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sp-faq-item {
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.sp-faq-btn {
+  width: 100%;
+  padding: 20px 24px;
+  background: var(--bg-card);
+  border: 1px solid rgba(233, 213, 207, 0.55);
+  border-radius: var(--radius-card);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--rose-deep);
+  line-height: 1.45;
+  backdrop-filter: blur(8px);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.sp-faq-btn:hover {
+  background: var(--bg-card-hover);
+  box-shadow: var(--shadow-soft);
+}
+
+.sp-faq-btn[aria-expanded="true"] {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: transparent;
+  background: var(--bg-card-hover);
+}
+
+.sp-faq-icon {
+  color: var(--rose-light);
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.sp-faq-btn[aria-expanded="true"] .sp-faq-icon {
+  transform: rotate(180deg);
+}
+
+.sp-faq-body {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.35s ease, opacity 0.3s ease, padding 0.3s ease;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(233, 213, 207, 0.55);
+  border-top: none;
+  border-bottom-left-radius: var(--radius-card);
+  border-bottom-right-radius: var(--radius-card);
+  backdrop-filter: blur(8px);
+}
+.sp-faq-body.open {
+  max-height: 200px;
+  opacity: 1;
+  padding: 20px 24px;
+}
+
+.sp-faq-body p {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--rose-mid);
+  margin: 0;
+}
+
+/* ── Delivery grid ──────────────────────────────────────────────── */
+.sp-delivery-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 640px) {
+  .sp-delivery-grid { grid-template-columns: 1fr; }
+}
+
+.sp-delivery-card {
+  padding: 32px;
+}
+
+.sp-delivery-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--rose-deep);
+  margin: 0 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-delivery-card h3 svg { color: var(--rose-light); }
+
+.sp-delivery-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sp-delivery-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13.5px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--rose-mid);
+}
+
+.sp-delivery-list li svg {
+  color: #f0b8b0;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+/* ── CGV (Terms) ────────────────────────────────────────────────── */
+.sp-terms-card {
+  padding: 40px 44px;
+}
+
+@media (max-width: 640px) {
+  .sp-terms-card { padding: 28px 24px; }
+}
+
+.sp-terms-card > * + * {
+  margin-top: 36px;
+}
+
+/* thin rule between articles */
+.sp-terms-card > * + *::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--rose-border), transparent);
+  margin-bottom: 36px;
+}
+
+.sp-terms-article h3 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--rose-deep);
+  margin: 0 0 10px;
+}
+
+.sp-terms-article p {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--rose-mid);
+  margin: 0;
+}
+
+/* ── Privacy cards ──────────────────────────────────────────────── */
+.sp-privacy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sp-privacy-card {
+  padding: 32px;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.sp-privacy-card svg {
+  color: var(--rose-light);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.sp-privacy-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--rose-deep);
+  margin: 0 0 10px;
+}
+
+.sp-privacy-card p {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--rose-mid);
+  margin: 0;
+}
+
+/* ── Responsive tweaks ──────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .sp-content { padding: 48px 16px 72px; gap: 60px; }
+  .sp-section-header h2 { font-size: 1.6rem; }
+  .sp-terms-card { padding: 24px 18px; }
+  .sp-privacy-card { flex-direction: column; gap: 14px; }
+}

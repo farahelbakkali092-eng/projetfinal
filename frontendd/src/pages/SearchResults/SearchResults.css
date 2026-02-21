@@ -1,0 +1,110 @@
+.search-results-page {
+    padding-top: 40px;
+    padding-bottom: 80px;
+    min-height: 60vh;
+}
+
+.search-header {
+    margin-bottom: 40px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+}
+
+.search-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--primary);
+}
+
+.search-header p {
+    color: var(--text-light);
+    font-size: 1rem;
+}
+
+.results-section {
+    margin-bottom: 50px;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    border-left: 4px solid var(--accent);
+    padding-left: 15px;
+}
+
+/* Categories & Brands Grids */
+.categories-results-grid,
+.brands-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.category-item-card,
+.brand-item-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.category-item-card:hover,
+.brand-item-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.category-item-info h3,
+.brand-item-card h3 {
+    font-size: 1.1rem;
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+
+.category-item-info p,
+.brand-item-card p {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin: 0;
+}
+
+/* States */
+.loading-state,
+.error-state,
+.empty-search,
+.no-results-all {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 20px;
+    text-align: center;
+}
+
+.empty-search h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.no-results-msg {
+    color: var(--text-light);
+    font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .search-header h1 {
+        font-size: 1.5rem;
+    }
+}

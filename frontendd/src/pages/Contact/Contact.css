@@ -1,0 +1,438 @@
+/* ════════════════════════════════════════════════
+   DAWSM COSMÉTIQUES — CONTACT PAGE
+   Palette: Warm ivory · Deep espresso · Dusty rose
+   Fonts: Cormorant Garamond + Jost
+   ════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap');
+
+/* ── CSS Variables ── */
+:root {
+  --ivory:        #fdf6f1;
+  --espresso:     #261812;
+  --brown-dark:   #3a2a22;
+  --brown-mid:    #8e6458;
+  --rose-muted:   #c9a49a;
+  --rose-warm:    #b89080;
+  --rose-light:   #c4a098;
+  --blush:        #d9bfb7;
+  --blush-soft:   #d4b5a8;
+  --terracotta:   #c0675a;
+  --sienna:       #b07865;
+  --frost-rose:   rgba(210,170,158,0.16);
+  --glass-rose:   rgba(185,150,140,0.11);
+  --error:        #b94a42;
+}
+
+
+/* ══════════════════════════════
+   PAGE LAYOUT
+══════════════════════════════ */
+.contact-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--ivory);
+  font-family: 'Jost', sans-serif;
+  padding: 72px 20px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ambient background blobs */
+.contact-page::before,
+.contact-page::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.contact-page::before {
+  width: 560px;
+  height: 560px;
+  top: -180px;
+  right: -180px;
+  background: radial-gradient(circle, rgba(210,170,158,0.17) 0%, transparent 70%);
+}
+
+.contact-page::after {
+  width: 480px;
+  height: 480px;
+  bottom: -140px;
+  left: -140px;
+  background: radial-gradient(circle, rgba(185,150,140,0.13) 0%, transparent 70%);
+}
+
+.contact-main {
+  width: 100%;
+  max-width: 700px;
+  position: relative;
+  z-index: 1;
+}
+
+
+/* ══════════════════════════════
+   CARD
+══════════════════════════════ */
+.contact-card {
+  background: rgba(253, 246, 241, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--blush);
+  border-radius: 4px;
+  padding: clamp(36px, 6vw, 64px) clamp(28px, 6vw, 64px);
+  box-shadow:
+    0 2px 0 rgba(201,164,154,0.28),
+    0 20px 60px -10px rgba(38, 24, 18, 0.08),
+    0 1px 0 rgba(255,255,255,0.85) inset;
+}
+
+/* animate-entry — card entrance */
+.animate-entry {
+  opacity: 0;
+  transform: translateY(22px);
+  animation: cardEnter 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+}
+
+@keyframes cardEnter {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ══════════════════════════════
+   HEADER
+══════════════════════════════ */
+.contact-header {
+  text-align: center;
+  margin-bottom: 48px;
+  padding-bottom: 38px;
+  border-bottom: 1px solid var(--frost-rose);
+  position: relative;
+}
+
+/* Ornamental separator dot */
+.contact-header::after {
+  content: '✦';
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--rose-muted);
+  background: var(--ivory);
+  padding: 0 10px;
+  opacity: 0.75;
+}
+
+.contact-header .subtitle {
+  display: block;
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--rose-muted);
+  margin-bottom: 14px;
+  opacity: 0;
+  animation: fadeUp 0.55s ease 0.45s forwards;
+}
+
+.contact-header h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 600;
+  color: var(--espresso);
+  margin: 0 0 16px;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  opacity: 0;
+  animation: fadeUp 0.55s ease 0.55s forwards;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--terracotta) 0%, var(--rose-muted) 65%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-style: italic;
+}
+
+.description {
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--brown-mid);
+  line-height: 1.78;
+  max-width: 440px;
+  margin: 0 auto;
+  letter-spacing: 0.03em;
+  opacity: 0;
+  animation: fadeUp 0.55s ease 0.65s forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+
+/* ══════════════════════════════
+   FORM LAYOUT
+══════════════════════════════ */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: flex;
+  gap: 32px;
+}
+
+
+/* ══════════════════════════════
+   INPUT GROUPS (Floating Labels)
+══════════════════════════════ */
+.input-group {
+  position: relative;
+  margin-bottom: 36px;
+  width: 100%;
+}
+
+/* Shared input + textarea base */
+.input-group input,
+.input-group textarea {
+  width: 100%;
+  padding: 13px 0 10px;
+  font-family: 'Jost', sans-serif;
+  font-size: 13.5px;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: var(--espresso);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--blush);
+  outline: none;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  resize: none;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+  border-bottom-color: transparent;
+}
+
+/* Textarea specific */
+.input-group textarea {
+  min-height: 100px;
+  line-height: 1.65;
+}
+
+/* Floating label */
+.input-group label {
+  position: absolute;
+  top: 13px;
+  left: 0;
+  font-family: 'Jost', sans-serif;
+  font-size: 12.5px;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  color: var(--rose-warm);
+  pointer-events: none;
+  transition:
+    top 0.28s ease,
+    font-size 0.28s ease,
+    color 0.28s ease,
+    letter-spacing 0.28s ease;
+}
+
+/* Label floats up on focus or filled */
+.input-group input:focus ~ label,
+.input-group input:not(:placeholder-shown) ~ label,
+.input-group textarea:focus ~ label,
+.input-group textarea:not(:placeholder-shown) ~ label {
+  top: -8px;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--terracotta);
+}
+
+/* Animated underline */
+.input-group .underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 1.5px;
+  width: 0;
+  background: linear-gradient(90deg, var(--terracotta), var(--rose-muted));
+  transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-radius: 2px;
+}
+
+.input-group input:focus ~ .underline,
+.input-group textarea:focus ~ .underline {
+  width: 100%;
+}
+
+/* ── Error state ── */
+.input-group input.input-error,
+.input-group textarea.input-error {
+  border-bottom-color: var(--error);
+}
+
+.input-group input.input-error ~ label,
+.input-group textarea.input-error ~ label {
+  color: var(--error);
+}
+
+.input-group input.input-error ~ .underline,
+.input-group textarea.input-error ~ .underline {
+  background: var(--error);
+  width: 100%;
+}
+
+/* Inline error span (errorMsgStyle is inline in JSX, but we reinforce here) */
+.input-group span[style] {
+  font-family: 'Jost', sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  font-style: italic !important;
+  color: var(--error) !important;
+  margin-top: 5px !important;
+  display: block !important;
+}
+
+
+/* ══════════════════════════════
+   SUBMIT BUTTON
+══════════════════════════════ */
+.btn-luxury {
+  position: relative;
+  width: 100%;
+  margin-top: 8px;
+  padding: 18px 32px;
+  border: none;
+  border-radius: 2px;
+  background: linear-gradient(135deg, var(--espresso) 0%, var(--brown-dark) 100%);
+  color: var(--blush-soft);
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-luxury span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hover gradient reveal */
+.btn-luxury::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--sienna) 0%, var(--terracotta) 100%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.btn-luxury:hover:not(:disabled)::before {
+  opacity: 1;
+}
+
+.btn-luxury:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(38, 24, 18, 0.22);
+}
+
+.btn-luxury:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(38, 24, 18, 0.14);
+}
+
+.btn-luxury:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+/* Shine sweep — CSS-only loop */
+.shine {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(253, 246, 241, 0.13),
+    transparent
+  );
+  transform: skewX(-15deg);
+  animation: shineSweep 3.5s ease-in-out infinite;
+}
+
+@keyframes shineSweep {
+  0%   { left: -100%; }
+  35%  { left: 150%;  }
+  100% { left: 150%;  }
+}
+
+
+/* ══════════════════════════════
+   RESPONSIVE — TABLET (≤ 768px)
+══════════════════════════════ */
+@media (max-width: 768px) {
+  .contact-page {
+    padding: 48px 16px 64px;
+    align-items: flex-start;
+  }
+
+  .contact-card {
+    padding: 36px 22px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .contact-header {
+    margin-bottom: 36px;
+    padding-bottom: 28px;
+  }
+
+  .contact-header h2 {
+    font-size: clamp(1.7rem, 6vw, 2.2rem);
+  }
+}
+
+
+/* ══════════════════════════════
+   RESPONSIVE — MOBILE (≤ 480px)
+══════════════════════════════ */
+@media (max-width: 480px) {
+  .contact-page {
+    padding: 32px 12px 48px;
+  }
+
+  .contact-card {
+    padding: 28px 16px;
+  }
+
+  .input-group {
+    margin-bottom: 28px;
+  }
+}

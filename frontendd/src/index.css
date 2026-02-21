@@ -1,0 +1,78 @@
+:root {
+  --primary: #000;
+  --text: #333;
+  --text-light: #666;
+  --accent: #d4a373;
+  --bg-header: rgba(255, 255, 255, 0.95);
+  --border-color: #e5e5e5;
+
+  --rose: hsl(350, 60%, 72%);
+  --gold: hsl(35, 60%, 52%);
+  --gold-light: hsl(38, 55%, 70%);
+  --burgundy: hsl(340, 45%, 25%);
+  --cream: hsl(30, 33%, 98%);
+  --blush: hsl(15, 40%, 95%);
+
+  --font-heading: "Playfair Display", serif;
+  --font-body: "Poppins", sans-serif;
+
+  --bg-color: var(--cream);
+  --border-light: #eee;
+  --text-color: var(--burgundy);
+  --text-gray: #777;
+
+  font-family: var(--font-body);
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+a {
+  color: inherit;
+}
+
+/* Shared Products Grid - Uniform across all pages */
+.shared-products-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+  margin-top: 24px;
+}
+
+@media (min-width: 640px) {
+  .shared-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (min-width: 768px) {
+  .shared-products-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .shared-products-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .shared-products-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}

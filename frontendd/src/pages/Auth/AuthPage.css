@@ -1,0 +1,88 @@
+:root {
+  --auth-gold: #d4a373;
+  --auth-bg: #fff;
+  --overlay-dark: rgba(0, 0, 0, 0.6); /* Fond sombre semi-transparent */
+}
+
+/* --- OVERLAY (Le fond qui couvre tout l'écran) --- */
+.auth-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 9999; /* Toujours au premier plan */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--overlay-dark);
+  backdrop-filter: blur(8px); /* L'effet de flou moderne */
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Animations d'ouverture/fermeture */
+.auth-overlay.visible { opacity: 1; }
+.auth-overlay.hidden { opacity: 0; pointer-events: none; }
+
+/* --- LA CARTE (Le modal lui-même) --- */
+.auth-card {
+  width: 90%;
+  max-width: 420px;
+  background: var(--auth-bg);
+  border-radius: 12px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  transform: scale(0.95);
+  transition: transform 0.3s ease-out;
+}
+
+.auth-overlay.visible .auth-card { transform: scale(1); }
+
+/* --- BOUTON FERMER (X) --- */
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  z-index: 10;
+}
+.close-btn:hover { color: #000; }
+
+/* --- RESTE DU STYLE (Similaire à avant) --- */
+.auth-header { padding: 30px 30px 10px; text-align: center; }
+.auth-header h2 { font-family: 'Playfair Display', serif; font-size: 26px; margin: 0 0 5px; }
+.subtitle { color: #666; font-size: 14px; margin: 0; }
+
+.auth-form { padding: 20px 30px 30px; }
+.form-group { margin-bottom: 15px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+.form-group label { display: block; font-size: 11px; text-transform: uppercase; color: #666; margin-bottom: 5px; font-weight: 600; letter-spacing: 0.5px; }
+.form-input { width: 100%; padding: 12px; border: 1px solid #e5e5e5; border-radius: 5px; background: #f9f9f9; font-size: 14px; transition: 0.3s; }
+.form-input:focus { outline: none; border-color: var(--auth-gold); background: #fff; }
+
+.password-wrapper { position: relative; }
+.toggle-pass { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #999; }
+
+.forgot-link { text-align: right; margin-top: -5px; margin-bottom: 20px; }
+.forgot-link span { color: var(--auth-gold); font-size: 12px; cursor: pointer; font-weight: 500; }
+
+.btn-submit { width: 100%; padding: 14px; background: #111; color: white; border: none; border-radius: 5px; font-size: 13px; text-transform: uppercase; font-weight: bold; cursor: pointer; letter-spacing: 1px; }
+.btn-submit:hover { background: #333; }
+
+.divider { display: flex; align-items: center; margin: 25px 0; color: #999; font-size: 11px; text-transform: uppercase; }
+.divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #eee; }
+.divider span { padding: 0 10px; }
+
+.social-login { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.btn-social { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px; background: white; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; font-size: 13px; }
+.btn-social:hover { background: #f5f5f5; }
+
+.auth-footer { background: #fafafa; padding: 15px; text-align: center; border-top: 1px solid #eee; font-size: 13px; color: #666; }
+.link-gold { color: var(--auth-gold); font-weight: bold; cursor: pointer; margin-left: 5px; }
+.link-gold:hover { text-decoration: underline; }

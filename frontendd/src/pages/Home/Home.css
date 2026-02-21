@@ -1,0 +1,413 @@
+/* --- VARIABLES & COULEURS --- */
+:root {
+  /* TA PALETTE EXACTE */
+  --rose: hsl(350, 60%, 72%);
+  --gold: hsl(35, 60%, 52%);
+  --gold-light: hsl(38, 55%, 70%);
+  --burgundy: hsl(340, 45%, 25%);
+  --cream: hsl(30, 33%, 98%);
+  --blush: hsl(15, 40%, 95%);
+
+  /* FONTS */
+  --font-heading: "Playfair Display", serif;
+  --font-body: "Poppins", sans-serif;
+}
+
+/* --- GLOBAL RESET --- */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--burgundy);
+  background-color: var(--cream);
+  margin: 0;
+}
+
+.home-page {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section-padding {
+  padding: 80px 0;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* UTILITIES */
+.absolute {
+  position: absolute;
+}
+
+.relative {
+  position: relative;
+}
+
+.inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+/* --- 1. HERO SECTION --- */
+.hero {
+  height: 90vh;
+  display: flex;
+  align-items: center;
+}
+
+.hero-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Le dégradé subtil sur l'image Hero */
+.hero-gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right, rgba(61, 35, 46, 0.8), rgba(61, 35, 46, 0.4), transparent);
+}
+
+.hero-container {
+  z-index: 10;
+  padding-top: 60px;
+}
+
+.hero-text-content {
+  max-width: 600px;
+}
+
+.hero-subtitle {
+  color: var(--gold-light);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: 3.5rem;
+  line-height: 1.1;
+  color: var(--cream);
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .hero-title {
+    font-size: 4.5rem;
+  }
+}
+
+.hero-title .italic {
+  font-style: italic;
+  color: var(--gold-light);
+}
+
+.hero-desc {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  max-width: 450px;
+}
+
+/* Animations simples */
+.animate-fade-in {
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* BOUTONS */
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 14px 32px;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), hsl(35, 60%, 45%));
+  color: white;
+  border: none;
+}
+
+.btn-gold:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: var(--cream);
+  background: transparent;
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+
+/* --- 2. PERSONALIZED ROUTINE --- */
+.personalized-routine {
+  background-color: var(--blush);
+}
+
+.routine-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .routine-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+  }
+}
+
+.routine-image-wrapper img {
+  width: 100%;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(61, 35, 46, 0.1);
+}
+
+.routine-content h2 {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  color: var(--burgundy);
+  margin-bottom: 20px;
+}
+
+.routine-content p {
+  color: #666;
+  line-height: 1.7;
+  margin-bottom: 30px;
+}
+
+.link-underline {
+  display: inline-flex;
+  align-items: center;
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid var(--gold);
+  padding-bottom: 2px;
+  transition: color 0.3s;
+}
+
+.link-underline:hover {
+  color: var(--gold-light);
+  border-color: var(--gold-light);
+}
+
+/* --- 3. CATEGORIES --- */
+.section-subtitle {
+  color: var(--gold);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  margin-bottom: 10px;
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  color: var(--burgundy);
+  margin-top: 0;
+  margin-bottom: 50px;
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .categories-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .categories-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.category-card {
+  position: relative;
+  aspect-ratio: 3/4;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.cat-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s ease;
+}
+
+.category-card:hover .cat-img {
+  transform: scale(1.1);
+}
+
+.cat-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(61, 35, 46, 0.8), transparent);
+}
+
+.cat-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 16px;
+}
+
+.cat-name {
+  color: var(--cream);
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+.cat-count {
+  color: var(--rose);
+  font-size: 0.75rem;
+  margin-top: 4px;
+}
+
+/* --- 4. PRODUITS & GRILLE --- */
+/* Note: Le style des cartes individuelles est géré dans ProductCard.css */
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+@media (min-width: 768px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* --- 5. EXCLUSIVE OFFERS --- */
+.exclusive-offers {
+  height: 450px;
+  background-size: cover;
+  background-attachment: fixed;
+  /* Effet Parallaxe */
+  position: relative;
+}
+
+.offers-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(61, 35, 46, 0.6);
+  /* Overlay Burgundy sombre */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.offers-content h2 {
+  color: white;
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  margin-bottom: 30px;
+}
+
+.btn-transparent {
+  padding: 14px 40px;
+  border: 1px solid white;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-decoration: none;
+  transition: 0.3s;
+  display: inline-block;
+}
+
+.btn-transparent:hover {
+  background: white;
+  color: var(--burgundy);
+}
+
+/* --- 6. PARTNER BRANDS --- */
+.partner-brands {
+  background-color: white;
+}
+
+.brands-title {
+  font-family: var(--font-heading);
+  color: var(--burgundy);
+  font-size: 2rem;
+  margin-bottom: 40px;
+}
