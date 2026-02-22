@@ -24,7 +24,13 @@ export const adminApi = {
   // Brands
   listBrands: (params) => api.get('/admin/brands', { params }),
   createBrand: (data) => api.post('/admin/brands', data),
-  updateBrand: (id, data) => api.put(`/admin/brands/${id}`, data),
+  updateBrand: (id, data) => {
+    if (data instanceof FormData) {
+      data.append('_method', 'PUT');
+      return api.post(`/admin/brands/${id}`, data);
+    }
+    return api.put(`/admin/brands/${id}`, data);
+  },
   deleteBrand: (id) => api.delete(`/admin/brands/${id}`),
 
   // Categories
@@ -38,6 +44,18 @@ export const adminApi = {
     return api.put(`/admin/categories/${id}`, data);
   },
   deleteCategory: (id) => api.delete(`/admin/categories/${id}`),
+
+  // Sections
+  listSections: (params) => api.get('/admin/sections', { params }),
+  createSection: (data) => api.post('/admin/sections', data),
+  updateSection: (id, data) => {
+    if (data instanceof FormData) {
+      data.append('_method', 'PUT');
+      return api.post(`/admin/sections/${id}`, data);
+    }
+    return api.put(`/admin/sections/${id}`, data);
+  },
+  deleteSection: (id) => api.delete(`/admin/sections/${id}`),
 
   // Users
   listUsers: (params) => api.get('/admin/users', { params }),

@@ -7,7 +7,14 @@ use Illuminate\Support\Facades\Storage;
 
 class Category extends Model
 {
-    protected $fillable = ['name', 'slug', 'description', 'image']; // image au lieu de image_path
+    protected $fillable = ['name', 'slug', 'description', 'image', 'section_id']; // image au lieu de image_path
+
+    protected $appends = ['image_url'];
+
+    public function section()
+    {
+        return $this->belongsTo(Section::class);
+    }
 
    public function getImageUrlAttribute(): ?string
     {

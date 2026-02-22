@@ -12,9 +12,11 @@ const MessagesPage = () => {
     setLoading(true);
     try {
       const res = await adminApi.listMessages({ page, per_page: 15 });
-      const paginated = res.data.data;
-      setItems(paginated.data);
-      setMeta({ current_page: paginated.current_page, last_page: paginated.last_page });
+      const paginated = res?.data?.data;
+      if (paginated) {
+        setItems(paginated.data || []);
+        setMeta({ current_page: paginated.current_page, last_page: paginated.last_page });
+      }
     } catch (e) {
       console.error(e);
       toast.error('Impossible de charger les messages');

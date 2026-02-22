@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\v1\Admin\BrandController as AdminBrandController;
 use App\Http\Controllers\Api\v1\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\v1\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\v1\Admin\ContactMessageController as AdminContactMessageController;
+use App\Http\Controllers\Api\v1\Admin\SectionController as AdminSectionController;
 use App\Http\Controllers\Api\v1\PasswordResetController;
 
 /*
@@ -42,6 +43,9 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     // Routes pour les marques (BrandController)
     Route::get('/brands', [BrandController::class, 'index']);
     Route::get('/brands/{slug}/products', [BrandController::class, 'products']);
+
+    // Sections publiques
+    Route::get('/sections', [\App\Http\Controllers\Api\v1\Admin\SectionController::class, 'index']);
 
     // Contact messages (public)
     Route::post('/contact/messages', [ContactMessageController::class, 'store']);
@@ -91,6 +95,13 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             Route::get('/admin/categories/{id}', [AdminCategoryController::class, 'show']);
             Route::put('/admin/categories/{id}', [AdminCategoryController::class, 'update']);
             Route::delete('/admin/categories/{id}', [AdminCategoryController::class, 'destroy']);
+
+            // Sections
+            Route::get('/admin/sections', [AdminSectionController::class, 'index']);
+            Route::post('/admin/sections', [AdminSectionController::class, 'store']);
+            Route::get('/admin/sections/{id}', [AdminSectionController::class, 'show']);
+            Route::put('/admin/sections/{id}', [AdminSectionController::class, 'update']);
+            Route::delete('/admin/sections/{id}', [AdminSectionController::class, 'destroy']);
 
             // Users
             Route::get('/admin/users', [AdminUserController::class, 'index']);

@@ -9,7 +9,12 @@ class CategoryRequest extends BaseApiRequest
 {
     public function rules(): array
     {
-        $categoryId = $this->route('id');
+        $categoryId = $this->route('id') ?? $this->id;
+        \Illuminate\Support\Facades\Log::info('CategoryRequest checking ID:', [
+            'route_id' => $this->route('id'),
+            'body_id' => $this->id,
+            'determined' => $categoryId
+        ]);
 
         return [
             'name' => [
@@ -20,6 +25,7 @@ class CategoryRequest extends BaseApiRequest
             ],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            'section_id' => ['nullable', 'exists:sections,id'],
         ];
     }
 }

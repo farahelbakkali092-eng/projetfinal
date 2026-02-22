@@ -15,19 +15,26 @@ const Header = ({ onLoginClick, onCartClick }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState([]);
+  const [sections, setSections] = useState([]);
+  const [activeSection, setActiveSection] = useState(null);
+  const [showSubMenu, setShowSubMenu] = useState(false);
 
-  // Récupération dynamique des catégories pour le menu
+  // Récupération dynamique des catégories et sections pour le menu
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchMenuData = async () => {
       try {
-        const res = await api.get('/products/categories');
-        const apiCategories = Array.isArray(res?.data?.data) ? res.data.data : [];
-        setCategories(apiCategories);
+        const [catRes, secRes] = await Promise.all([
+          api.get('/products/categories'),
+          api.get('/sections')
+        ]);
+
+        setCategories(Array.isArray(catRes?.data?.data) ? catRes.data.data : []);
+        setSections(Array.isArray(secRes?.data?.data) ? secRes.data.data : []);
       } catch (error) {
-        console.error("Error fetching categories in Header:", error);
+        console.error("Error fetching menu data in Header:", error);
       }
     };
-    fetchCategories();
+    fetchMenuData();
   }, []);
 
   const cartCount = cartItems.length;
@@ -41,15 +48,32 @@ const Header = ({ onLoginClick, onCartClick }) => {
     }
   };
 
-  // Construction des liens de navigation (Dynamique + Fixes)
+  // Construction des liens de navigation
   const navLinks = [
-    { label: "NOUVEAUTÉS", path: "/" },
-    ...categories.map(cat => ({
-      label: cat.name.toUpperCase(),
-      path: `/category/${cat.slug || cat.id}`
+    { label: "NOUVEAUTÉS", path: "/", type: 'link' },
+    ...sections.map(sec => ({
+      label: sec.name.toUpperCase(),
+      id: sec.id,
+      type: 'section'
     })),
-    { label: "OFFRES", path: "/promotions" },
+    { label: "OFFRES", path: "/promotions", type: 'link' },
   ];
+
+  const handleSectionClick = (sectionId) => {
+    if (activeSection === sectionId) {
+      setShowSubMenu(!showSubMenu);
+    } else {
+      setActiveSection(sectionId);
+      setShowSubMenu(true);
+    }
+  };
+
+  const handleMouseEnterSection = (sectionId) => {
+    setActiveSection(sectionId);
+    setShowSubMenu(true);
+  };
+
+  const activeCategories = categories.filter(cat => cat.section_id === activeSection);
 
   return (
     <>
@@ -128,27 +152,86 @@ const Header = ({ onLoginClick, onCartClick }) => {
           </div>
 
           {/* Navigation Desktop */}
-          <nav className="desktop-nav-center">
+          <nav className="desktop-nav-center" onMouseLeave={() => setShowSubMenu(false)}>
             {navLinks.map((link) => (
-              <Link key={link.label} to={link.path} className="nav-link-elegant">
-                {link.label}
-              </Link>
+              link.type === 'section' ? (
+                <button
+                  key={link.label}
+                  onClick={() => handleSectionClick(link.id)}
+                  onMouseEnter={() => handleMouseEnterSection(link.id)}
+                  className={`nav-link-elegant ${activeSection === link.id && showSubMenu ? 'active' : ''}`}
+                >
+                  {link.label}
+                </button>
+              ) : (
+                <Link key={link.label} to={link.path} className="nav-link-elegant">
+                  {link.label}
+                </Link>
+              )
             ))}
           </nav>
+
+          {/* Sub-menu Dynamique pour les catégories */}
+          {showSubMenu && activeCategories.length > 0 && (
+            <div
+              className="header-submenu animate-fade-in-down"
+              onMouseEnter={() => setShowSubMenu(true)}
+              onMouseLeave={() => setShowSubMenu(false)}
+            >
+              <div className="submenu-container">
+                {activeCategories.map(cat => (
+                  <Link
+                    key={cat.id}
+                    to={`/category/${cat.slug || cat.id}`}
+                    className="submenu-link"
+                    onClick={() => setShowSubMenu(false)}
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Menu Mobile Dropdown */}
         {isMobileOpen && (
           <nav className="mobile-nav">
             {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                to={link.path}
-                className="mobile-nav-link"
-                onClick={() => setIsMobileOpen(false)}
-              >
-                {link.label}
-              </Link>
+              link.type === 'section' ? (
+                <div key={link.label}>
+                  <button
+                    className={`mobile-nav-link w-full text-left flex justify-between items-center ${activeSection === link.id ? 'active' : ''}`}
+                    onClick={() => setActiveSection(activeSection === link.id ? null : link.id)}
+                  >
+                    {link.label}
+                    <span>{activeSection === link.id ? '-' : '+'}</span>
+                  </button>
+                  {activeSection === link.id && (
+                    <div className="mobile-submenu">
+                      {categories.filter(c => c.section_id === link.id).map(cat => (
+                        <Link
+                          key={cat.id}
+                          to={`/category/${cat.slug || cat.id}`}
+                          className="mobile-submenu-link"
+                          onClick={() => setIsMobileOpen(false)}
+                        >
+                          {cat.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  key={link.label}
+                  to={link.path}
+                  className="mobile-nav-link"
+                  onClick={() => setIsMobileOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              )
             ))}
             {user && !isAdmin && (
               <Link to="/account" className="mobile-nav-link" onClick={() => setIsMobileOpen(false)}>

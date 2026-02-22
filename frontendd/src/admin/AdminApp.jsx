@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AdminLayout from './AdminLayout';
 import DashboardPage from './pages/DashboardPage';
+import SectionsPage from './pages/SectionsPage';
 import ProductsPage from './pages/ProductsPage';
 import BrandsPage from './pages/BrandsPage';
 import CategoriesPage from './pages/CategoriesPage';
@@ -17,6 +18,7 @@ const AdminApp = () => {
       <Route element={<AdminLayout />}>
         <Route index element={<DashboardPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="sections" element={<SectionsPage />} />
         <Route path="informations" element={<AccountInfoPage />} />
 
         <Route path="produits" element={<ProductsPage />} />

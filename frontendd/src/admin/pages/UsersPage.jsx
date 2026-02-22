@@ -19,10 +19,12 @@ const UsersPage = () => {
         adminApi.listRoles(),
       ]);
 
-      const paginated = usersRes.data.data;
-      setItems(paginated.data);
-      setMeta({ current_page: paginated.current_page, last_page: paginated.last_page });
-      setRoles(rolesRes.data.data);
+      const paginated = usersRes?.data?.data;
+      if (paginated) {
+        setItems(paginated.data || []);
+        setMeta({ current_page: paginated.current_page, last_page: paginated.last_page });
+      }
+      setRoles(rolesRes?.data?.data || []);
     } catch (e) {
       console.error(e);
       toast.error('Impossible de charger les utilisateurs');
@@ -42,19 +44,29 @@ const UsersPage = () => {
       toast.success('Rôle mis à jour');
       await load(meta?.current_page || 1);
     } catch (e) {
-      console.error(e);
-      toast.error(e.response?.data?.message || 'Erreur');
+      console.error('Admin: Error updating role:', e);
+      if (e.response?.data?.errors) {
+        const errs = e.response.data.errors;
+        Object.values(errs).flat().forEach((msg) => toast.error(String(msg)));
+      } else {
+        toast.error(e.response?.data?.message || 'Erreur changement rôle');
+      }
     }
   };
 
-  const setUserActive = async (userId, isActive) => {
+  const onUpdateStatus = async (id, status) => {
     try {
-      await adminApi.updateUserStatus(userId, isActive);
+      await adminApi.updateUserStatus(id, status);
       toast.success('Statut mis à jour');
       await load(meta?.current_page || 1);
     } catch (e) {
-      console.error(e);
-      toast.error(e.response?.data?.message || 'Erreur');
+      console.error('Admin: Error updating status:', e);
+      if (e.response?.data?.errors) {
+        const errs = e.response.data.errors;
+        Object.values(errs).flat().forEach((msg) => toast.error(String(msg)));
+      } else {
+        toast.error(e.response?.data?.message || 'Erreur changement statut');
+      }
     }
   };
 
@@ -113,7 +125,7 @@ const UsersPage = () => {
                 <td>
                   <button
                     className={u.is_active ? 'admin-btn secondary' : 'admin-btn'}
-                    onClick={() => setUserActive(u.id, !u.is_active)}
+                    onClick={() => onUpdateStatus(u.id, !u.is_active)}
                   >
                     {u.is_active ? 'Actif' : 'Désactivé'}
                   </button>

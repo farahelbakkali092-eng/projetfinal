@@ -4,7 +4,7 @@ import { adminApi } from '../api';
 import AdminModal from '../components/AdminModal';
 import AdminTableActions from '../components/AdminTableActions';
 
-const emptyForm = { name: '', description: '', image: null };
+const emptyForm = { name: '', description: '', image: null, section_id: '' };
 
 const CategoriesPage = () => {
   const [items, setItems] = useState([]);
@@ -15,18 +15,33 @@ const CategoriesPage = () => {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [sections, setSections] = useState([]);
   const title = useMemo(() => (editing ? 'Modifier une catégorie' : 'Ajouter une catégorie'), [editing]);
 
   const load = async (page = 1) => {
     setLoading(true);
     try {
-      const res = await adminApi.listCategories({ search, page, per_page: 15 });
-      const paginated = res.data.data;
-      setItems(paginated.data);
-      setMeta({ current_page: paginated.current_page, last_page: paginated.last_page });
+      const [catRes, secRes] = await Promise.all([
+        adminApi.listCategories({ search, page, per_page: 15 }),
+        adminApi.listSections()
+      ]);
+
+      const paginated = catRes?.data?.data || catRes?.data;
+      if (paginated && paginated.data) {
+        setItems(paginated.data);
+        setMeta({ current_page: paginated.current_page, last_page: paginated.last_page });
+      } else if (Array.isArray(paginated)) {
+        setItems(paginated);
+      }
+      setSections(secRes?.data?.data || []);
     } catch (e) {
-      console.error(e);
-      toast.error('Impossible de charger les catégories');
+      console.error('Admin: Error loading categories:', e);
+      if (e.response?.data?.errors) {
+        const errs = e.response.data.errors;
+        Object.values(errs).flat().forEach((msg) => toast.error(String(msg)));
+      } else {
+        toast.error(e.response?.data?.message || 'Impossible de charger les catégories');
+      }
     } finally {
       setLoading(false);
     }
@@ -47,6 +62,9 @@ const CategoriesPage = () => {
       const fd = new FormData();
       fd.append('name', form.name);
       fd.append('description', form.description || '');
+      if (form.section_id) {
+        fd.append('section_id', form.section_id);
+      }
       if (form.image) {
         fd.append('image', form.image);
       }
@@ -64,14 +82,24 @@ const CategoriesPage = () => {
       setForm(emptyForm);
       await load(meta?.current_page || 1);
     } catch (e) {
-      console.error(e);
-      toast.error(e.response?.data?.message || 'Erreur');
+      console.error('Admin: Error submitting category:', e);
+      if (e.response?.data?.errors) {
+        const errs = e.response.data.errors;
+        Object.values(errs).flat().forEach((msg) => toast.error(String(msg)));
+      } else {
+        toast.error(e.response?.data?.message || 'Erreur lors de l\'enregistrement');
+      }
     }
   };
 
   const onEdit = (item) => {
     setEditing(item);
-    setForm({ name: item.name || '', description: item.description || '', image: null });
+    setForm({
+      name: item.name || '',
+      description: item.description || '',
+      image: null,
+      section_id: item.section_id || ''
+    });
     setOpen(true);
   };
 
@@ -130,6 +158,7 @@ const CategoriesPage = () => {
               <th>Image</th>
               <th>ID</th>
               <th>Nom</th>
+              <th>Section</th>
               <th>Slug</th>
               <th style={{ width: 220 }}>Actions</th>
             </tr>
@@ -150,6 +179,13 @@ const CategoriesPage = () => {
                 </td>
                 <td>{c.id}</td>
                 <td>{c.name}</td>
+                <td>
+                  {c.section ? (
+                    <span className="admin-badge secondary">{c.section.name}</span>
+                  ) : (
+                    <span className="admin-muted">Aucune</span>
+                  )}
+                </td>
                 <td><span className="admin-badge">{c.slug}</span></td>
                 <td>
                   <AdminTableActions
@@ -204,6 +240,19 @@ const CategoriesPage = () => {
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>Description</div>
             <input className="admin-input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          </div>
+          <div style={{ gridColumn: '1 / -1' }}>
+            <div className="admin-muted" style={{ marginBottom: 6 }}>Section parente</div>
+            <select
+              className="admin-input"
+              value={form.section_id}
+              onChange={(e) => setForm({ ...form, section_id: e.target.value })}
+            >
+              <option value="">Sélectionner une session...</option>
+              {sections.map(s => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
             <div className="admin-muted" style={{ marginBottom: 6 }}>Image</div>
