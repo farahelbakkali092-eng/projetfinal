@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, Tags, Grid2X2, ClipboardList, Users, Mail, ExternalLink, LogOut, User } from 'lucide-react';
+import { LayoutDashboard, Package, Tags, Grid2X2, ClipboardList, Users, Mail, ExternalLink, LogOut, User, LayoutGrid } from 'lucide-react';
 import AdminHeader from './AdminHeader';
 import { useAuth } from '../context/AuthContext';
 import './admin.css';
@@ -24,6 +24,9 @@ const AdminLayout = () => {
             <nav className="admin-nav">
               <NavLink end to="/admin">
                 <LayoutDashboard size={18} /> Dashboard
+              </NavLink>
+              <NavLink to="/admin/sections">
+                <LayoutGrid size={18} /> Sections
               </NavLink>
               <NavLink to="/admin/produits">
                 <Package size={18} /> Produits

@@ -19,6 +19,8 @@ const Home = () => {
   const { addToCart } = useCart();
   const { isAdmin } = useAuth();
   const [categories, setCategories] = useState([]);
+  const [sessions, setSessions] = useState([]);
+  const [selectedSection, setSelectedSection] = useState(null);
   const [bestSellers, setBestSellers] = useState([]);
   const [onSaleProducts, setOnSaleProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,14 +37,24 @@ const Home = () => {
     const fetchHomeData = async () => {
       try {
         // Chargement parallèle des données
-        const [catRes, bestRes, saleRes] = await Promise.all([
+        const [catRes, secRes, bestRes, saleRes] = await Promise.all([
           api.get('/products/categories'),
+          api.get('/sections'),
           api.get('/products/best-sellers?limit=4'),
           api.get('/products/on-sale?limit=4')
         ]);
 
         const apiCategories = Array.isArray(catRes?.data?.data) ? catRes.data.data : [];
+        const apiSessions = Array.isArray(secRes?.data?.data) ? secRes.data.data : [];
+
         setCategories(apiCategories);
+        setSessions(apiSessions);
+
+        // Auto-select first session if exists
+        if (apiSessions.length > 0) {
+          setSelectedSection(apiSessions[0].id);
+        }
+
         setCategoriesError(false);
 
         setBestSellers(bestRes.data.data || []);
@@ -102,42 +114,70 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 3. SHOP BY CATEGORY */}
-      {!categoriesError && categories.length > 0 && (
+      {/* 3. SHOP BY SESSION & CATEGORY */}
+      {!categoriesError && sessions.length > 0 && (
         <section id="categories" className="categories-section section-padding">
           <div className="container">
             <div className="section-header text-center">
               <p className="section-subtitle">EXPLORE</p>
-              <h2 className="section-title">Shop by Category</h2>
+              <h2 className="section-title">Nos Collections</h2>
+            </div>
+
+            {/* Session Tabs/Selectors */}
+            <div className="sessions-tabs flex justify-center gap-4 mb-12">
+              {sessions.map((session) => (
+                <button
+                  key={session.id}
+                  onClick={() => setSelectedSection(session.id)}
+                  className={`session-tab-btn ${selectedSection === session.id ? 'active' : ''}`}
+                >
+                  {session.name}
+                </button>
+              ))}
             </div>
 
             <div className="categories-grid">
-              {categories.map((cat) => (
-                <Link to={`/category/${cat.slug || cat.id}`} key={cat.id || cat.name} className="category-card group">
-                  <img
-                    src={(() => {
-                      const raw = cat.image_url || cat.image || null;
-                      if (!raw) return 'https://placehold.co/600x400?text=Category';
-                      const absolute = typeof raw === 'string' && raw.startsWith('http')
-                        ? raw
-                        : `${backendOrigin}${raw.startsWith('/') ? '' : '/'}${raw}`;
-                      return absolute;
-                    })()}
-                    alt={cat.name}
-                    className="cat-img"
-                  />
-                  <div className="cat-overlay" />
-                  <div className="cat-content">
-                    <h3 className="cat-name">{cat.name}</h3>
-                    <p className="cat-count">
-                      {cat.products_count !== undefined
-                        ? `${cat.products_count} produits`
-                        : (cat.count || 'Découvrir')}
-                    </p>
-                  </div>
-                </Link>
-              ))}
+              {categories
+                .filter(cat => cat.section_id === selectedSection)
+                .map((cat) => (
+                  <Link to={`/category/${cat.slug || cat.id}`} key={cat.id || cat.name} className="category-card group">
+                    <img
+                      src={(() => {
+                        if (cat.image_url) return cat.image_url;
+                        const raw = cat.image || null;
+                        if (!raw) return 'https://placehold.co/600x400?text=Category';
+
+                        // Fallback: if it's already an absolute URL
+                        if (typeof raw === 'string' && raw.startsWith('http')) return raw;
+
+                        // Fallback: append /storage/ if missing and prepend backendOrigin
+                        const path = raw.startsWith('categories/') || raw.startsWith('brands/')
+                          ? `/storage/${raw}`
+                          : (raw.startsWith('/') ? raw : `/${raw}`);
+
+                        return `${backendOrigin}${path}`;
+                      })()}
+                      alt={cat.name}
+                      className="cat-img"
+                    />
+                    <div className="cat-overlay" />
+                    <div className="cat-content">
+                      <h3 className="cat-name">{cat.name}</h3>
+                      <p className="cat-count">
+                        {cat.products_count !== undefined
+                          ? `${cat.products_count} produits`
+                          : (cat.count || 'Découvrir')}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
             </div>
+
+            {categories.filter(cat => cat.section_id === selectedSection).length === 0 && (
+              <div className="text-center py-10 admin-muted">
+                Aucune catégorie dans cette session pour le moment.
+              </div>
+            )}
           </div>
         </section>
       )}

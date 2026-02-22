@@ -12,12 +12,19 @@ const OrdersPage = () => {
     setLoading(true);
     try {
       const res = await adminApi.listOrders({ page, per_page: 15 });
-      const paginated = res.data.data;
-      setItems(paginated.data);
-      setMeta({ current_page: paginated.current_page, last_page: paginated.last_page });
+      const paginated = res?.data?.data;
+      if (paginated) {
+        setItems(paginated.data || []);
+        setMeta({ current_page: paginated.current_page, last_page: paginated.last_page });
+      }
     } catch (e) {
-      console.error(e);
-      toast.error('Impossible de charger les commandes');
+      console.error('Admin: Error updating order status:', e);
+      if (e.response?.data?.errors) {
+        const errs = e.response.data.errors;
+        Object.values(errs).flat().forEach((msg) => toast.error(String(msg)));
+      } else {
+        toast.error(e.response?.data?.message || 'Erreur lors de la mise à jour');
+      }
     } finally {
       setLoading(false);
     }

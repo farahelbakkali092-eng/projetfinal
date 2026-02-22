@@ -4,7 +4,7 @@ import { adminApi } from '../api';
 import AdminModal from '../components/AdminModal';
 import AdminTableActions from '../components/AdminTableActions';
 
-const emptyForm = { name: '', description: '' };
+const emptyForm = { name: '', description: '', image: null };
 
 const BrandsPage = () => {
   const [items, setItems] = useState([]);
@@ -21,9 +21,11 @@ const BrandsPage = () => {
     setLoading(true);
     try {
       const res = await adminApi.listBrands({ search, page, per_page: 15 });
-      const paginated = res.data.data;
-      setItems(paginated.data);
-      setMeta({ current_page: paginated.current_page, last_page: paginated.last_page });
+      const paginated = res?.data?.data;
+      if (paginated) {
+        setItems(paginated.data || []);
+        setMeta({ current_page: paginated.current_page, last_page: paginated.last_page });
+      }
     } catch (e) {
       console.error(e);
       toast.error('Impossible de charger les marques');
@@ -44,11 +46,18 @@ const BrandsPage = () => {
         return;
       }
 
+      const fd = new FormData();
+      fd.append('name', form.name);
+      fd.append('description', form.description || '');
+      if (form.image) {
+        fd.append('image', form.image);
+      }
+
       if (editing) {
-        await adminApi.updateBrand(editing.id, form);
+        await adminApi.updateBrand(editing.id, fd);
         toast.success('Marque mise à jour');
       } else {
-        await adminApi.createBrand(form);
+        await adminApi.createBrand(fd);
         toast.success('Marque créée');
       }
 
@@ -57,14 +66,19 @@ const BrandsPage = () => {
       setForm(emptyForm);
       await load(meta?.current_page || 1);
     } catch (e) {
-      console.error(e);
-      toast.error(e.response?.data?.message || 'Erreur');
+      console.error('Admin: Error submitting brand:', e);
+      if (e.response?.data?.errors) {
+        const errs = e.response.data.errors;
+        Object.values(errs).flat().forEach((msg) => toast.error(String(msg)));
+      } else {
+        toast.error(e.response?.data?.message || 'Erreur lors de l\'enregistrement');
+      }
     }
   };
 
   const onEdit = (item) => {
     setEditing(item);
-    setForm({ name: item.name || '', description: item.description || '' });
+    setForm({ name: item.name || '', description: item.description || '', image: null });
     setOpen(true);
   };
 
@@ -120,6 +134,7 @@ const BrandsPage = () => {
         <table className="admin-table">
           <thead>
             <tr>
+              <th>Image</th>
               <th>ID</th>
               <th>Nom</th>
               <th>Slug</th>
@@ -129,6 +144,17 @@ const BrandsPage = () => {
           <tbody>
             {items.map((b) => (
               <tr key={b.id}>
+                <td>
+                  {b.image_url ? (
+                    <img
+                      src={b.image_url}
+                      alt={b.name}
+                      style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border-light)' }}
+                    />
+                  ) : (
+                    <span className="admin-muted">-</span>
+                  )}
+                </td>
                 <td>{b.id}</td>
                 <td>{b.name}</td>
                 <td><span className="admin-badge">{b.slug}</span></td>
@@ -185,6 +211,27 @@ const BrandsPage = () => {
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>Description</div>
             <input className="admin-input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          </div>
+          <div style={{ gridColumn: '1 / -1' }}>
+            <div className="admin-muted" style={{ marginBottom: 6 }}>Image</div>
+            <input
+              className="admin-input"
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/webp"
+              onChange={(e) => setForm({ ...form, image: e.target.files?.[0] || null })}
+            />
+            {editing?.image_url && !form.image && (
+              <div className="admin-muted" style={{ marginTop: 8 }}>
+                Image actuelle:
+                <div style={{ marginTop: 6 }}>
+                  <img
+                    src={editing.image_url}
+                    alt={editing.name}
+                    style={{ width: 90, height: 90, objectFit: 'cover', borderRadius: 10, border: '1px solid var(--border-light)' }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </AdminModal>

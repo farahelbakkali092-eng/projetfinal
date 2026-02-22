@@ -16,7 +16,26 @@ class ProductRepository extends BaseRepository
 
     public function search(array $filters)
     {
-        // ... Ton code actuel pour search() est très bien ...
+        $query = $this->model->query()->with(['category', 'brand', 'images']);
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'ILIKE', "%{$search}%")
+                  ->orWhere('description', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        if (!empty($filters['category_id'])) {
+            $query->where('category_id', $filters['category_id']);
+        }
+
+        if (!empty($filters['brand_id'])) {
+            $query->where('brand_id', $filters['brand_id']);
+        }
+
+        $perPage = $filters['per_page'] ?? 15;
+        return $query->orderByDesc('id')->paginate($perPage);
     }
 
     public function bestSellers($limit = 8)

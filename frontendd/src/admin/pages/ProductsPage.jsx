@@ -23,6 +23,7 @@ const ProductsPage = () => {
 
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [sections, setSections] = useState([]);
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -33,19 +34,32 @@ const ProductsPage = () => {
   const load = async (page = 1) => {
     setLoading(true);
     try {
-      const [productsRes, brandsRes, categoriesRes] = await Promise.all([
+      const [productsRes, brandsRes, categoriesRes, sectionsRes] = await Promise.all([
         adminApi.listProducts({ search, page, per_page: 12 }),
         adminApi.listBrands({ per_page: 100 }),
         adminApi.listCategories({ per_page: 100 }),
+        adminApi.listSections({ per_page: 100 }),
       ]);
 
-      const paginated = productsRes.data.data;
-      setItems(paginated.data);
-      setMeta({ current_page: paginated.current_page, last_page: paginated.last_page });
-      setBrands(brandsRes.data.data.data);
-      setCategories(categoriesRes.data.data.data);
+      console.log('Admin: Products load() response:', { productsRes, brandsRes, categoriesRes });
+
+      const paginated = productsRes?.data?.data || productsRes?.data;
+      if (paginated && paginated.data) {
+        setItems(paginated.data);
+        setMeta({ current_page: paginated.current_page, last_page: paginated.last_page });
+      } else if (Array.isArray(paginated)) {
+        setItems(paginated);
+      }
+
+      const bData = brandsRes?.data?.data?.data || brandsRes?.data?.data || brandsRes?.data;
+      setBrands(Array.isArray(bData) ? bData : (bData?.data || []));
+
+      const cData = categoriesRes?.data?.data?.data || categoriesRes?.data?.data || categoriesRes?.data;
+      setCategories(Array.isArray(cData) ? cData : (cData?.data || []));
+
+      setSections(sectionsRes?.data?.data || []);
     } catch (e) {
-      console.error(e);
+      console.error('Admin: Error loading products:', e);
       toast.error('Impossible de charger les produits');
     } finally {
       setLoading(false);
@@ -66,7 +80,7 @@ const ProductsPage = () => {
       stock: p.stock || 0,
       category_id: p.category_id || p.category?.id || '',
       brand_id: p.brand_id || p.brand?.id || '',
-      skin_type_id: p.skin_type_id || p.skinType?.id || '',
+      section_id: p.section_id || p.section?.id || '',
       image: null,
     });
     setOpen(true);
@@ -97,10 +111,15 @@ const ProductsPage = () => {
       fd.append('description', form.description);
       fd.append('price', String(Number(form.price)));
       fd.append('stock', String(Number(form.stock)));
-      fd.append('category_id', String(Number(form.category_id)));
-      fd.append('brand_id', String(Number(form.brand_id)));
-      fd.append('section_id', String(Number(form.section_id)));
+      fd.append('category_id', String(form.category_id));
+      fd.append('brand_id', String(form.brand_id));
+
+      if (form.section_id) {
+        fd.append('section_id', String(form.section_id));
+      }
+
       if (form.image) {
+        // Use images[] instead of images[0] to ensure Laravel always sees it as an array
         fd.append('images[]', form.image);
       }
 
@@ -179,31 +198,38 @@ const ProductsPage = () => {
                 const mainImg = (p.images || []).find((im) => im.is_main) || (p.images || [])[0];
                 const url = mainImg?.image_url;
                 return (
-              <tr key={p.id}>
-                <td>
-                  {url ? (
-                    <img
-                      src={url}
-                      alt={p.name}
-                      style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border-light)' }}
-                    />
-                  ) : (
-                    <span className="admin-muted">-</span>
-                  )}
-                </td>
-                <td>{p.id}</td>
-                <td>{p.name}</td>
-                <td>{p.category?.name || p.category_id}</td>
-                <td>{p.brand?.name || p.brand_id}</td>
-                <td>{p.price}</td>
-                <td><span className="admin-badge">{p.stock}</span></td>
-                <td>
-                  <AdminTableActions
-                    onEdit={() => onEdit(p)}
-                    onDelete={() => onDelete(p)}
-                  />
-                </td>
-              </tr>
+                  <tr key={p.id}>
+                    <td>
+                      {url ? (
+                        <img
+                          src={url}
+                          alt={p.name}
+                          style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border-light)' }}
+                        />
+                      ) : (
+                        <span className="admin-muted">-</span>
+                      )}
+                    </td>
+                    <td>{p.id}</td>
+                    <td>{p.name}</td>
+                    <td>{p.category?.name || p.category_id}</td>
+                    <td>{p.brand?.name || p.brand_id}</td>
+                    <td>{p.price}</td>
+                    <td><span className="admin-badge">{p.stock}</span></td>
+                    <td>
+                      {p.section ? (
+                        <span className="admin-badge secondary">{p.section.name}</span>
+                      ) : (
+                        <span className="admin-muted">Aucune</span>
+                      )}
+                    </td>
+                    <td>
+                      <AdminTableActions
+                        onEdit={() => onEdit(p)}
+                        onDelete={() => onDelete(p)}
+                      />
+                    </td>
+                  </tr>
                 );
               })()
             ))}
@@ -272,6 +298,15 @@ const ProductsPage = () => {
               <option value="">-- Choisir --</option>
               {brands.map((b) => (
                 <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <div className="admin-muted" style={{ marginBottom: 6 }}>Section</div>
+            <select className="admin-input" value={form.section_id} onChange={(e) => setForm({ ...form, section_id: e.target.value })}>
+              <option value="">-- Aucune --</option>
+              {sections.map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
           </div>
