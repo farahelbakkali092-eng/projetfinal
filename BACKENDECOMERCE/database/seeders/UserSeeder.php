@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
                 ['email' => 'admin@cosmetic.com'],
                 [
                     'first_name' => 'Admin',
-                    'phone' => '12345678',
+                    'phone' => '0693607645',
                     'password' => 'Admin@123', // Auto-hashed par le Model cast
                     'role_id' => $adminRole->id,
                     'is_active' => true,

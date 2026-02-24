@@ -72,4 +72,13 @@ class User extends Authenticatable
     {
         return (bool) ($this->is_active ?? true);
     }
+
+    /**
+     * Override the default password reset notification to point to the frontend.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $url = env('FRONTEND_URL') . '/reset-password?token=' . $token . '&email=' . $this->email;
+        $this->notify(new \App\Notifications\ResetPasswordNotification($url));
+    }
 }

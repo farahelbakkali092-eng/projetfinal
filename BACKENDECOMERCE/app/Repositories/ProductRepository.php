@@ -16,7 +16,7 @@ class ProductRepository extends BaseRepository
 
     public function search(array $filters)
     {
-        $query = $this->model->query()->with(['category', 'brand', 'images']);
+        $query = $this->model->query()->with(['category', 'brand', 'images', 'section']);
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
@@ -41,7 +41,7 @@ class ProductRepository extends BaseRepository
     public function bestSellers($limit = 8)
     {
         return $this->model->query()
-            ->with(['category', 'brand', 'images'])
+            ->with(['category', 'brand', 'images', 'section'])
             ->limit($limit)
             ->get();
     }
@@ -50,7 +50,7 @@ class ProductRepository extends BaseRepository
     {
         return $this->model->query()
             ->onSale() // 2. MAGIQUE : On utilise le scope défini dans ton Modèle Product !
-            ->with(['category', 'brand', 'images'])
+            ->with(['category', 'brand', 'images', 'section'])
             ->limit($limit)
             ->get();
     }

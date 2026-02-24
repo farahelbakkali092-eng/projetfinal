@@ -100,38 +100,24 @@ const UsersPage = () => {
               <th>Email</th>
               <th>Téléphone</th>
               <th>Rôle</th>
-              <th>Actif</th>
             </tr>
           </thead>
           <tbody>
-            {items.map((u) => (
-              <tr key={u.id}>
-                <td>{u.id}</td>
-                <td>{u.first_name} {u.last_name}</td>
-                <td>{u.email}</td>
-                <td>{u.phone}</td>
-                <td>
-                  <select
-                    className="admin-input"
-                    value={u.role_id}
-                    onChange={(e) => setUserRole(u.id, e.target.value)}
-                    style={{ maxWidth: 160 }}
-                  >
-                    {roleOptions.map((r) => (
-                      <option key={r.id} value={r.id}>{r.name}</option>
-                    ))}
-                  </select>
-                </td>
-                <td>
-                  <button
-                    className={u.is_active ? 'admin-btn secondary' : 'admin-btn'}
-                    onClick={() => onUpdateStatus(u.id, !u.is_active)}
-                  >
-                    {u.is_active ? 'Actif' : 'Désactivé'}
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {items
+              .filter((u) => u.role?.name !== 'admin')
+              .map((u) => (
+                <tr key={u.id}>
+                  <td>{u.id}</td>
+                  <td>{u.first_name} {u.last_name}</td>
+                  <td>{u.email}</td>
+                  <td>{u.phone}</td>
+                  <td>
+                    <span className="admin-badge secondary">
+                      {u.role?.name || 'Client'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       )}

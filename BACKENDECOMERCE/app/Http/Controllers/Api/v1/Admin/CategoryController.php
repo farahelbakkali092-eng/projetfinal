@@ -34,7 +34,7 @@ class CategoryController extends Controller
         // correcting the `paginate` line.
         // However, please note this logging might not provide the intended data
         // in this controller context.
-        $categories = $query->orderBy('name')->paginate($request->integer('per_page', 15));
+        $categories = $query->with('section')->orderBy('name')->paginate($request->integer('per_page', 15));
 
         return $this->successResponse($categories, 'Categories retrieved successfully');
     }
