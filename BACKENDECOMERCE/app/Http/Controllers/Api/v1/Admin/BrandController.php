@@ -32,11 +32,6 @@ class BrandController extends Controller
         $data = $request->validated();
         $data['slug'] = Str::slug($data['name']);
 
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('brands', 'public');
-            $data['image'] = $path;
-        }
-
         $brand = Brand::create($data);
 
         return $this->successResponse($brand, 'Brand created successfully', 201);
@@ -64,16 +59,6 @@ class BrandController extends Controller
         $data = $request->validated();
         $data['slug'] = Str::slug($data['name']);
 
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($brand->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($brand->image)) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($brand->image);
-            }
-            
-            $path = $request->file('image')->store('brands', 'public');
-            $data['image'] = $path;
-        }
-
         $brand->update($data);
 
         return $this->successResponse($brand, 'Brand updated successfully');
@@ -85,10 +70,6 @@ class BrandController extends Controller
 
         if (!$brand) {
             return $this->errorResponse('Brand not found', 404);
-        }
-
-        if ($brand->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($brand->image)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($brand->image);
         }
 
         $brand->delete();

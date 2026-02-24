@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import api from '../api/axios';
 import { toast } from 'react-hot-toast';
 
@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         setLoading(true);
         try {
-          
+
             const response = await api.post('/login', { email, password });
             const { user: userData, access_token } = response.data.data;
 
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
     const register = async (userData) => {
         setLoading(true);
         try {
-          
+
             const response = await api.post('/register', userData);
             const { user: newUser, access_token } = response.data.data;
 
@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }) => {
     const forgotPassword = async (email) => {
         setLoading(true);
         try {
-         
+
             await api.post('/forgot-password', { email });
             toast.success('Si cet email existe, un lien vous a été envoyé.');
             return true;
@@ -95,7 +95,6 @@ export const AuthProvider = ({ children }) => {
     const resetPassword = async (data) => {
         setLoading(true);
         try {
-        php
             await api.post('/reset-password', data);
             toast.success('Mot de passe réinitialisé avec succès ! Vous pouvez vous connecter.');
             return true;
@@ -107,16 +106,36 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const refreshUser = useCallback(async () => {
+        try {
+            const response = await api.get('/me');
+            const userData = response.data.data;
+            localStorage.setItem('user', JSON.stringify(userData));
+            setUser(userData);
+            return userData;
+        } catch (error) {
+            console.error('Refresh user error', error);
+            if (error.response?.status === 401) {
+                // Si non autorisé, on déconnecte proprement
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                setUser(null);
+            }
+            return null;
+        }
+    }, []);
+
     return (
-        <AuthContext.Provider value={{ 
-            user, 
-            login, 
-            register, 
-            logout, 
-            loading, 
+        <AuthContext.Provider value={{
+            user,
+            login,
+            register,
+            logout,
+            loading,
             forgotPassword,
             resetPassword,
-            isAdmin: user?.role?.name === 'admin' 
+            refreshUser,
+            isAdmin: user?.role?.name === 'admin'
         }}>
             {children}
         </AuthContext.Provider>

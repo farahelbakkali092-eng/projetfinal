@@ -29,6 +29,7 @@ import AdminApp from './admin/AdminApp';
 import AccountGuard from './account/AccountGuard';
 import AccountApp from './account/AccountApp';
 import Checkout from './pages/Checkout/Checkout';
+import ResetPassword from './pages/Auth/ResetPassword';
 
 import './App.css';
 
@@ -110,6 +111,7 @@ const App = () => {
           <Route path="/privacy" element={<Support />} />
           <Route path="/support" element={<Support />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* --- Espace Client Sécurisé --- */}
           <Route

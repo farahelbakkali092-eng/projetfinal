@@ -1,11 +1,16 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 
 const AccountInfoPage = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    refreshUser();
+  }, [refreshUser]);
+
   const [form, setForm] = useState({
     current_password: '',
     password: '',

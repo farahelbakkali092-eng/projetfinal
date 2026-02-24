@@ -27,7 +27,6 @@ const AdminHeader = () => {
             <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.6rem', color: 'var(--burgundy)' }}>
               Administration
             </div>
-            <div className="admin-muted">Connecté: {user?.email}</div>
           </div>
           <div />
         </div>
