@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ShoppingBag, Heart } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
@@ -7,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
+    const { t } = useTranslation();
     const { isAdmin } = useAuth();
     const { addToCart } = useCart();
     const { toggleFavorite, isFavorite } = useFavorites();
@@ -42,7 +44,7 @@ const ProductCard = ({ product }) => {
                     <button
                         className={`favorite-btn ${isFav ? 'active' : ''}`}
                         onClick={(e) => { e.stopPropagation(); toggleFavorite(product); }}
-                        aria-label={isFav ? "Retirer des favoris" : "Ajouter aux favoris"}
+                        aria-label={isFav ? t('favorites.remove') || "Retirer des favoris" : t('favorites.add') || "Ajouter aux favoris"}
                     >
                         <Heart
                             size={20}
@@ -63,6 +65,17 @@ const ProductCard = ({ product }) => {
                     alt={product.name}
                     className="product-main-image"
                 />
+
+                {/* Add to Cart - Hover Pill */}
+                {!isAdmin && (
+                    <button
+                        className={`add-to-cart-hover ${isAdding ? 'adding' : ''}`}
+                        onClick={handleAddToCart}
+                        disabled={isOutOfStock}
+                    >
+                        <span>{isAdding ? t('product.added') : t('product.addToCart')}</span>
+                    </button>
+                )}
             </div>
 
             {/* ── Product info (Design Luxe) ── */}
@@ -83,7 +96,7 @@ const ProductCard = ({ product }) => {
                     )}
                 </div>
             </div>
-        </article>
+        </article >
     );
 };
 

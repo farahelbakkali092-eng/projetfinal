@@ -3,6 +3,7 @@ import { toast } from 'react-hot-toast';
 import { adminApi } from '../api';
 import AdminModal from '../components/AdminModal';
 import AdminTableActions from '../components/AdminTableActions';
+import FormError from '../../components/FormError';
 
 const emptyForm = { name: '', description: '' };
 
@@ -15,6 +16,7 @@ const BrandsPage = () => {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [errors, setErrors] = useState({});
   const title = useMemo(() => (editing ? 'Modifier une marque' : 'Ajouter une marque'), [editing]);
 
   const load = async (page = 1) => {
@@ -40,11 +42,16 @@ const BrandsPage = () => {
   }, []);
 
   const onSubmit = async () => {
+    setErrors({});
     try {
-      if (!form.name.trim()) {
-        toast.error('Le nom est obligatoire');
-        return;
-      }
+      const name = form.name.trim();
+      const desc = form.description.trim();
+
+      if (name.length < 3 || name.length > 50) return toast.error('Le nom de la marque doit faire entre 3 et 50 caractères');
+      if (/^[0-9]+$/.test(name)) return toast.error('Le nom ne peut pas être composé uniquement de chiffres');
+
+      if (desc.length < 10 || desc.length > 300) return toast.error('La description doit faire entre 10 et 300 caractères');
+      if (/^[0-9]+$/.test(desc)) return toast.error('La description ne peut pas être composée uniquement de chiffres');
 
       const fd = new FormData();
       fd.append('name', form.name);
@@ -65,8 +72,7 @@ const BrandsPage = () => {
     } catch (e) {
       console.error('Admin: Error submitting brand:', e);
       if (e.response?.data?.errors) {
-        const errs = e.response.data.errors;
-        Object.values(errs).flat().forEach((msg) => toast.error(String(msg)));
+        setErrors(e.response.data.errors);
       } else {
         toast.error(e.response?.data?.message || 'Erreur lors de l\'enregistrement');
       }
@@ -76,6 +82,7 @@ const BrandsPage = () => {
   const onEdit = (item) => {
     setEditing(item);
     setForm({ name: item.name || '', description: item.description || '' });
+    setErrors({});
     setOpen(true);
   };
 
@@ -117,6 +124,7 @@ const BrandsPage = () => {
             onClick={() => {
               setEditing(null);
               setForm(emptyForm);
+              setErrors({});
               setOpen(true);
             }}
           >
@@ -192,10 +200,12 @@ const BrandsPage = () => {
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>Nom</div>
             <input className="admin-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <FormError error={errors.name} />
           </div>
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>Description</div>
             <input className="admin-input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            <FormError error={errors.description} />
           </div>
         </div>
       </AdminModal>

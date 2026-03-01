@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { adminApi } from '../api';
 import AdminModal from '../components/AdminModal';
 import AdminTableActions from '../components/AdminTableActions';
+import FormError from '../../components/FormError';
 
 const emptyForm = {
   name: '',
@@ -15,6 +16,8 @@ const emptyForm = {
   category_id: '',
   brand_id: '',
   section_id: '',
+  capacity: '',
+  reference: '',
   image: null,
 };
 
@@ -32,6 +35,7 @@ const ProductsPage = () => {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [errors, setErrors] = useState({});
   const [importErrors, setImportErrors] = useState([]);
 
   const downloadTemplate = () => {
@@ -98,8 +102,11 @@ const ProductsPage = () => {
       category_id: p.category_id || p.category?.id || '',
       brand_id: p.brand_id || p.brand?.id || '',
       section_id: p.section_id || p.section?.id || '',
+      capacity: p.capacity || '',
+      reference: p.reference || '',
       image: null,
     });
+    setErrors({});
     setOpen(true);
   };
 
@@ -118,10 +125,11 @@ const ProductsPage = () => {
   const exportToCSV = () => {
     if (items.length === 0) return toast.error('Aucun produit à exporter');
 
-    const headers = ['ID', 'Nom', 'Description', 'Prix', 'Prix Soldé', 'Remise', 'Stock', 'Catégorie', 'Marque', 'Section'];
+    const headers = ['ID', 'Nom', 'Réf', 'Description', 'Prix', 'Prix Soldé', 'Remise', 'Stock', 'Catégorie', 'Marque', 'Section', 'Contenance'];
     const rows = items.map(p => [
       p.id,
       `"${p.name.replace(/"/g, '""')}"`,
+      `"${(p.reference || '').replace(/"/g, '""')}"`,
       `"${(p.description || '').replace(/"/g, '""')}"`,
       p.price,
       p.price_sold || '',
@@ -129,7 +137,8 @@ const ProductsPage = () => {
       p.stock,
       `"${(p.category?.name || p.category_id || '').replace(/"/g, '""')}"`,
       `"${(p.brand?.name || p.brand_id || '').replace(/"/g, '""')}"`,
-      `"${(p.section?.name || '').replace(/"/g, '""')}"`
+      `"${(p.section?.name || '').replace(/"/g, '""')}"`,
+      `"${(p.capacity || '').replace(/"/g, '""')}"`
     ]);
 
     const csvContent = [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
@@ -146,30 +155,59 @@ const ProductsPage = () => {
   };
 
   const onSubmit = async () => {
+    setErrors({});
     try {
-      if (!form.name.trim()) return toast.error('Nom obligatoire');
-      if (!form.description.trim()) return toast.error('Description obligatoire');
-      if (!form.price) return toast.error('Prix obligatoire');
+      // 1. Validations Frontend Strictes
+      const name = form.name.trim();
+      const desc = form.description.trim();
+      const price = Number(form.price);
+      const stock = Number(form.stock);
+      const priceSold = form.price_sold !== '' ? Number(form.price_sold) : null;
+
+      // Check name (3-50 chars, no digits only)
+      if (name.length < 3 || name.length > 50) return toast.error('Le nom doit faire entre 3 et 50 caractères');
+      if (/^[0-9]+$/.test(name)) return toast.error('Le nom ne peut pas être composé uniquement de chiffres');
+
+      // Check description (10-300 chars, no digits only)
+      if (desc.length < 10 || desc.length > 300) return toast.error('La description doit faire entre 10 et 300 caractères');
+      if (/^[0-9]+$/.test(desc)) return toast.error('La description ne peut pas être composée uniquement de chiffres');
+
+      // Check price (10 - 10,000)
+      if (price < 10 || price > 10000) return toast.error('Le prix doit être entre 10 et 10 000 MAD');
+
+      // Check stock (0 - 50,000)
+      if (stock < 0 || stock > 50000) return toast.error('Le stock ne peut pas dépasser 50 000');
+
+      // Check promotional price
+      if (priceSold !== null) {
+        if (priceSold <= 5) return toast.error('Le prix promotionnel doit être supérieur à 5 MAD');
+        if (priceSold >= price) return toast.error('Le prix promotionnel doit être inférieur au prix normal');
+      }
+
       if (!form.category_id) return toast.error('Catégorie obligatoire');
       if (!form.brand_id) return toast.error('Marque obligatoire');
 
       const fd = new FormData();
-      fd.append('name', form.name);
-      fd.append('description', form.description);
-      fd.append('price', String(Number(form.price)));
-      if (form.price_sold !== '' && form.price_sold !== null) {
-        fd.append('price_sold', String(Number(form.price_sold)));
+      fd.append('name', name);
+      fd.append('description', desc);
+      fd.append('price', String(price));
+
+      if (priceSold !== null) {
+        fd.append('price_sold', String(priceSold));
+        // Recalculer le discount exact pour le backend au cas où
+        const disc = Math.round((1 - priceSold / price) * 100);
+        fd.append('discount', String(disc));
+      } else {
+        fd.append('discount', '0');
       }
-      if (form.discount !== '' && form.discount !== null) {
-        fd.append('discount', String(Number(form.discount)));
-      }
-      fd.append('stock', String(Number(form.stock)));
+
+      fd.append('stock', String(stock));
       fd.append('category_id', String(form.category_id));
       fd.append('brand_id', String(form.brand_id));
 
-      if (form.section_id) {
-        fd.append('section_id', String(form.section_id));
-      }
+      if (form.section_id) fd.append('section_id', String(form.section_id));
+      if (form.capacity) fd.append('capacity', form.capacity);
+      if (form.reference) fd.append('reference', form.reference);
 
       if (form.image) {
         fd.append('images[]', form.image);
@@ -190,8 +228,7 @@ const ProductsPage = () => {
     } catch (e) {
       console.error(e);
       if (e.response?.data?.errors) {
-        const errs = e.response.data.errors;
-        Object.values(errs).flat().forEach((msg) => toast.error(String(msg)));
+        setErrors(e.response.data.errors);
       } else {
         toast.error(e.response?.data?.message || 'Erreur');
       }
@@ -251,7 +288,7 @@ const ProductsPage = () => {
           <button className="admin-btn secondary" onClick={downloadTemplate} title="Télécharger le modèle CSV">Modèle CSV</button>
 
           <label className="admin-btn secondary" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} title="Importer un fichier CSV">
-            Importer CSV 
+            Importer CSV
             <input type="file" accept=".csv" onChange={handleImport} style={{ display: 'none' }} />
           </label>
 
@@ -260,6 +297,7 @@ const ProductsPage = () => {
             onClick={() => {
               setEditing(null);
               setForm(emptyForm);
+              setErrors({});
               setOpen(true);
             }}
           >
@@ -293,6 +331,7 @@ const ProductsPage = () => {
               <th>{t('admin.name')}</th>
               <th>{t('admin.category')}</th>
               <th>{t('admin.brand')}</th>
+              <th>Réf</th>
               <th>{t('admin.price')}</th>
               <th>{t('admin.stock')}</th>
               <th>{t('admin.section')}</th>
@@ -321,6 +360,7 @@ const ProductsPage = () => {
                     <td>{p.name}</td>
                     <td>{p.category?.name || p.category_id}</td>
                     <td>{p.brand?.name || p.brand_id}</td>
+                    <td style={{ fontSize: 11, color: '#666' }}>{p.reference || '-'}</td>
                     <td>{p.price}</td>
                     <td><span className="admin-badge">{p.stock}</span></td>
                     <td>
@@ -381,42 +421,61 @@ const ProductsPage = () => {
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.name')}</div>
             <input className="admin-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <FormError error={errors.name} />
           </div>
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.price')} (MAD)</div>
             <input className="admin-input" type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+            <FormError error={errors.price} />
           </div>
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.stock')}</div>
             <input className="admin-input" type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
+            <FormError error={errors.stock} />
+          </div>
+          <div>
+            <div className="admin-muted" style={{ marginBottom: 6 }}>Référence (optionnel)</div>
+            <input
+              className="admin-input"
+              placeholder="Ex: REF-123"
+              value={form.reference}
+              onChange={(e) => setForm({ ...form, reference: e.target.value })}
+            />
+            <FormError error={errors.reference} />
           </div>
           <div style={{ gridColumn: '1 / -1', background: '#fff8f0', border: '1px solid #f5dfc8', borderRadius: 8, padding: '14px 16px' }}>
-            <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 10, color: '#c0675a' }}>🏷️ Promotion (optionnel)</div>
+            <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 10, color: '#c0675a' }}>🏷️ Promotion (Prix Soldé)</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
-                <div className="admin-muted" style={{ marginBottom: 6 }}>Prix promotionnel (MAD)</div>
+                <div className="admin-muted" style={{ marginBottom: 6 }}>Nouveau prix soldé (MAD)</div>
                 <input
                   className="admin-input"
                   type="number"
                   step="0.01"
                   placeholder="Laisser vide = pas de promo"
                   value={form.price_sold}
-                  onChange={(e) => setForm({ ...form, price_sold: e.target.value })}
+                  onChange={(e) => {
+                    const newVal = e.target.value;
+                    let disc = '';
+                    if (newVal && form.price && Number(form.price) > 0) {
+                      disc = Math.round((1 - Number(newVal) / Number(form.price)) * 100);
+                    }
+                    setForm({ ...form, price_sold: newVal, discount: disc });
+                  }}
                 />
               </div>
-              <div>
-                <div className="admin-muted" style={{ marginBottom: 6 }}>Réduction (%)</div>
+              <div style={{ opacity: 0.7 }}>
+                <div className="admin-muted" style={{ marginBottom: 6 }}>Réduction calculée (%)</div>
                 <input
                   className="admin-input"
                   type="number"
-                  min="0"
-                  max="100"
-                  placeholder="Ex: 20 pour -20%"
+                  readOnly
+                  placeholder="Calculé auto"
                   value={form.discount}
-                  onChange={(e) => setForm({ ...form, discount: e.target.value })}
                 />
               </div>
             </div>
+            <FormError error={errors.price_sold} />
           </div>
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.category')}</div>
@@ -426,6 +485,7 @@ const ProductsPage = () => {
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
+            <FormError error={errors.category_id} />
           </div>
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.brand')}</div>
@@ -435,6 +495,7 @@ const ProductsPage = () => {
                 <option key={b.id} value={b.id}>{b.name}</option>
               ))}
             </select>
+            <FormError error={errors.brand_id} />
           </div>
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.section')}</div>
@@ -445,9 +506,29 @@ const ProductsPage = () => {
               ))}
             </select>
           </div>
+          {(() => {
+            const selectedCat = categories.find(c => String(c.id) === String(form.category_id));
+            const isPerfume = selectedCat && selectedCat.name.toLowerCase().includes('parfum');
+            if (!isPerfume) {
+              return errors.section_id ? <div style={{ marginBottom: 15 }}><FormError error={errors.section_id} /></div> : null;
+            }
+            return (
+              <div>
+                <div className="admin-muted" style={{ marginBottom: 6 }}>💨 Contenance (ml)</div>
+                <select className="admin-input" value={form.capacity} onChange={(e) => setForm({ ...form, capacity: e.target.value })}>
+                  <option value="">-- Choisir --</option>
+                  {['30 ml', '50 ml', '75 ml', '90 ml', '100 ml'].map(v => (
+                    <option key={v} value={v}>{v}</option>
+                  ))}
+                </select>
+                <FormError error={errors.capacity} />
+              </div>
+            );
+          })()}
           <div style={{ gridColumn: '1 / -1' }}>
             <div className="admin-muted" style={{ marginBottom: 6 }}>Description</div>
             <input className="admin-input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            <FormError error={errors.description} />
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
             <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.image')} (principale)</div>
@@ -457,6 +538,7 @@ const ProductsPage = () => {
               accept="image/png,image/jpeg,image/jpg,image/webp"
               onChange={(e) => setForm({ ...form, image: e.target.files?.[0] || null })}
             />
+            <FormError error={errors.image || errors['images.0']} />
           </div>
         </div>
       </AdminModal>

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { adminApi } from '../api';
 
 const DashboardPage = () => {
+  const { t } = useTranslation();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -24,34 +26,34 @@ const DashboardPage = () => {
     <div>
       <div className="admin-page-header">
         <div>
-          <h1>Dashboard</h1>
-          <div className="admin-muted">Statistiques globales</div>
+          <h1>{t('admin.dashboard')}</h1>
+          <div className="admin-muted">{t('admin.welcome') || 'Statistiques globales'}</div>
         </div>
       </div>
 
       {loading ? (
-        <div className="admin-muted">Chargement...</div>
+        <div className="admin-muted">{t('admin.loading')}</div>
       ) : (
         <div className="admin-grid-cards">
           <div className="admin-card">
-            <div className="admin-card-label">Produits</div>
-            <div className="admin-card-value">{stats?.products ?? 0}</div>
+            <div className="admin-card-label">{t('admin.products')}</div>
+            <div className="admin-card-value font-heading">{stats?.products ?? 0}</div>
           </div>
           <div className="admin-card">
-            <div className="admin-card-label">Commandes</div>
-            <div className="admin-card-value">{stats?.orders ?? 0}</div>
+            <div className="admin-card-label">{t('admin.orders')}</div>
+            <div className="admin-card-value font-heading">{stats?.orders ?? 0}</div>
           </div>
           <div className="admin-card">
-            <div className="admin-card-label">Utilisateurs</div>
-            <div className="admin-card-value">{stats?.users ?? 0}</div>
+            <div className="admin-card-label">{t('admin.users')}</div>
+            <div className="admin-card-value font-heading">{stats?.users ?? 0}</div>
           </div>
           <div className="admin-card">
-            <div className="admin-card-label">Marques</div>
-            <div className="admin-card-value">{stats?.brands ?? 0}</div>
+            <div className="admin-card-label">{t('admin.brands')}</div>
+            <div className="admin-card-value font-heading">{stats?.brands ?? 0}</div>
           </div>
           <div className="admin-card">
-            <div className="admin-card-label">Catégories</div>
-            <div className="admin-card-value">{stats?.categories ?? 0}</div>
+            <div className="admin-card-label">{t('admin.categories')}</div>
+            <div className="admin-card-value font-heading">{stats?.categories ?? 0}</div>
           </div>
         </div>
       )}

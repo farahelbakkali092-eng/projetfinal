@@ -8,7 +8,7 @@ class Product extends Model
 {
     protected $fillable = [
         'name', 'slug', 'description', 'price', 'price_sold', 'discount',
-        'stock', 'category_id', 'brand_id', 'section_id' // Remplacé skin_type_id par section_id
+        'stock', 'category_id', 'brand_id', 'section_id', 'capacity', 'reference'
     ];
 
     /**

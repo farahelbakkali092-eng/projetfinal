@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Megaphone, Save, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-hot-toast';
 import api from '../../api/axios';
 
 const AdvertisingPage = () => {
+    const { t } = useTranslation();
     const [advertisingText, setAdvertisingText] = useState("");
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -58,7 +60,7 @@ const AdvertisingPage = () => {
                 <div>
                     <h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <Megaphone size={24} style={{ color: 'var(--gold)' }} />
-                        Gestion de la Publicité 
+                        {t('admin.ads')}
                     </h1>
                 </div>
             </div>
@@ -67,7 +69,7 @@ const AdvertisingPage = () => {
                 <form onSubmit={handleSave} style={{ display: 'grid', gap: 20 }}>
                     <div>
                         <div className="admin-muted" style={{ marginBottom: 8, fontWeight: 500 }}>
-                            Texte de la publicité 
+                            {t('admin.ads_text') || 'Texte de la publicité'}
                         </div>
                         <div style={{ position: 'relative' }}>
                             <input
@@ -77,7 +79,7 @@ const AdvertisingPage = () => {
                                 value={advertisingText}
                                 onChange={(e) => setAdvertisingText(e.target.value)}
                                 maxLength={60}
-                                placeholder="Publicité"
+                                placeholder={t('admin.ads_placeholder') || 'Publicité'}
                                 required
                             />
                             <div style={{
@@ -92,7 +94,7 @@ const AdvertisingPage = () => {
                             </div>
                         </div>
                         <div className="admin-muted" style={{ marginTop: 8, fontSize: '0.8rem', fontStyle: 'italic' }}>
-                            Ce texte apparaît dans la barre marron tout en haut de chaque page.
+                            {t('admin.ads_desc')}
                         </div>
                     </div>
 
@@ -104,7 +106,7 @@ const AdvertisingPage = () => {
                             disabled={saving}
                         >
                             {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                            {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+                            {saving ? t('admin.saving') || 'Enregistrement...' : t('admin.save')}
                         </button>
                     </div>
                 </form>

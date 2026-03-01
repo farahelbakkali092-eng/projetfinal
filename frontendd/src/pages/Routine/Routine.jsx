@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
+import FormError from '../../components/FormError';
 
 import './Routine.css';
 
@@ -122,25 +123,6 @@ const Routine = () => {
     }
   };
 
-  // --- Composant helper pour afficher les erreurs ---
-  const ErrorMsg = ({ name }) => {
-    const fieldErrors = errors[name];
-    if (!fieldErrors) return null;
-
-    // S'assurer que fieldErrors est un tableau (Laravel envoie des tableaux, validation locale peut envoyer des strings)
-    const errorList = Array.isArray(fieldErrors) ? fieldErrors : [fieldErrors];
-
-    return (
-      <div className="mt-1 flex flex-col gap-1 animate-in fade-in slide-in-from-top-1 duration-200">
-        {errorList.map((msg, index) => (
-          <div key={index} className="flex items-center gap-1.5 text-rose-500">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-            <span className="text-[11px] font-medium leading-tight tracking-wide uppercase italic">{msg}</span>
-          </div>
-        ))}
-      </div>
-    );
-  };
 
   // --- Données ---
   const skinTypes = [
@@ -179,13 +161,13 @@ const Routine = () => {
                   <input type="text" id="nom" placeholder=" " value={formData.nom} onChange={handleInputChange} className={errors.nom ? 'input-error' : ''} />
                   <label htmlFor="nom">{t('routine.nom')}</label>
                   <div className="underline"></div>
-                  <ErrorMsg name="nom" />
+                  <FormError error={errors.nom} />
                 </div>
                 <div className="input-group">
                   <input type="text" id="prenom" placeholder=" " value={formData.prenom} onChange={handleInputChange} className={errors.prenom ? 'input-error' : ''} />
                   <label htmlFor="prenom">{t('routine.prenom')}</label>
                   <div className="underline"></div>
-                  <ErrorMsg name="prenom" />
+                  <FormError error={errors.prenom} />
                 </div>
               </div>
               <div className="form-row">
@@ -193,13 +175,13 @@ const Routine = () => {
                   <input type="number" id="age" placeholder=" " value={formData.age} onChange={handleInputChange} className={errors.age ? 'input-error' : ''} />
                   <label htmlFor="age">{t('routine.age')}</label>
                   <div className="underline"></div>
-                  <ErrorMsg name="age" />
+                  <FormError error={errors.age} />
                 </div>
                 <div className="input-group">
                   <input type="email" id="email" placeholder=" " value={formData.email} onChange={handleInputChange} className={errors.email ? 'input-error' : ''} />
                   <label htmlFor="email">{t('routine.email')}</label>
                   <div className="underline"></div>
-                  <ErrorMsg name="email" />
+                  <FormError error={errors.email} />
                 </div>
               </div>
             </div>
@@ -216,7 +198,7 @@ const Routine = () => {
                   </button>
                 ))}
               </div>
-              <ErrorMsg name="type_peau" />
+              <FormError error={errors.type_peau} />
             </div>
 
             {/* SECTION 3: PRÉOCCUPATIONS */}
@@ -231,7 +213,7 @@ const Routine = () => {
                   </div>
                 ))}
               </div>
-              <ErrorMsg name="problematiques" />
+              <FormError error={errors.problematiques} />
             </div>
 
             {/* SECTION 4: PRÉFÉRENCES */}
@@ -246,7 +228,7 @@ const Routine = () => {
                   </div>
                 ))}
               </div>
-              <ErrorMsg name="preferences" />
+              <FormError error={errors.preferences} />
             </div>
 
             {/* SECTION 5: BUDGET */}
@@ -264,7 +246,7 @@ const Routine = () => {
                 />
                 <label htmlFor="budget">{t('routine.budgetPlaceholder')}</label>
                 <div className="underline"></div>
-                <ErrorMsg name="budget" />
+                <FormError error={errors.budget} />
               </div>
             </div>
 

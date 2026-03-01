@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
+import FormError from '../../components/FormError';
 import './Contact.css';
 
 const Contact = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -61,13 +62,16 @@ const Contact = () => {
       setFormData({ name: '', email: '', subject: '', message: '' }); // On vide le formulaire
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || 'Error');
+      if (err.response?.data?.errors) {
+        setErrors(err.response.data.errors);
+      } else {
+        toast.error(err.response?.data?.message || 'Error');
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const errorMsgStyle = { color: 'red', fontSize: '12px', marginTop: '5px', display: 'block' };
 
   return (
     <div className="contact-page container">
@@ -88,7 +92,7 @@ const Contact = () => {
                 />
                 <label htmlFor="name">{t('contact.name')}</label>
                 <div className="underline"></div>
-                {errors.name && <span style={errorMsgStyle}>{errors.name}</span>}
+                <FormError error={errors.name} />
               </div>
 
               <div className="input-group">
@@ -102,7 +106,7 @@ const Contact = () => {
                 />
                 <label htmlFor="email">{t('contact.email')}</label>
                 <div className="underline"></div>
-                {errors.email && <span style={errorMsgStyle}>{errors.email}</span>}
+                <FormError error={errors.email} />
               </div>
             </div>
 
@@ -117,7 +121,7 @@ const Contact = () => {
               />
               <label htmlFor="subject">{t('contact.subject')}</label>
               <div className="underline"></div>
-              {errors.subject && <span style={errorMsgStyle}>{errors.subject}</span>}
+              <FormError error={errors.subject} />
             </div>
 
             <div className="input-group">
@@ -131,7 +135,7 @@ const Contact = () => {
               ></textarea>
               <label htmlFor="message">{t('contact.message')}</label>
               <div className="underline"></div>
-              {errors.message && <span style={errorMsgStyle}>{errors.message}</span>}
+              <FormError error={errors.message} />
             </div>
 
             <button type="submit" className="btn-luxury" disabled={loading}>

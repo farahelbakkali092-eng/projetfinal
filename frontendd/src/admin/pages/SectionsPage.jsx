@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { adminApi } from '../api';
 import AdminModal from '../components/AdminModal';
 import AdminTableActions from '../components/AdminTableActions';
+import FormError from '../../components/FormError';
 
 const emptyForm = {
     name: '',
@@ -19,6 +20,7 @@ const SectionsPage = () => {
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState(null);
     const [form, setForm] = useState(emptyForm);
+    const [errors, setErrors] = useState({});
 
     const load = async () => {
         setLoading(true);
@@ -45,6 +47,7 @@ const SectionsPage = () => {
             description: s.description || '',
             order: s.order || 0
         });
+        setErrors({});
         setOpen(true);
     };
 
@@ -61,6 +64,7 @@ const SectionsPage = () => {
     };
 
     const onSubmit = async () => {
+        setErrors({});
         try {
             if (!form.name.trim()) return toast.error(t('admin.name_required') || 'Nom obligatoire');
 
@@ -77,7 +81,11 @@ const SectionsPage = () => {
             load();
         } catch (e) {
             console.error(e);
-            toast.error(e.response?.data?.message || 'Erreur');
+            if (e.response?.data?.errors) {
+                setErrors(e.response.data.errors);
+            } else {
+                toast.error(e.response?.data?.message || 'Erreur');
+            }
         }
     };
 
@@ -86,9 +94,9 @@ const SectionsPage = () => {
             <div className="admin-page-header">
                 <div>
                     <h1>{t('admin.sections')}</h1>
-                    <div className="admin-muted">Gérer les groupes principaux (Femme, Homme, Enfant)</div>
+                    <div className="admin-muted">{t('admin.manage_sections_desc') || 'Gérer les groupes principaux (Femme, Homme, Enfant)'}</div>
                 </div>
-                <button className="admin-btn" onClick={() => { setEditing(null); setForm(emptyForm); setOpen(true); }}>
+                <button className="admin-btn" onClick={() => { setEditing(null); setForm(emptyForm); setErrors({}); setOpen(true); }}>
                     {t('admin.add')}
                 </button>
             </div>
@@ -101,7 +109,7 @@ const SectionsPage = () => {
                         <tr>
                             <th>{t('admin.id')}</th>
                             <th>{t('admin.name')}</th>
-                            <th>Ordre</th>
+                            <th>{t('admin.order') || 'Ordre'}</th>
                             <th style={{ width: 140 }}>{t('admin.actions')}</th>
                         </tr>
                     </thead>
@@ -142,20 +150,22 @@ const SectionsPage = () => {
                             value={form.name}
                             onChange={(e) => setForm({ ...form, name: e.target.value })}
                         >
-                            <option value="">Sélectionner une section</option>
+                            <option value="">{t('admin.select_section') || 'Sélectionner une section'}</option>
                             <option value="FEMME">{t('sections.femme')}</option>
                             <option value="HOMME">{t('sections.homme')}</option>
                             <option value="ENFANT">{t('sections.enfant')}</option>
                         </select>
+                        <FormError error={errors.name} />
                     </div>
                     <div>
-                        <div className="admin-muted" style={{ marginBottom: 6 }}>Ordre d'affichage</div>
+                        <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.display_order') || "Ordre d'affichage"}</div>
                         <input
                             className="admin-input"
                             type="number"
                             value={form.order}
                             onChange={(e) => setForm({ ...form, order: e.target.value })}
                         />
+                        <FormError error={errors.order} />
                     </div>
                 </div>
             </AdminModal>
