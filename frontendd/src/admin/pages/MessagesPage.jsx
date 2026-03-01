@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { adminApi } from '../api';
+import { useTranslation } from 'react-i18next';
 
 const MessagesPage = () => {
+  const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,7 +21,7 @@ const MessagesPage = () => {
       }
     } catch (e) {
       console.error(e);
-      toast.error('Impossible de charger les messages');
+      toast.error(t('admin.loading_error') || 'Impossible de charger les messages');
     } finally {
       setLoading(false);
     }
@@ -37,7 +39,7 @@ const MessagesPage = () => {
         await load(meta?.current_page || 1);
       } catch (e) {
         console.error(e);
-        toast.error('Impossible de marquer comme lu');
+        toast.error(t('admin.error') || 'Impossible de marquer comme lu');
       }
     }
   };
@@ -46,24 +48,24 @@ const MessagesPage = () => {
     <div>
       <div className="admin-page-header">
         <div>
-          <h1>Messages clients</h1>
-          <div className="admin-muted">Consulter et marquer comme lu</div>
+          <h1>{t('admin.messages')}</h1>
+          <div className="admin-muted">{t('admin.messages_desc')}</div>
         </div>
       </div>
 
       {loading ? (
-        <div className="admin-muted">Chargement...</div>
+        <div className="admin-muted">{t('admin.loading')}</div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 14 }}>
           <div>
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Lu</th>
-                  <th>Nom</th>
-                  <th>Email</th>
-                  <th>Sujet</th>
-                  <th>Date</th>
+                  <th>{t('admin.read')}</th>
+                  <th>{t('admin.name')}</th>
+                  <th>{t('admin.email') || 'Email'}</th>
+                  <th>{t('admin.subject')}</th>
+                  <th>{t('admin.date')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -74,7 +76,7 @@ const MessagesPage = () => {
                         borderColor: m.is_read ? 'var(--border-light)' : 'rgba(212, 163, 115, 0.6)',
                         background: m.is_read ? '#fff' : 'rgba(212, 163, 115, 0.15)'
                       }}>
-                        {m.is_read ? 'Oui' : 'Non'}
+                        {m.is_read ? t('admin.yes') : t('admin.no')}
                       </span>
                     </td>
                     <td>{m.name}</td>
@@ -111,9 +113,9 @@ const MessagesPage = () => {
 
           <div>
             <div className="admin-card" style={{ minHeight: 240 }}>
-              <div className="admin-card-label">Détail</div>
+              <div className="admin-card-label">{t('admin.seeDetail')}</div>
               {!selected ? (
-                <div className="admin-muted" style={{ marginTop: 10 }}>Sélectionne un message pour voir le contenu.</div>
+                <div className="admin-muted" style={{ marginTop: 10 }}>{t('admin.select_message')}</div>
               ) : (
                 <div style={{ marginTop: 10 }}>
                   <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.3rem', color: 'var(--burgundy)' }}>

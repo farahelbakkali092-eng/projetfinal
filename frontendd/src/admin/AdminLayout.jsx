@@ -1,11 +1,13 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, Tags, Grid2X2, ClipboardList, Users, Mail, ExternalLink, LogOut, User, LayoutGrid } from 'lucide-react';
+import { LayoutDashboard, Package, Tags, Grid2X2, ClipboardList, Users, ExternalLink, LogOut, User, LayoutGrid, Megaphone } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import AdminHeader from './AdminHeader';
 import { useAuth } from '../context/AuthContext';
 import './admin.css';
 
 const AdminLayout = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -23,35 +25,35 @@ const AdminLayout = () => {
             <h2 className="admin-sidebar-title">Admin</h2>
             <nav className="admin-nav">
               <NavLink end to="/admin">
-                <LayoutDashboard size={18} /> Dashboard
+                <LayoutDashboard size={18} /> {t('admin.dashboard')}
               </NavLink>
               <NavLink to="/admin/sections">
-                <LayoutGrid size={18} /> Sections
+                <LayoutGrid size={18} /> {t('admin.sections')}
               </NavLink>
               <NavLink to="/admin/produits">
-                <Package size={18} /> Produits
+                <Package size={18} /> {t('admin.products')}
               </NavLink>
               <NavLink to="/admin/marques">
-                <Tags size={18} /> Marques
+                <Tags size={18} /> {t('admin.brands')}
               </NavLink>
               <NavLink to="/admin/categories">
-                <Grid2X2 size={18} /> Catégories
+                <Grid2X2 size={18} /> {t('admin.categories')}
               </NavLink>
               <NavLink to="/admin/commandes">
-                <ClipboardList size={18} /> Commandes
+                <ClipboardList size={18} /> {t('admin.orders')}
               </NavLink>
               <NavLink to="/admin/utilisateurs">
-                <Users size={18} /> Utilisateurs
+                <Users size={18} /> {t('admin.users')}
               </NavLink>
-              <NavLink to="/admin/messages">
-                <Mail size={18} /> Messages clients
+              <NavLink to="/admin/publicite">
+                <Megaphone size={18} /> {t('admin.ads')}
               </NavLink>
               <NavLink to="/admin/informations">
-                <User size={18} /> Mes informations
+                <User size={18} /> {t('admin.changePass')}
               </NavLink>
 
-              <NavLink to="/" title="Retour vers le site">
-                <ExternalLink size={18} /> Visiter le site
+              <NavLink to="/" title={t('admin.visitSite')}>
+                <ExternalLink size={18} /> {t('admin.visitSite')}
               </NavLink>
 
               <button
@@ -59,7 +61,7 @@ const AdminLayout = () => {
                 onClick={onLogout}
                 style={{ justifyContent: 'flex-start', width: '100%' }}
               >
-                <LogOut size={18} /> Déconnexion
+                <LogOut size={18} /> {t('admin.logout')}
               </button>
             </nav>
           </aside>

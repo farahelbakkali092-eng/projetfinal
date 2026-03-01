@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { adminApi } from '../api';
 
 const UsersPage = () => {
+  const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
   const [roles, setRoles] = useState([]);
@@ -27,7 +29,7 @@ const UsersPage = () => {
       setRoles(rolesRes?.data?.data || []);
     } catch (e) {
       console.error(e);
-      toast.error('Impossible de charger les utilisateurs');
+      toast.error(t('admin.loading_error') || 'Impossible de charger les utilisateurs');
     } finally {
       setLoading(false);
     }
@@ -41,7 +43,7 @@ const UsersPage = () => {
   const setUserRole = async (userId, roleId) => {
     try {
       await adminApi.updateUserRole(userId, Number(roleId));
-      toast.success('Rôle mis à jour');
+      toast.success(t('admin.role_updated') || 'Rôle mis à jour');
       await load(meta?.current_page || 1);
     } catch (e) {
       console.error('Admin: Error updating role:', e);
@@ -57,7 +59,7 @@ const UsersPage = () => {
   const onUpdateStatus = async (id, status) => {
     try {
       await adminApi.updateUserStatus(id, status);
-      toast.success('Statut mis à jour');
+      toast.success(t('admin.status_updated') || 'Statut mis à jour');
       await load(meta?.current_page || 1);
     } catch (e) {
       console.error('Admin: Error updating status:', e);
@@ -74,32 +76,32 @@ const UsersPage = () => {
     <div>
       <div className="admin-page-header">
         <div>
-          <h1>Utilisateurs</h1>
-          <div className="admin-muted">Rôles et activation/désactivation</div>
+          <h1>{t('admin.users')}</h1>
+          <div className="admin-muted">{t('admin.manage_users_desc') || "Gestion des rôles et utilisateurs"}</div>
         </div>
         <div className="admin-actions">
           <input
             className="admin-input"
-            placeholder="Rechercher..."
+            placeholder={t('admin.search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ maxWidth: 260 }}
           />
-          <button className="admin-btn secondary" onClick={() => load(1)}>Filtrer</button>
+          <button className="admin-btn secondary" onClick={() => load(1)}>{t('admin.filter')}</button>
         </div>
       </div>
 
       {loading ? (
-        <div className="admin-muted">Chargement...</div>
+        <div className="admin-muted">{t('admin.loading')}</div>
       ) : (
         <table className="admin-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Nom</th>
-              <th>Email</th>
-              <th>Téléphone</th>
-              <th>Rôle</th>
+              <th>{t('admin.id')}</th>
+              <th>{t('admin.name')}</th>
+              <th>{t('admin.email') || 'Email'}</th>
+              <th>{t('admin.phone')}</th>
+              <th>{t('admin.role')}</th>
             </tr>
           </thead>
           <tbody>
@@ -113,7 +115,7 @@ const UsersPage = () => {
                   <td>{u.phone}</td>
                   <td>
                     <span className="admin-badge secondary">
-                      {u.role?.name || 'Client'}
+                      {u.role?.name || t('admin.client') || 'Client'}
                     </span>
                   </td>
                 </tr>
@@ -129,7 +131,7 @@ const UsersPage = () => {
             disabled={meta.current_page <= 1}
             onClick={() => load(meta.current_page - 1)}
           >
-            Précédent
+            {t('admin.prev')}
           </button>
           <div className="admin-muted" style={{ alignSelf: 'center' }}>
             Page {meta.current_page} / {meta.last_page}
@@ -139,7 +141,7 @@ const UsersPage = () => {
             disabled={meta.current_page >= meta.last_page}
             onClick={() => load(meta.current_page + 1)}
           >
-            Suivant
+            {t('admin.next')}
           </button>
         </div>
       )}

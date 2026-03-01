@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import api from '../../api/axios';
+import { useTranslation } from 'react-i18next';
 
 const AccountOrdersPage = () => {
+  const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,7 +18,7 @@ const AccountOrdersPage = () => {
       setMeta({ current_page: paginated.current_page, last_page: paginated.last_page });
     } catch (e) {
       console.error(e);
-      toast.error('Impossible de charger les commandes');
+      toast.error(t('admin.loading_error') || 'Impossible de charger les commandes');
     } finally {
       setLoading(false);
     }
@@ -30,23 +32,23 @@ const AccountOrdersPage = () => {
     <div>
       <div className="account-page-header">
         <div>
-          <h1>Commandes</h1>
-          <div className="account-muted">Historique des commandes passées</div>
+          <h1>{t('admin.orders')}</h1>
+          <div className="account-muted">{t('auth.ordersHistoryDesc') || 'Historique des commandes passées'}</div>
         </div>
       </div>
 
       {loading ? (
-        <div className="account-muted">Chargement...</div>
+        <div className="account-muted">{t('admin.loading')}</div>
       ) : (
         <table className="account-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Numéro</th>
-              <th>Total</th>
-              <th>Statut</th>
-              <th>Paiement</th>
-              <th>Date</th>
+              <th>{t('admin.id')}</th>
+              <th>{t('admin.orderNumber')}</th>
+              <th>{t('admin.total')}</th>
+              <th>{t('admin.status')}</th>
+              <th>{t('admin.paymentStatus')}</th>
+              <th>{t('admin.date')}</th>
             </tr>
           </thead>
           <tbody>
@@ -71,7 +73,7 @@ const AccountOrdersPage = () => {
             disabled={meta.current_page <= 1}
             onClick={() => load(meta.current_page - 1)}
           >
-            Précédent
+            {t('admin.prev')}
           </button>
           <div className="account-muted" style={{ alignSelf: 'center' }}>
             Page {meta.current_page} / {meta.last_page}
@@ -81,7 +83,7 @@ const AccountOrdersPage = () => {
             disabled={meta.current_page >= meta.last_page}
             onClick={() => load(meta.current_page + 1)}
           >
-            Suivant
+            {t('admin.next')}
           </button>
         </div>
       )}

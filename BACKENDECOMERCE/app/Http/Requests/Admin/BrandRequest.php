@@ -15,10 +15,18 @@ class BrandRequest extends BaseApiRequest
             'name' => [
                 'required',
                 'string',
-                'max:255',
+                'min:3',
+                'max:50',
+                'regex:/^(?![0-9]+$)[\pL\pN\s\-\'\.,&\+\(\)À-ÿ]+$/u',
                 Rule::unique('brands', 'name')->ignore($brandId),
             ],
-            'description' => ['nullable', 'string'],
+            'description' => [
+                'required',
+                'string',
+                'min:10',
+                'max:300',
+                'regex:/^(?![0-9]+$)[\pL\pN\s\-\'\.,!?;:&\+\(\)À-ÿ]+$/u'
+            ],
         ];
     }
 }

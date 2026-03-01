@@ -11,7 +11,7 @@ class Diagnostic extends Model
 
    protected $fillable = [
         'user_id', // Ajouté
-        'prenom', 'age', 'email', 'type_peau', 'problematiques', 'preferences', 'budget',
+        'nom', 'prenom', 'age', 'email', 'type_peau', 'problematiques', 'preferences', 'budget',
     ];
 
     public function user()

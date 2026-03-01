@@ -15,6 +15,9 @@ export const adminApi = {
     return api.put(`/products/${id}`, data);
   },
   deleteProduct: (id) => api.delete(`/products/${id}`),
+  importProducts: (formData) => api.post('/products/import', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
 
   // Orders
   listOrders: (params) => api.get('/orders', { params }),

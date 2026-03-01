@@ -13,21 +13,36 @@ class ProductRequest extends BaseApiRequest
      */
     public function rules(): array
     {
-        $productId = $this->route('id');
+        $id = $this->route('id') ?? $this->id;
 
-        // Dans la méthode rules() de ProductRequest :
-    return [
-        'name' => ['required', 'string', 'max:50', 'regex:/^[\pL\pN\s\-\']+$/u'], // <-- \pL pour les accents, \pN pour les chiffres
-        'slug' => ['required', 'string', Rule::unique('products', 'slug')->ignore($productId)],
-        'description' => ['required', 'string'], // <-- Retrait de max:255
-        'price' => ['required', 'numeric', 'min:0.01'],
-        'stock' => ['required', 'integer', 'min:0'],
-        'category_id' => ['required', 'exists:categories,id'],
-        'brand_id' => ['required', 'exists:brands,id'],
-        'section_id' => ['nullable', 'exists:sections,id'], // <-- CORRIGÉ
-        'images' => ['nullable', 'array'],
-        'images.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
-    ];
+        return [
+            'name' => [
+                'required',
+                'string',
+                'min:3',
+                'max:50',
+                'regex:/^(?![0-9]+$)[\pL\pN\s\-\'\.,&\+\(\)À-ÿ]+$/u' // Pas de chiffres seuls
+            ],
+            'slug' => ['required', 'string', Rule::unique('products', 'slug')->ignore($id)],
+            'description' => [
+                'required',
+                'string',
+                'min:10',
+                'max:300',
+                'regex:/^(?![0-9]+$)[\pL\pN\s\-\'\.,!?;:&\+\(\)À-ÿ]+$/u' // Pas de chiffres seuls
+            ],
+            'price' => ['required', 'numeric', 'min:10', 'max:10000'],
+            'price_sold' => ['nullable', 'numeric', 'min:5', 'lt:price'],
+            'discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'stock' => ['required', 'integer', 'min:0', 'max:50000'],
+            'category_id' => ['required', 'exists:categories,id'],
+            'brand_id' => ['required', 'exists:brands,id'],
+            'section_id' => ['nullable', 'exists:sections,id'],
+            'capacity' => ['nullable', 'string', Rule::in(['30 ml', '50 ml', '75 ml', '90 ml', '100 ml'])],
+            'reference' => ['nullable', 'string', 'max:50'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+        ];
     }
 
     /**

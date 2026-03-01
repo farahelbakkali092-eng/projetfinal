@@ -1,27 +1,35 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { adminApi } from '../api';
 import AdminModal from '../components/AdminModal';
 import AdminTableActions from '../components/AdminTableActions';
-import { LayoutGrid } from 'lucide-react';
+import FormError from '../../components/FormError';
 
-const emptyForm = { name: '', order: 0, is_active: true };
+const emptyForm = {
+    name: '',
+    description: '',
+    order: 0,
+};
 
 const SectionsPage = () => {
+    const { t } = useTranslation();
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
+
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState(null);
     const [form, setForm] = useState(emptyForm);
+    const [errors, setErrors] = useState({});
 
     const load = async () => {
         setLoading(true);
         try {
             const res = await adminApi.listSections();
-            setItems(res.data.data || []);
+            setItems(res?.data?.data || []);
         } catch (e) {
             console.error(e);
-            toast.error('Impossible de charger les sections');
+            toast.error(t('admin.loading_error') || 'Impossible de charger les sections');
         } finally {
             setLoading(false);
         }
@@ -29,11 +37,36 @@ const SectionsPage = () => {
 
     useEffect(() => {
         load();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const onSubmit = async () => {
+    const onEdit = (s) => {
+        setEditing(s);
+        setForm({
+            name: s.name || '',
+            description: s.description || '',
+            order: s.order || 0
+        });
+        setErrors({});
+        setOpen(true);
+    };
+
+    const onDelete = async (s) => {
+        if (!confirm(`${t('admin.delete')} "${s.name}" ?`)) return;
         try {
-            if (!form.name.trim()) return toast.error('Nom obligatoire');
+            await adminApi.deleteSection(s.id);
+            toast.success(t('admin.deleted_success') || 'Section supprimée');
+            load();
+        } catch (e) {
+            console.error(e);
+            toast.error(e.response?.data?.message || 'Erreur');
+        }
+    };
+
+    const onSubmit = async () => {
+        setErrors({});
+        try {
+            if (!form.name.trim()) return toast.error(t('admin.name_required') || 'Nom obligatoire');
 
             if (editing) {
                 await adminApi.updateSection(editing.id, form);
@@ -43,28 +76,16 @@ const SectionsPage = () => {
                 toast.success('Section créée');
             }
             setOpen(false);
+            setEditing(null);
+            setForm(emptyForm);
             load();
         } catch (e) {
             console.error(e);
-            toast.error('Erreur lors de l\'enregistrement');
-        }
-    };
-
-    const onEdit = (item) => {
-        setEditing(item);
-        setForm({ name: item.name, order: item.order, is_active: item.is_active });
-        setOpen(true);
-    };
-
-    const onDelete = async (item) => {
-        if (!confirm(`Supprimer la section "${item.name}" ?`)) return;
-        try {
-            await adminApi.deleteSection(item.id);
-            toast.success('Section supprimée');
-            load();
-        } catch (e) {
-            console.error(e);
-            toast.error('Suppression impossible');
+            if (e.response?.data?.errors) {
+                setErrors(e.response.data.errors);
+            } else {
+                toast.error(e.response?.data?.message || 'Erreur');
+            }
         }
     };
 
@@ -72,40 +93,37 @@ const SectionsPage = () => {
         <div>
             <div className="admin-page-header">
                 <div>
-                    <h1>Sections</h1>
-                    <div className="admin-muted">Gérer les groupes principaux (Femme, Homme, Enfant)</div>
+                    <h1>{t('admin.sections')}</h1>
+                    <div className="admin-muted">{t('admin.manage_sections_desc') || 'Gérer les groupes principaux (Femme, Homme, Enfant)'}</div>
                 </div>
-                <button className="admin-btn" onClick={() => { setEditing(null); setForm(emptyForm); setOpen(true); }}>
-                    Ajouter une section
+                <button className="admin-btn" onClick={() => { setEditing(null); setForm(emptyForm); setErrors({}); setOpen(true); }}>
+                    {t('admin.add')}
                 </button>
             </div>
 
             {loading ? (
-                <div className="admin-muted">Chargement...</div>
+                <div className="admin-muted">{t('admin.loading')}</div>
             ) : (
                 <table className="admin-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Nom</th>
-                            <th>Ordre</th>
-                            <th>Statut</th>
-                            <th style={{ width: 120 }}>Actions</th>
+                            <th>{t('admin.id')}</th>
+                            <th>{t('admin.name')}</th>
+                            <th>{t('admin.order') || 'Ordre'}</th>
+                            <th style={{ width: 140 }}>{t('admin.actions')}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {items.map((it) => (
-                            <tr key={it.id}>
-                                <td>{it.id}</td>
-                                <td><strong>{it.name}</strong></td>
-                                <td>{it.order}</td>
+                        {items.map((s) => (
+                            <tr key={s.id}>
+                                <td>{s.id}</td>
+                                <td>{t(`sections.${s.name.toLowerCase()}`, { defaultValue: s.name })}</td>
+                                <td>{s.order}</td>
                                 <td>
-                                    <span className={`admin-badge ${it.is_active ? 'success' : 'muted'}`}>
-                                        {it.is_active ? 'Actif' : 'Inactif'}
-                                    </span>
-                                </td>
-                                <td>
-                                    <AdminTableActions onEdit={() => onEdit(it)} onDelete={() => onDelete(it)} />
+                                    <AdminTableActions
+                                        onEdit={() => onEdit(s)}
+                                        onDelete={() => onDelete(s)}
+                                    />
                                 </td>
                             </tr>
                         ))}
@@ -114,44 +132,40 @@ const SectionsPage = () => {
             )}
 
             <AdminModal
-                title={editing ? 'Modifier la section' : 'Ajouter une section'}
+                title={editing ? t('admin.edit') : t('admin.add')}
                 open={open}
                 onClose={() => setOpen(false)}
                 footer={(
                     <>
-                        <button className="admin-btn secondary" onClick={() => setOpen(false)}>Annuler</button>
-                        <button className="admin-btn" onClick={onSubmit}>Enregistrer</button>
+                        <button className="admin-btn secondary" onClick={() => setOpen(false)}>{t('admin.cancel')}</button>
+                        <button className="admin-btn" onClick={onSubmit}>{editing ? t('admin.save') : t('admin.create')}</button>
                     </>
                 )}
             >
                 <div className="admin-form-grid">
                     <div style={{ gridColumn: '1 / -1' }}>
-                        <div className="admin-muted" style={{ marginBottom: 6 }}>Nom de la section</div>
-                        <input
+                        <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.name')}</div>
+                        <select
                             className="admin-input"
                             value={form.name}
                             onChange={(e) => setForm({ ...form, name: e.target.value })}
-                            placeholder="Ex: Femme"
-                        />
+                        >
+                            <option value="">{t('admin.select_section') || 'Sélectionner une section'}</option>
+                            <option value="FEMME">{t('sections.femme')}</option>
+                            <option value="HOMME">{t('sections.homme')}</option>
+                            <option value="ENFANT">{t('sections.enfant')}</option>
+                        </select>
+                        <FormError error={errors.name} />
                     </div>
                     <div>
-                        <div className="admin-muted" style={{ marginBottom: 6 }}>Ordre d'affichage</div>
+                        <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.display_order') || "Ordre d'affichage"}</div>
                         <input
                             className="admin-input"
                             type="number"
                             value={form.order}
-                            onChange={(e) => setForm({ ...form, order: Number(e.target.value) })}
+                            onChange={(e) => setForm({ ...form, order: e.target.value })}
                         />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', marginBottom: 12 }}>
-                            <input
-                                type="checkbox"
-                                checked={form.is_active}
-                                onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-                            />
-                            Section active
-                        </label>
+                        <FormError error={errors.order} />
                     </div>
                 </div>
             </AdminModal>

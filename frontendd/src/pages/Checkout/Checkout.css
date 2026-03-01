@@ -1,31 +1,54 @@
 /* ══════════════════════════════
-   CHECKOUT PAGE STYLES
+   CHECKOUT PAGE — IMPROVED LAYOUT
    Palette: Ivory, Espresso, Terracotta
    ══════════════════════════════ */
 
 .checkout-container {
-    max-width: 800px;
+    max-width: 1100px;
     margin: 40px auto;
-    padding: 0 20px;
+    padding: 0 20px 60px;
     font-family: 'Jost', sans-serif;
     color: #261812;
 }
 
+/* Two-column layout: form + sidebar */
+.checkout-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 40px;
+    align-items: start;
+}
+
+/* Reverse order on mobile so form appears first on small screens */
+@media (max-width: 900px) {
+    .checkout-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+
+    .checkout-summary {
+        order: -1;
+    }
+}
+
+/* ── Header ── */
 .checkout-header {
     margin-bottom: 40px;
 }
 
 .back-to-cart {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     background: none;
     border: none;
     color: #8e6458;
-    font-size: 14px;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.06em;
     cursor: pointer;
     padding: 0;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     transition: color 0.2s ease;
 }
 
@@ -35,111 +58,176 @@
 
 .checkout-header h1 {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 42px;
+    font-size: 38px;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin: 0 0 6px;
 }
 
 .checkout-total {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 500;
     color: #8e6458;
 }
 
-/* Payment Selection */
-.payment-section {
-    margin-bottom: 40px;
+/* ── Order Summary (sidebar) ── */
+.checkout-summary {
+    background: #fdf6f1;
+    border: 1px solid #ede6e0;
+    border-radius: 16px;
+    padding: 28px;
+    position: sticky;
+    top: 100px;
 }
 
-.payment-section h2,
-.form-section h2 {
+.summary-title {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 600;
-    margin-bottom: 20px;
+    margin: 0 0 20px;
+    color: #261812;
 }
 
-.payment-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+.summary-items {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
 }
 
-.payment-card {
+.summary-item {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 24px;
+    gap: 14px;
+}
+
+.summary-item-img {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.summary-item-img img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #ede6e0;
     background: #fff;
-    border: 1.5px solid #eee;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    padding: 4px;
 }
 
-.payment-card:hover {
-    border-color: #d9bfb7;
-    background: #fdf6f1;
-}
-
-.payment-card.selected {
-    border-color: #c0675a;
-    background: #fdf6f1;
-    box-shadow: 0 4px 12px rgba(192, 103, 90, 0.08);
-}
-
-.payment-icon {
-    color: #c0675a;
-    background: rgba(192, 103, 90, 0.05);
-    width: 48px;
-    height: 48px;
+.summary-qty {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #261812;
+    color: #fff;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    font-weight: 600;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
 }
 
-.payment-text {
+.summary-item-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.summary-item-name {
+    font-size: 12px;
+    color: #3a2a22;
+    line-height: 1.4;
+    max-width: 140px;
+}
+
+.summary-item-price {
+    font-size: 12px;
+    font-weight: 600;
+    color: #261812;
+    white-space: nowrap;
+}
+
+.summary-divider {
+    border: none;
+    border-top: 1px solid #ede6e0;
+    margin: 20px 0;
+}
+
+.summary-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: #261812;
+}
+
+.summary-total-price {
+    font-size: 18px;
+    color: #c0675a;
+}
+
+/* ── Form Sections ── */
+.checkout-form {
     display: flex;
     flex-direction: column;
+    gap: 32px;
 }
 
-.payment-title {
-    font-weight: 600;
-    font-size: 15px;
-}
-
-.payment-desc {
-    font-size: 13px;
-    color: #888;
-}
-
-/* Forms */
 .form-section {
-    margin-bottom: 40px;
+    background: #fff;
+    border: 1px solid #ede6e0;
+    border-radius: 16px;
+    padding: 28px;
 }
 
-.input-group {
-    margin-bottom: 16px;
+.form-section h2,
+.payment-section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 20px;
+    color: #261812;
 }
 
 .input-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 16px;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+@media (max-width: 600px) {
+    .input-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.input-group {
+    margin-bottom: 14px;
+}
+
+.input-group:last-child {
+    margin-bottom: 0;
 }
 
 input {
     width: 100%;
-    padding: 14px 20px;
+    padding: 13px 18px;
     background: #fbf8f6;
     border: 1px solid #e8e1da;
     border-radius: 100px;
     font-family: 'Jost', sans-serif;
     font-size: 14px;
+    color: #261812;
     transition: all 0.25s ease;
     outline: none;
+    box-sizing: border-box;
 }
 
 input:focus {
@@ -150,10 +238,82 @@ input:focus {
 
 input::placeholder {
     color: #b89080;
-    opacity: 0.6;
+    opacity: 0.7;
 }
 
-/* Submit Button */
+/* ── Payment Options ── */
+.payment-section {
+    background: #fff;
+    border: 1px solid #ede6e0;
+    border-radius: 16px;
+    padding: 28px;
+}
+
+.payment-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+@media (max-width: 500px) {
+    .payment-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+.payment-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px;
+    background: #fbf8f6;
+    border: 2px solid #ede6e0;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.payment-card:hover {
+    border-color: #c9a49a;
+    background: #fdf6f1;
+}
+
+.payment-card.selected {
+    border-color: #c0675a;
+    background: #fdf6f1;
+    box-shadow: 0 4px 14px rgba(192, 103, 90, 0.1);
+}
+
+.payment-icon {
+    color: #c0675a;
+    background: rgba(192, 103, 90, 0.08);
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.payment-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.payment-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #261812;
+}
+
+.payment-desc {
+    font-size: 12px;
+    color: #8e6458;
+}
+
+/* ── Submit Button ── */
 .submit-order-btn {
     width: 100%;
     padding: 18px;
@@ -161,25 +321,29 @@ input::placeholder {
     color: #fdf6f1;
     border: none;
     border-radius: 100px;
-    font-size: 16px;
+    font-family: 'Jost', sans-serif;
+    font-size: 15px;
     font-weight: 500;
     letter-spacing: 0.05em;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.submit-order-btn:hover {
+.submit-order-btn:hover:not(:disabled) {
     background: #3a2a22;
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(38, 24, 18, 0.15);
 }
 
-.submit-order-btn:active {
-    transform: translateY(0);
+.submit-order-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }
 
-/* Confirmation Screen */
+/* ── Confirmation Screen ── */
 .confirmation-container {
     min-height: 80vh;
     display: flex;
@@ -193,74 +357,85 @@ input::placeholder {
     background: #fff;
     padding: 60px 40px;
     border-radius: 24px;
-    box-shadow: 0 12px 48px rgba(38, 24, 18, 0.05);
-    max-width: 500px;
+    box-shadow: 0 12px 48px rgba(38, 24, 18, 0.06);
+    max-width: 480px;
     width: 90%;
 }
 
 .success-icon {
     margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
 }
 
 .confirmation-card h1 {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 36px;
-    margin-bottom: 16px;
+    font-size: 34px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #261812;
 }
 
 .confirmation-card p {
     color: #8e6458;
     margin-bottom: 32px;
     line-height: 1.6;
+    font-size: 15px;
 }
 
 .back-shop-btn {
-    padding: 14px 32px;
+    display: inline-block;
+    padding: 14px 36px;
     background: #261812;
     color: #fff;
     border: none;
     border-radius: 100px;
     cursor: pointer;
-    font-size: 15px;
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
     font-weight: 500;
+    letter-spacing: 0.05em;
+    text-decoration: none;
     transition: all 0.3s ease;
 }
 
 .back-shop-btn:hover {
     background: #c0675a;
+    transform: translateY(-2px);
 }
 
-/* Animations */
-.fade-in {
-    opacity: 0;
-    animation: fadeIn 0.4s ease-out forwards;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
+/* Empty cart */
 .checkout-empty {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
     text-align: center;
-    padding: 100px 20px;
+    padding: 40px 20px;
 }
 
 .checkout-empty h2 {
     font-family: 'Cormorant Garamond', serif;
     font-size: 32px;
-    margin-bottom: 20px;
+    color: #261812;
+    margin: 0;
 }
 
-@media (max-width: 600px) {
-    .payment-options {
-        grid-template-columns: 1fr;
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }

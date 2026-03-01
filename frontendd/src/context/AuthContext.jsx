@@ -28,11 +28,12 @@ export const AuthProvider = ({ children }) => {
             setUser(userData);
 
             toast.success('Bon retour !');
-            return true;
+            return { success: true };
         } catch (error) {
             const message = error.response?.data?.message || 'Identifiants invalides';
+            const errors = error.response?.data?.errors;
             toast.error(message);
-            return false;
+            return { success: false, message, errors };
         } finally {
             setLoading(false);
         }
@@ -50,15 +51,16 @@ export const AuthProvider = ({ children }) => {
             setUser(newUser);
 
             toast.success('Bienvenue chez DAWSM !');
-            return true;
+            return { success: true };
         } catch (error) {
             const errors = error.response?.data?.errors;
+            const message = error.response?.data?.message || 'Erreur lors de l’inscription';
             if (errors) {
                 Object.values(errors).flat().forEach(err => toast.error(err));
             } else {
-                toast.error(error.response?.data?.message || 'Erreur lors de l’inscription');
+                toast.error(message);
             }
-            return false;
+            return { success: false, message, errors };
         } finally {
             setLoading(false);
         }

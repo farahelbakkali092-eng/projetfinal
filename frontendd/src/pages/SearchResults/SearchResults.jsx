@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import { Loader2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import api from '../../api/axios';
-import { useCart } from '../../context/CartContext';
 import './SearchResults.css';
 
 const SearchResults = () => {
+    const { t } = useTranslation();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const query = searchParams.get('q');
 
-    const { addToCart } = useCart();
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -24,7 +24,8 @@ const SearchResults = () => {
             setError(null);
             try {
                 const res = await api.get(`/products?search=${encodeURIComponent(query)}&per_page=20`);
-                setProducts(res.data.data.data);
+                const data = res.data.data;
+                setProducts(Array.isArray(data) ? data : (data?.data || []));
             } catch (err) {
                 console.error("Search error:", err);
                 setError("Une erreur est survenue lors de la recherche.");
@@ -40,8 +41,8 @@ const SearchResults = () => {
         return (
             <div className="search-results-page container">
                 <div className="empty-search">
-                    <h2>Que recherchez-vous ?</h2>
-                    <p>Entrez un mot-clé dans la barre de recherche pour trouver des produits.</p>
+                    <h2>{t('search.whatLooking')}</h2>
+                    <p>{t('search.enterKeyword')}</p>
                 </div>
             </div>
         );
@@ -50,8 +51,8 @@ const SearchResults = () => {
     return (
         <div className="search-results-page container">
             <div className="search-header">
-                <h1>Résultats pour "{query}"</h1>
-                <p>{products.length} produits trouvés</p>
+                <h1>{t('search.title')} "{query}"</h1>
+                <p>{products.length} {t('search.found')}</p>
             </div>
 
             {isLoading ? (
@@ -73,9 +74,9 @@ const SearchResults = () => {
                             </div>
                         ) : (
                             <div className="no-results-all">
-                                <p>Aucun produit ne correspond à votre recherche "{query}".</p>
+                                <p>{t('search.noResults')} "{query}".</p>
                                 <p className="hint" style={{ color: 'var(--text-light)', marginTop: '8px', fontSize: '0.9rem' }}>
-                                    Essayez de rechercher par nom, marque ou catégorie.
+                                    {t('search.hint')}
                                 </p>
                             </div>
                         )}

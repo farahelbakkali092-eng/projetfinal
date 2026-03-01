@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   ChevronDown,
   HelpCircle,
@@ -14,6 +15,7 @@ import {
 import './Support.css';
 
 const Support = () => {
+  const { t } = useTranslation();
   const { hash } = useLocation();
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
@@ -26,38 +28,18 @@ const Support = () => {
   }, [hash]);
 
   const faqs = [
-    {
-      question: "Quels sont les délais de livraison ?",
-      answer:
-        "Les délais de livraison varient entre 2 et 5 jours ouvrés selon votre localisation. Vous recevrez un numéro de suivi dès l'expédition de votre commande.",
-    },
-    {
-      question: "Comment puis-je retourner un produit ?",
-      answer:
-        "Vous disposez de 14 jours après réception pour nous retourner un produit non ouvert. Contactez notre support pour obtenir une étiquette de retour.",
-    },
-    {
-      question: "Les produits sont-ils testés sur les animaux ?",
-      answer:
-        "Absolument pas. Tous nos produits sont certifiés Cruelty-Free et nous privilégions les ingrédients d'origine naturelle et éthique.",
-    },
-    {
-      question: "Puis-je modifier ma commande après validation ?",
-      answer:
-        "Une fois validée, une commande est rapidement préparée. Si elle n'a pas encore été expédiée, nous pouvons tenter de la modifier. Contactez-nous au plus vite.",
-    },
-    {
-      question: "Quels modes de paiement acceptez-vous ?",
-      answer:
-        "Nous acceptons les cartes bancaires (Visa, Mastercard, AMEX), PayPal et Apple Pay.",
-    },
+    { question: t('support.faq1q'), answer: t('support.faq1a') },
+    { question: t('support.faq2q'), answer: t('support.faq2a') },
+    { question: t('support.faq3q'), answer: t('support.faq3a') },
+    { question: t('support.faq4q'), answer: t('support.faq4a') },
+    { question: t('support.faq5q'), answer: t('support.faq5a') },
   ];
 
   const navSections = [
-    { id: 'faq',      title: 'FAQ',                    icon: <HelpCircle size={15} /> },
-    { id: 'livraison',title: 'Livraison & Retours',     icon: <Truck size={15} /> },
-    { id: 'cgv',      title: 'Termes & Conditions',     icon: <Scale size={15} /> },
-    { id: 'privacy',  title: 'Confidentialité',         icon: <Lock size={15} /> },
+    { id: 'faq', title: t('support.faq'), icon: <HelpCircle size={15} /> },
+    { id: 'livraison', title: t('support.deliveryNav'), icon: <Truck size={15} /> },
+    { id: 'cgv', title: t('support.termsNav'), icon: <Scale size={15} /> },
+    { id: 'privacy', title: t('support.privacyNav'), icon: <Lock size={15} /> },
   ];
 
   const toggleFaq = (index) =>
@@ -68,7 +50,7 @@ const Support = () => {
 
       {/* ── Sticky header ── */}
       <header className="sp-header">
-        <h1>Centre de Support</h1>
+        <h1>{t('support.pageTitle')}</h1>
         <nav className="sp-nav" aria-label="Sections">
           {navSections.map((s) => (
             <a key={s.id} href={`#${s.id}`} className="sp-nav-link">
@@ -86,7 +68,7 @@ const Support = () => {
         <section id="faq" className="sp-section">
           <div className="sp-section-header">
             <HelpCircle size={28} />
-            <h2>Questions Fréquentes</h2>
+            <h2>{t('support.faqTitle')}</h2>
           </div>
 
           <div className="sp-faq-list">
@@ -115,25 +97,25 @@ const Support = () => {
         <section id="livraison" className="sp-section">
           <div className="sp-section-header">
             <Truck size={28} />
-            <h2>Livraison &amp; Retours</h2>
+            <h2>{t('support.deliveryTitle')}</h2>
           </div>
 
           <div className="sp-delivery-grid">
             <div className="sp-card sp-delivery-card">
-              <h3><Truck size={18} /> Livraison</h3>
+              <h3><Truck size={18} /> {t('support.deliveryLabel')}</h3>
               <ul className="sp-delivery-list">
-                <li><ArrowRight size={14} /> Livraison standard (3–5 jours) : 4,90 € (Gratuit dès 50 €)</li>
-                <li><ArrowRight size={14} /> Livraison Express (24–48 h) : 9,90 €</li>
-                <li><ArrowRight size={14} /> Expédition sous 24 h pour les commandes avant midi</li>
+                <li><ArrowRight size={14} /> {t('support.delivery1')}</li>
+                <li><ArrowRight size={14} /> {t('support.delivery2')}</li>
+                <li><ArrowRight size={14} /> {t('support.delivery3')}</li>
               </ul>
             </div>
 
             <div className="sp-card sp-delivery-card">
-              <h3><RotateCcw size={18} /> Retours</h3>
+              <h3><RotateCcw size={18} /> {t('support.returnsLabel')}</h3>
               <ul className="sp-delivery-list">
-                <li><ArrowRight size={14} /> Délai de rétractation de 14 jours</li>
-                <li><ArrowRight size={14} /> Produits intacts et emballage d'origine requis</li>
-                <li><ArrowRight size={14} /> Remboursement sous 7 jours après réception</li>
+                <li><ArrowRight size={14} /> {t('support.returns1')}</li>
+                <li><ArrowRight size={14} /> {t('support.returns2')}</li>
+                <li><ArrowRight size={14} /> {t('support.returns3')}</li>
               </ul>
             </div>
           </div>
@@ -143,21 +125,21 @@ const Support = () => {
         <section id="cgv" className="sp-section">
           <div className="sp-section-header">
             <Scale size={28} />
-            <h2>Termes &amp; Conditions</h2>
+            <h2>{t('support.termsTitle')}</h2>
           </div>
 
           <div className="sp-card sp-terms-card">
             <div className="sp-terms-article">
-              <h3>1. Objet des Services</h3>
-              <p>Les présentes CGV régissent l'ensemble des relations entre DAWSM et ses clients. Toute commande sur le site implique l'adhésion totale à ces conditions.</p>
+              <h3>{t('support.terms1title')}</h3>
+              <p>{t('support.terms1')}</p>
             </div>
             <div className="sp-terms-article">
-              <h3>2. Produits et Tarification</h3>
-              <p>Nos produits sont décrits avec la plus grande précision. Les prix sont TTC en euros. DAWSM se réserve le droit de modifier ses prix, mais applique le tarif au moment de la commande.</p>
+              <h3>{t('support.terms2title')}</h3>
+              <p>{t('support.terms2')}</p>
             </div>
             <div className="sp-terms-article">
-              <h3>3. Sécurité des Transactions</h3>
-              <p>Le paiement s'effectue via des passerelles sécurisées (Stripe, PayPal). Aucune donnée bancaire n'est stockée sur nos serveurs.</p>
+              <h3>{t('support.terms3title')}</h3>
+              <p>{t('support.terms3')}</p>
             </div>
           </div>
         </section>
@@ -166,23 +148,23 @@ const Support = () => {
         <section id="privacy" className="sp-section">
           <div className="sp-section-header">
             <Lock size={28} />
-            <h2>Confidentialité</h2>
+            <h2>{t('support.privacyTitle')}</h2>
           </div>
 
           <div className="sp-privacy-list">
             <div className="sp-card sp-privacy-card">
               <Eye size={36} />
               <div>
-                <h3>Transparence des données</h3>
-                <p>Nous collectons uniquement les informations nécessaires au traitement de vos commandes et à la personnalisation de votre diagnostic. Vos données ne sont jamais vendues.</p>
+                <h3>{t('support.privacy1title')}</h3>
+                <p>{t('support.privacy1')}</p>
               </div>
             </div>
 
             <div className="sp-card sp-privacy-card">
               <ShieldCheck size={36} />
               <div>
-                <h3>Conformité RGPD</h3>
-                <p>Vous disposez d'un droit d'accès, de rectification et de suppression de vos données personnelles à tout moment via votre espace client ou par email.</p>
+                <h3>{t('support.privacy2title')}</h3>
+                <p>{t('support.privacy2')}</p>
               </div>
             </div>
           </div>
