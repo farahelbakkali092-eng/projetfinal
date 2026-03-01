@@ -22,12 +22,14 @@ export const CartProvider = ({ children }) => {
         setCartItems(prev => {
             const existing = prev.find(item => item.id === product.id);
             if (existing) {
-                toast.success(`Quantité mise à jour pour ${product.name}`);
-                return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+                return prev.map(item =>
+                    item.id === product.id ? { ...item, quantity: item.quantity + (product.quantity || 1) } : item
+                );
             }
-            toast.success(`${product.name} ajouté au panier`);
-            return [...prev, { ...product, quantity: 1 }];
+            return [...prev, { ...product, quantity: product.quantity || 1 }];
         });
+        // Toast called outside the updater to avoid setState-during-render warning
+        toast.success(`${product.name} ajouté au panier`);
     };
 
     const removeFromCart = (id) => {
@@ -49,7 +51,7 @@ export const CartProvider = ({ children }) => {
         localStorage.removeItem('cart');
     };
 
-    const subtotal = cartItems.reduce((acc, item) => acc + (parseFloat(item.price) * item.quantity), 0);
+    const subtotal = cartItems.reduce((acc, item) => acc + (parseFloat(item.price_sold || item.price) * item.quantity), 0);
 
     return (
         <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQuantity, clearCart, subtotal }}>

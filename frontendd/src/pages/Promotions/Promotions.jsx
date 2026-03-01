@@ -11,13 +11,8 @@ const Promotions = () => {
   useEffect(() => {
     const fetchPromos = async () => {
       try {
-        const res = await api.get('/products?per_page=8');
-        // On s'assure que les produits ont les champs nécessaires pour l'affichage des promos
-        setPromoProducts(res.data.data.data.map(p => ({
-          ...p,
-          discount: 20, // Valeur numérique pour ProductCard
-          price_sold: (p.price * 0.8).toFixed(2)
-        })));
+        const res = await api.get('/products/on-sale?limit=20');
+        setPromoProducts(res.data.data || []);
       } catch (error) {
         console.error("Error fetching promos", error);
       } finally {
@@ -39,6 +34,10 @@ const Promotions = () => {
           {isLoading ? (
             <div className="flex justify-center p-20">
               <Loader2 className="animate-spin text-gold" size={48} />
+            </div>
+          ) : promoProducts.length === 0 ? (
+            <div className="no-products" style={{ textAlign: 'center', padding: '60px 20px', color: '#8e6458' }}>
+              <p>Aucun produit en promotion pour le moment.</p>
             </div>
           ) : (
             <div className="shared-products-grid">

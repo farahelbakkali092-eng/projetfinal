@@ -102,10 +102,10 @@ const AuthPage = ({ isOpen, onClose, initialView = 'signin' }) => {
 
           {view !== 'forgot' && (
             <div className="form-group password-wrapper">
-              <input 
-                type={showPassword ? "text" : "password"} 
-                name="password" placeholder="Mot de passe" 
-                value={formData.password} onChange={handleChange} required 
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password" placeholder="Mot de passe"
+                value={formData.password} onChange={handleChange} required
               />
               <button type="button" className="toggle-pass" onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -115,10 +115,10 @@ const AuthPage = ({ isOpen, onClose, initialView = 'signin' }) => {
 
           {view === 'signup' && (
             <div className="form-group password-wrapper">
-              <input 
-                type={showPassword ? "text" : "password"} 
-                name="password_confirmation" placeholder="Confirmer le mot de passe" 
-                value={formData.password_confirmation} onChange={handleChange} required 
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password_confirmation" placeholder="Confirmer le mot de passe"
+                value={formData.password_confirmation} onChange={handleChange} required
               />
             </div>
           )}

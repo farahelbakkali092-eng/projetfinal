@@ -120,7 +120,7 @@ const BrandsPage = () => {
               setOpen(true);
             }}
           >
-            + Ajouter
+            Ajouter
           </button>
         </div>
       </div>

@@ -1,52 +1,50 @@
 import React, { useState } from 'react';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
-import { ChevronLeft, Truck, CreditCard, CheckCircle, Loader2 } from 'lucide-react';
+import { ChevronLeft, Truck, CreditCard, CheckCircle, Loader2, Package } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { toast } from 'react-hot-toast';
-import api from '../../api/axios'; // ⚠️ MODIFIÉ: Import de l'API
+import api from '../../api/axios';
 import './Checkout.css';
 
 const Checkout = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const { isAdmin } = useAuth();
     const { cartItems, subtotal, clearCart } = useCart();
 
-    if (isAdmin) {
-        return <Navigate to="/" replace />;
-    }
-    
+    // All hooks must be declared at the top level
     const [paymentMethod, setPaymentMethod] = useState('cod');
     const [isOrdered, setIsOrdered] = useState(false);
-    const [isProcessing, setIsProcessing] = useState(false); // ⚠️ AJOUTÉ: État de chargement
-
+    const [isProcessing, setIsProcessing] = useState(false);
     const [formData, setFormData] = useState({
         fullName: '',
         phone: '',
         city: '',
         address: '',
         postalCode: '',
-        cardName: '',
-        cardNumber: '',
-        expiry: '',
-        cvv: ''
     });
+
+    if (isAdmin) {
+        return <Navigate to="/" replace />;
+    }
 
     if (cartItems.length === 0 && !isOrdered) {
         return (
             <div className="checkout-empty">
-                <h2>Votre panier est vide</h2>
-                <Link to="/" className="back-btn">Retour à la boutique</Link>
+                <Package size={64} strokeWidth={1} color="#c9a49a" />
+                <h2>{t('checkout.emptyCart')}</h2>
+                <Link to="/" className="back-shop-btn">{t('checkout.backToShop')}</Link>
             </div>
         );
     }
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // ⚠️ NOUVELLE FONCTION: Envoi de la commande avec les articles du panier
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsProcessing(true);
@@ -62,9 +60,7 @@ const Checkout = () => {
         };
 
         try {
-           await api.get('/sanctum/csrf-cookie', { baseURL: 'http://localhost:8000' });
             await api.post('/orders', orderPayload);
-            
             clearCart();
             setIsOrdered(true);
             toast.success('Commande validée avec succès !');
@@ -78,13 +74,15 @@ const Checkout = () => {
 
     if (isOrdered) {
         return (
-            <div className="checkout-container">
-                <div className="confirmation-card">
-                    <CheckCircle size={64} color="#c0675a" className="success-icon" style={{ margin: '0 auto' }} />
-                    <h1>Merci pour votre commande !</h1>
-                    <p>Votre commande a été traitée avec succès et sera expédiée très bientôt.</p>
+            <div className="confirmation-container">
+                <div className="confirmation-card fade-in">
+                    <div className="success-icon">
+                        <CheckCircle size={72} color="#c0675a" strokeWidth={1.5} />
+                    </div>
+                    <h1>{t('checkout.thankYou')}</h1>
+                    <p>{t('checkout.successMsg')}</p>
                     <button onClick={() => navigate('/')} className="back-shop-btn">
-                        Retour à la boutique
+                        {t('checkout.backToShop')}
                     </button>
                 </div>
             </div>
@@ -93,106 +91,146 @@ const Checkout = () => {
 
     return (
         <div className="checkout-container">
+            {/* Header */}
             <div className="checkout-header">
                 <button onClick={() => navigate('/cart')} className="back-to-cart">
-                    <ChevronLeft size={20} /> Retour au panier
+                    <ChevronLeft size={20} /> {t('checkout.backToCart')}
                 </button>
-                <h1>Finaliser la commande</h1>
-                <div className="checkout-total">Total: {subtotal.toFixed(2)} MAD</div>
+                <h1>{t('checkout.title')}</h1>
+                <div className="checkout-total">{t('checkout.total')}: {subtotal.toFixed(2)} MAD</div>
             </div>
 
-            {/* ⚠️ MODIFIÉ: Ajout de onSubmit={handleSubmit} */}
-            <form onSubmit={handleSubmit} className="checkout-form">
-                <section className="form-section">
-                    <h2>1. Informations de livraison</h2>
-                    <div className="input-group">
-                        <input
-                            type="text"
-                            name="fullName"
-                            placeholder="Nom complet"
-                            value={formData.fullName}
-                            onChange={handleInputChange}
-                            required
-                        />
+            <div className="checkout-layout">
+                {/* Order Summary */}
+                <aside className="checkout-summary">
+                    <h3 className="summary-title">Récapitulatif</h3>
+                    <div className="summary-items">
+                        {cartItems.map(item => (
+                            <div key={item.id} className="summary-item">
+                                <div className="summary-item-img">
+                                    <img
+                                        src={item.images?.[0]
+                                            ? `http://localhost:8000/storage/${item.images[0].image_path}`
+                                            : 'https://placehold.co/80?text=P'}
+                                        alt={item.name}
+                                    />
+                                    <span className="summary-qty">{item.quantity}</span>
+                                </div>
+                                <div className="summary-item-info">
+                                    <span className="summary-item-name">{item.name}</span>
+                                    <span className="summary-item-price">
+                                        {(parseFloat(item.price_sold || item.price) * item.quantity).toFixed(2)} MAD
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                    <div className="input-group">
-                        <input
-                            type="tel"
-                            name="phone"
-                            placeholder="Téléphone"
-                            value={formData.phone}
-                            onChange={handleInputChange}
-                            required
-                        />
+                    <div className="summary-divider" />
+                    <div className="summary-total-row">
+                        <span>Total</span>
+                        <span className="summary-total-price">{subtotal.toFixed(2)} MAD</span>
                     </div>
-                    <div className="input-group">
-                        <input
-                            type="text"
-                            name="city"
-                            placeholder="Ville"
-                            value={formData.city}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </div>
-                    <div className="input-group">
-                        <input
-                            type="text"
-                            name="address"
-                            placeholder="Adresse"
-                            value={formData.address}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </div>
-                    <div className="input-group">
-                        <input
-                            type="text"
-                            name="postalCode"
-                            placeholder="Code postal"
-                            value={formData.postalCode}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </div>
-                </section>
+                </aside>
 
-                <section className="form-section">
-                    <h2>2. Méthode de paiement</h2>
-                    <div className="payment-methods">
-                        <label className={`payment-option ${paymentMethod === 'cod' ? 'selected' : ''}`}>
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="checkout-form">
+                    {/* Delivery Section */}
+                    <section className="form-section">
+                        <h2>{t('checkout.shipping')}</h2>
+                        <div className="input-row">
+                            <div className="input-group">
+                                <input
+                                    type="text"
+                                    name="fullName"
+                                    placeholder={t('checkout.fullName')}
+                                    value={formData.fullName}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </div>
+                            <div className="input-group">
+                                <input
+                                    type="tel"
+                                    name="phone"
+                                    placeholder={t('checkout.phone')}
+                                    value={formData.phone}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="input-row">
+                            <div className="input-group">
+                                <input
+                                    type="text"
+                                    name="city"
+                                    placeholder={t('checkout.city')}
+                                    value={formData.city}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </div>
+                            <div className="input-group">
+                                <input
+                                    type="text"
+                                    name="postalCode"
+                                    placeholder={t('checkout.postalCode')}
+                                    value={formData.postalCode}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="input-group">
                             <input
-                                type="radio"
-                                name="payment"
-                                value="cod"
-                                checked={paymentMethod === 'cod'}
-                                onChange={() => setPaymentMethod('cod')}
+                                type="text"
+                                name="address"
+                                placeholder={t('checkout.address')}
+                                value={formData.address}
+                                onChange={handleInputChange}
+                                required
                             />
-                            <Truck size={20} />
-                            Paiement à la livraison
-                        </label>
-                        <label className={`payment-option ${paymentMethod === 'online' ? 'selected' : ''}`}>
-                            <input
-                                type="radio"
-                                name="payment"
-                                value="online"
-                                checked={paymentMethod === 'online'}
-                                onChange={() => setPaymentMethod('online')}
-                            />
-                            <CreditCard size={20} />
-                            Paiement en ligne
-                        </label>
-                    </div>
-                </section>
+                        </div>
+                    </section>
 
-                <button type="submit" className="submit-order-btn" disabled={isProcessing}>
-                    {isProcessing ? (
-                        <Loader2 className="animate-spin" style={{ margin: '0 auto' }} />
-                    ) : (
-                        paymentMethod === 'online' ? `Payer ${subtotal.toFixed(2)} MAD` : 'Passer la commande'
-                    )}
-                </button>
-            </form>
+                    {/* Payment Section */}
+                    <section className="payment-section">
+                        <h2>{t('checkout.payment')}</h2>
+                        <div className="payment-options">
+                            <div
+                                className={`payment-card ${paymentMethod === 'cod' ? 'selected' : ''}`}
+                                onClick={() => setPaymentMethod('cod')}
+                            >
+                                <div className="payment-icon"><Truck size={24} /></div>
+                                <div className="payment-text">
+                                    <span className="payment-title">{t('checkout.cod')}</span>
+                                    <span className="payment-desc">Payez à la réception</span>
+                                </div>
+                            </div>
+                            <div
+                                className={`payment-card ${paymentMethod === 'online' ? 'selected' : ''}`}
+                                onClick={() => setPaymentMethod('online')}
+                            >
+                                <div className="payment-icon"><CreditCard size={24} /></div>
+                                <div className="payment-text">
+                                    <span className="payment-title">{t('checkout.online')}</span>
+                                    <span className="payment-desc">Carte bancaire sécurisée</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <button type="submit" className="submit-order-btn" disabled={isProcessing}>
+                        {isProcessing ? (
+                            <Loader2 className="animate-spin" size={20} style={{ margin: '0 auto' }} />
+                        ) : (
+                            paymentMethod === 'online'
+                                ? `${t('checkout.pay')} ${subtotal.toFixed(2)} MAD`
+                                : t('checkout.placeOrder')
+                        )}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 };

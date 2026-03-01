@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Heart, ShoppingBag, User, LogOut, Menu, X, ShieldCheck } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import './Header.css';
 
-const Header = ({ onLoginClick, onCartClick }) => {
+const Header = ({ onLoginClick }) => {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const { user, logout, isAdmin } = useAuth();
   const { cartItems } = useCart();
   const { favorites } = useFavorites();
@@ -18,18 +20,33 @@ const Header = ({ onLoginClick, onCartClick }) => {
   const [sections, setSections] = useState([]);
   const [activeSection, setActiveSection] = useState(null);
   const [showSubMenu, setShowSubMenu] = useState(false);
+  const [advertisingText, setAdvertisingText] = useState(" ");
+
+  // Language switcher
+  const currentLang = i18n.language?.startsWith('en') ? 'en' : 'fr';
+
+  const toggleLanguage = () => {
+    const newLang = currentLang === 'fr' ? 'en' : 'fr';
+    i18n.changeLanguage(newLang);
+    localStorage.setItem('lang', newLang);
+  };
 
   // Récupération dynamique des catégories et sections pour le menu
   useEffect(() => {
     const fetchMenuData = async () => {
       try {
-        const [catRes, secRes] = await Promise.all([
+        const [catRes, secRes, settingsRes] = await Promise.all([
           api.get('/products/categories'),
-          api.get('/sections')
+          api.get('/sections'),
+          api.get('/settings')
         ]);
 
         setCategories(Array.isArray(catRes?.data?.data) ? catRes.data.data : []);
         setSections(Array.isArray(secRes?.data?.data) ? secRes.data.data : []);
+
+        if (settingsRes?.data?.data?.advertising_text) {
+          setAdvertisingText(settingsRes.data.data.advertising_text);
+        }
       } catch (error) {
         console.error("Error fetching menu data in Header:", error);
       }
@@ -50,13 +67,13 @@ const Header = ({ onLoginClick, onCartClick }) => {
 
   // Construction des liens de navigation
   const navLinks = [
-    { label: "NOUVEAUTÉS", path: "/", type: 'link' },
+    { label: t('nav.home'), path: "/", type: 'link' },
     ...sections.map(sec => ({
-      label: sec.name.toUpperCase(),
+      label: t(`sections.${sec.name.toLowerCase()}`, { defaultValue: sec.name.toUpperCase() }),
       id: sec.id,
       type: 'section'
     })),
-    { label: "OFFRES", path: "/promotions", type: 'link' },
+    { label: t('nav.offers'), path: "/promotions", type: 'link' },
   ];
 
   const handleSectionClick = (sectionId) => {
@@ -78,7 +95,7 @@ const Header = ({ onLoginClick, onCartClick }) => {
   return (
     <>
       <div className="top-bar">
-        Livraison offerte dès 750 Dhs — Code <span className="font-bold">BEAUTY25</span> pour -25%
+        {advertisingText}
       </div>
 
       <header className="header sticky-header">
@@ -114,7 +131,7 @@ const Header = ({ onLoginClick, onCartClick }) => {
                 <Search size={18} className="search-icon-left" />
                 <input
                   type="text"
-                  placeholder="Rechercher..."
+                  placeholder={t('nav.search')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pill-search-input"
@@ -125,8 +142,17 @@ const Header = ({ onLoginClick, onCartClick }) => {
               </form>
             </div>
 
-            {/* Actions (Compte, Favoris, Panier) */}
+            {/* Actions (Compte, Favoris, Panier, Langue) */}
             <div className="header-actions">
+              {/* Language switcher */}
+              <button
+                className="lang-switcher-btn"
+                onClick={toggleLanguage}
+                title={currentLang === 'fr' ? 'Switch to English' : 'Passer en Français'}
+              >
+                {currentLang === 'fr' ? 'EN' : 'FR'}
+              </button>
+
               <button
                 className="icon-btn"
                 onClick={user ? (isAdmin ? () => navigate('/admin') : () => navigate('/account')) : onLoginClick}
@@ -142,10 +168,10 @@ const Header = ({ onLoginClick, onCartClick }) => {
                     {favoritesCount > 0 && <span className="badge">{favoritesCount}</span>}
                   </Link>
 
-                  <button onClick={onCartClick} className="icon-btn relative">
+                  <Link to="/cart" className="icon-btn relative">
                     <ShoppingBag size={20} />
                     {cartCount > 0 && <span className="badge">{cartCount}</span>}
-                  </button>
+                  </Link>
                 </>
               )}
             </div>
@@ -233,9 +259,16 @@ const Header = ({ onLoginClick, onCartClick }) => {
                 </Link>
               )
             ))}
+            {/* Mobile language switcher */}
+            <button
+              className="mobile-nav-link w-full text-left"
+              onClick={toggleLanguage}
+            >
+              {currentLang === 'fr' ? '🇬🇧 English' : '🇫🇷 Français'}
+            </button>
             {user && !isAdmin && (
               <Link to="/account" className="mobile-nav-link" onClick={() => setIsMobileOpen(false)}>
-                Mon Espace
+                {t('auth.account')}
               </Link>
             )}
             {!user && (
@@ -243,7 +276,7 @@ const Header = ({ onLoginClick, onCartClick }) => {
                 className="mobile-nav-link w-full text-left"
                 onClick={() => { setIsMobileOpen(false); onLoginClick(); }}
               >
-                Se connecter
+                {t('auth.login')}
               </button>
             )}
           </nav>

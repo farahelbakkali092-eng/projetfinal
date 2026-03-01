@@ -17,14 +17,16 @@ class ProductRequest extends BaseApiRequest
 
         // Dans la méthode rules() de ProductRequest :
     return [
-        'name' => ['required', 'string', 'max:50', 'regex:/^[\pL\pN\s\-\']+$/u'], // <-- \pL pour les accents, \pN pour les chiffres
+        'name' => ['required', 'string', 'max:50', 'regex:/^[\pL\pN\s\-\']+$/u'],
         'slug' => ['required', 'string', Rule::unique('products', 'slug')->ignore($productId)],
-        'description' => ['required', 'string'], // <-- Retrait de max:255
+        'description' => ['required', 'string'],
         'price' => ['required', 'numeric', 'min:0.01'],
+        'price_sold' => ['nullable', 'numeric', 'min:0'],
+        'discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
         'stock' => ['required', 'integer', 'min:0'],
         'category_id' => ['required', 'exists:categories,id'],
         'brand_id' => ['required', 'exists:brands,id'],
-        'section_id' => ['nullable', 'exists:sections,id'], // <-- CORRIGÉ
+        'section_id' => ['nullable', 'exists:sections,id'],
         'images' => ['nullable', 'array'],
         'images.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
     ];

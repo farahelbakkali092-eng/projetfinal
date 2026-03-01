@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
-import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 
 // Assets
@@ -16,7 +16,7 @@ import ProductCard from '../../components/ProductCard/ProductCard';
 import './Home.css';
 
 const Home = () => {
-  const { addToCart } = useCart();
+  const { t } = useTranslation();
   const { isAdmin } = useAuth();
   const [categories, setCategories] = useState([]);
   const [sessions, setSessions] = useState([]);
@@ -80,16 +80,16 @@ const Home = () => {
         </div>
         <div className="relative container hero-container">
           <div className="hero-text-content">
-            <p className="hero-subtitle animate-fade-in">Spring Collection 2025</p>
+            <p className="hero-subtitle animate-fade-in">{t('hero.subtitle')}</p>
             <h1 className="hero-title animate-fade-in delay-100">
-              Discover Your <em className="italic text-gold-light">Natural</em> Glow
+              {t('hero.title')} <em className="italic text-gold-light">{t('hero.titleItalic')}</em>
             </h1>
             <p className="hero-desc animate-fade-in delay-200">
-              Curated luxury beauty essentials from the world's most prestigious brands.
+              {t('hero.desc')}
             </p>
             <div className="hero-buttons animate-fade-in delay-300">
-              <a href="#products" className="btn btn-gold">Shop Now</a>
-              <a href="#categories" className="btn btn-outline">Explore</a>
+              <a href="#products" className="btn btn-gold">{t('hero.shopNow')}</a>
+              <a href="#categories" className="btn btn-outline">{t('hero.explore')}</a>
             </div>
           </div>
         </div>
@@ -105,10 +105,10 @@ const Home = () => {
             />
           </div>
           <div className="routine-content">
-            <h2>Votre routine personnalisée</h2>
-            <p>Vous souhaitez une routine personnalisée pour votre peau ? Remplissez ce formulaire et laissez nos experts vous guider.</p>
+            <h2>{t('home.routineTitle')}</h2>
+            <p>{t('home.routineDesc')}</p>
             <Link to="/routine" className="link-underline">
-              Remplir le formulaire <ArrowRight size={16} style={{ marginLeft: '8px' }} />
+              {t('home.routineLink')} <ArrowRight size={16} style={{ marginLeft: '8px' }} />
             </Link>
           </div>
         </div>
@@ -119,8 +119,8 @@ const Home = () => {
         <section id="categories" className="categories-section section-padding">
           <div className="container">
             <div className="section-header text-center">
-              <p className="section-subtitle">EXPLORE</p>
-              <h2 className="section-title">Nos Collections</h2>
+              <p className="section-subtitle">{t('home.exploreSubtitle')}</p>
+              <h2 className="section-title">{t('home.collectionsTitle')}</h2>
             </div>
 
             {/* Session Tabs/Selectors */}
@@ -186,8 +186,8 @@ const Home = () => {
       <section id="products" className="best-sellers section-padding">
         <div className="container">
           <div className="section-header text-center">
-            <p className="section-subtitle">FAVORITES</p>
-            <h2 className="section-title">Produits les plus vendus</h2>
+            <p className="section-subtitle">{t('home.favorites')}</p>
+            <h2 className="section-title">{t('home.bestSellers')}</h2>
           </div>
 
           {isLoading ? (
@@ -195,7 +195,7 @@ const Home = () => {
               <Loader2 className="animate-spin text-gold" size={48} />
             </div>
           ) : (
-            <div className="products-grid">
+            <div className="shared-products-grid">
               {bestSellers.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -209,11 +209,11 @@ const Home = () => {
         <section className="on-sale-section section-padding bg-rose-50/30">
           <div className="container">
             <div className="section-header text-center">
-              <p className="section-subtitle" style={{ color: '#c0675a', fontWeight: 600 }}>OFFRES SPÉCIALES</p>
-              <h2 className="section-title">Les Soldes</h2>
+              <p className="section-subtitle" style={{ color: '#c0675a', fontWeight: 600 }}>{t('home.specialOffers')}</p>
+              <h2 className="section-title">{t('home.saleTitle')}</h2>
             </div>
 
-            <div className="products-grid">
+            <div className="shared-products-grid">
               {onSaleProducts
                 .filter(product => (product.discount > 0) || (product.price_sold && parseFloat(product.price_sold) < parseFloat(product.price)))
                 .map((product) => (
@@ -236,8 +236,8 @@ const Home = () => {
       >
         <div className="offers-overlay">
           <div className="offers-content text-center">
-            <h2>Nos offres exclusives vous attendent</h2>
-            <Link to="/promotions" className="btn btn-transparent">Voir le solde</Link>
+            <h2>{t('home.exclusiveOffers')}</h2>
+            <Link to="/promotions" className="btn btn-transparent">{t('home.seeOffers')}</Link>
           </div>
         </div>
       </section>

@@ -9,7 +9,7 @@ import CategoriesPage from './pages/CategoriesPage';
 import OrdersPage from './pages/OrdersPage';
 import OrderDetailsPage from './pages/OrderDetailsPage';
 import UsersPage from './pages/UsersPage';
-import MessagesPage from './pages/MessagesPage';
+import AdvertisingPage from './pages/AdvertisingPage';
 import AccountInfoPage from '../account/pages/AccountInfoPage';
 
 const AdminApp = () => {
@@ -19,6 +19,7 @@ const AdminApp = () => {
         <Route index element={<DashboardPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="sections" element={<SectionsPage />} />
+        <Route path="publicite" element={<AdvertisingPage />} />
         <Route path="informations" element={<AccountInfoPage />} />
 
         <Route path="produits" element={<ProductsPage />} />
@@ -27,7 +28,6 @@ const AdminApp = () => {
         <Route path="commandes" element={<OrdersPage />} />
         <Route path="commandes/:id" element={<OrderDetailsPage />} />
         <Route path="utilisateurs" element={<UsersPage />} />
-        <Route path="messages" element={<MessagesPage />} />
 
         {/* Backward compatibility */}
         <Route path="products" element={<Navigate to="/admin/produits" replace />} />
@@ -35,6 +35,7 @@ const AdminApp = () => {
         <Route path="orders" element={<Navigate to="/admin/commandes" replace />} />
         <Route path="orders/:id" element={<Navigate to="/admin/commandes" replace />} />
         <Route path="users" element={<Navigate to="/admin/utilisateurs" replace />} />
+        <Route path="messages" element={<Navigate to="/admin" replace />} />
 
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Route>

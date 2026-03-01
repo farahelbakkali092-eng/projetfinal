@@ -4,7 +4,7 @@ import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 
 const AccountInfoPage = () => {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, isAdmin } = useAuth();
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -57,36 +57,47 @@ const AccountInfoPage = () => {
     <div>
       <div className="account-page-header">
         <div>
-          <h1>Mes informations</h1>
-          <div className="account-muted">Consulte tes informations personnelles et change ton mot de passe</div>
+          <h1>{isAdmin ? 'Modifier le mot de passe' : 'Mes informations'}</h1>
+          <div className="account-muted">
+            {isAdmin ? 'Change ton mot de passe administrateur' : 'Consulte tes informations personnelles et change ton mot de passe'}
+          </div>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16 }}>
-        <div style={{ border: '1px solid var(--border-light)', borderRadius: 12, padding: 14, background: '#fff' }}>
-          <div className="account-muted" style={{ marginBottom: 10 }}>Informations personnelles</div>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: isAdmin ? '1fr' : '1.2fr 1fr',
+        gap: 16,
+        maxWidth: isAdmin ? '600px' : 'none',
+        margin: isAdmin ? '0 auto' : '0'
+      }}>
 
-          <table className="account-table">
-            <tbody>
-              <tr>
-                <th style={{ width: 180 }}>Prénom</th>
-                <td>{user?.first_name || '-'}</td>
-              </tr>
-              <tr>
-                <th>Nom</th>
-                <td>{user?.last_name || '-'}</td>
-              </tr>
-              <tr>
-                <th>Email</th>
-                <td>{user?.email || '-'}</td>
-              </tr>
-              <tr>
-                <th>Téléphone</th>
-                <td>{displayPhone}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        {!isAdmin && (
+          <div style={{ border: '1px solid var(--border-light)', borderRadius: 12, padding: 14, background: '#fff' }}>
+            <div className="account-muted" style={{ marginBottom: 10 }}>Informations personnelles</div>
+
+            <table className="account-table">
+              <tbody>
+                <tr>
+                  <th style={{ width: 180 }}>Prénom</th>
+                  <td>{user?.first_name || '-'}</td>
+                </tr>
+                <tr>
+                  <th>Nom</th>
+                  <td>{user?.last_name || '-'}</td>
+                </tr>
+                <tr>
+                  <th>Email</th>
+                  <td>{user?.email || '-'}</td>
+                </tr>
+                <tr>
+                  <th>Téléphone</th>
+                  <td>{displayPhone}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
 
         <div style={{ border: '1px solid var(--border-light)', borderRadius: 12, padding: 14, background: 'linear-gradient(180deg, #fff, var(--blush))' }}>
           <div className="account-muted" style={{ marginBottom: 10 }}>Modifier le mot de passe</div>
