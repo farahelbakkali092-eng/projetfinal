@@ -73,7 +73,7 @@ const UsersPage = () => {
   };
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="admin-page-header">
         <div>
           <h1>{t('admin.users')}</h1>

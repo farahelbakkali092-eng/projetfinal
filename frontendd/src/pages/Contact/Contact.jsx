@@ -65,7 +65,7 @@ const Contact = () => {
       if (err.response?.data?.errors) {
         setErrors(err.response.data.errors);
       } else {
-        toast.error(err.response?.data?.message || 'Error');
+        setErrors({ general: [err.response?.data?.message || 'Error'] });
       }
     } finally {
       setLoading(false);
@@ -78,6 +78,7 @@ const Contact = () => {
       <main className="contact-main">
         <section className="contact-form-section">
           <h2>{t('contact.title')}</h2>
+          <FormError error={errors.general} />
           {/* ⚠️ MODIFIÉ: Ajout de onSubmit={handleSubmit} */}
           <form onSubmit={handleSubmit}>
             <div className="form-row">

@@ -164,28 +164,49 @@ const ProductsPage = () => {
       const stock = Number(form.stock);
       const priceSold = form.price_sold !== '' ? Number(form.price_sold) : null;
 
+      const newErrors = {};
+
       // Check name (3-50 chars, no digits only)
-      if (name.length < 3 || name.length > 50) return toast.error('Le nom doit faire entre 3 et 50 caractères');
-      if (/^[0-9]+$/.test(name)) return toast.error('Le nom ne peut pas être composé uniquement de chiffres');
+      if (name.length < 3 || name.length > 50) {
+        newErrors.name = ["Le nom doit contenir entre 3 et 50 caractères."];
+      } else if (/^[0-9]+$/.test(name)) {
+        newErrors.name = ["Le nom ne peut pas être composé uniquement de chiffres."];
+      }
 
       // Check description (10-300 chars, no digits only)
-      if (desc.length < 10 || desc.length > 300) return toast.error('La description doit faire entre 10 et 300 caractères');
-      if (/^[0-9]+$/.test(desc)) return toast.error('La description ne peut pas être composée uniquement de chiffres');
+      if (desc.length < 10 || desc.length > 300) {
+        newErrors.description = ["La description doit contenir entre 10 et 300 caractères."];
+      } else if (/^[0-9]+$/.test(desc)) {
+        newErrors.description = ["La description ne peut pas être composée uniquement de chiffres."];
+      }
 
       // Check price (10 - 10,000)
-      if (price < 10 || price > 10000) return toast.error('Le prix doit être entre 10 et 10 000 MAD');
+      if (price < 10 || price > 10000) {
+        newErrors.price = ["Le prix doit être compris entre 10 et 10 000 MAD."];
+      }
 
-      // Check stock (0 - 50,000)
-      if (stock < 0 || stock > 50000) return toast.error('Le stock ne peut pas dépasser 50 000');
+      // Check stock (1 - 50,000)
+      if (stock < 1 || stock > 50000) {
+        newErrors.stock = ["Le stock doit être compris entre 1 et 50 000."];
+      }
 
       // Check promotional price
       if (priceSold !== null) {
-        if (priceSold <= 5) return toast.error('Le prix promotionnel doit être supérieur à 5 MAD');
-        if (priceSold >= price) return toast.error('Le prix promotionnel doit être inférieur au prix normal');
+        if (priceSold <= 5) {
+          newErrors.price_sold = ["Le prix soldé doit être supérieur à 5 MAD."];
+        } else if (priceSold >= price) {
+          newErrors.price_sold = ["Le prix soldé doit être inférieur au prix initial."];
+        }
       }
 
-      if (!form.category_id) return toast.error('Catégorie obligatoire');
-      if (!form.brand_id) return toast.error('Marque obligatoire');
+      if (!form.category_id) newErrors.category_id = ["Veuillez choisir une catégorie."];
+      if (!form.brand_id) newErrors.brand_id = ["Veuillez choisir une marque."];
+      if (!form.section_id) newErrors.section_id = ["Veuillez choisir une section."];
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
 
       const fd = new FormData();
       fd.append('name', name);
@@ -230,7 +251,7 @@ const ProductsPage = () => {
       if (e.response?.data?.errors) {
         setErrors(e.response.data.errors);
       } else {
-        toast.error(e.response?.data?.message || 'Erreur');
+        setErrors({ general: [e.response?.data?.message || 'Erreur'] });
       }
     }
   };
@@ -268,7 +289,7 @@ const ProductsPage = () => {
   };
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="admin-page-header">
         <div>
           <h1>{t('admin.products')}</h1>
@@ -418,6 +439,7 @@ const ProductsPage = () => {
         )}
       >
         <div className="admin-form-grid">
+          <div style={{ gridColumn: '1 / -1' }}><FormError error={errors.general} /></div>
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.name')}</div>
             <input className="admin-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
@@ -505,13 +527,12 @@ const ProductsPage = () => {
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
+            <FormError error={errors.section_id} />
           </div>
           {(() => {
             const selectedCat = categories.find(c => String(c.id) === String(form.category_id));
             const isPerfume = selectedCat && selectedCat.name.toLowerCase().includes('parfum');
-            if (!isPerfume) {
-              return errors.section_id ? <div style={{ marginBottom: 15 }}><FormError error={errors.section_id} /></div> : null;
-            }
+            if (!isPerfume) return null;
             return (
               <div>
                 <div className="admin-muted" style={{ marginBottom: 6 }}>💨 Contenance (ml)</div>
