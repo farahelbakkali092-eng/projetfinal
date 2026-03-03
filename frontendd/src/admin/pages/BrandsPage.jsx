@@ -47,11 +47,23 @@ const BrandsPage = () => {
       const name = form.name.trim();
       const desc = form.description.trim();
 
-      if (name.length < 3 || name.length > 50) return toast.error('Le nom de la marque doit faire entre 3 et 50 caractères');
-      if (/^[0-9]+$/.test(name)) return toast.error('Le nom ne peut pas être composé uniquement de chiffres');
+      const newErrors = {};
+      if (name.length < 3 || name.length > 50) {
+        newErrors.name = ["Le nom doit contenir entre 3 et 50 caractères."];
+      } else if (/^[0-9]+$/.test(name)) {
+        newErrors.name = ["Le nom ne peut pas être composé uniquement de chiffres."];
+      }
 
-      if (desc.length < 10 || desc.length > 300) return toast.error('La description doit faire entre 10 et 300 caractères');
-      if (/^[0-9]+$/.test(desc)) return toast.error('La description ne peut pas être composée uniquement de chiffres');
+      if (desc.length < 10 || desc.length > 300) {
+        newErrors.description = ["La description doit contenir entre 10 et 300 caractères."];
+      } else if (/^[0-9]+$/.test(desc)) {
+        newErrors.description = ["La description ne peut pas être composée uniquement de chiffres."];
+      }
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
 
       const fd = new FormData();
       fd.append('name', form.name);
@@ -74,7 +86,7 @@ const BrandsPage = () => {
       if (e.response?.data?.errors) {
         setErrors(e.response.data.errors);
       } else {
-        toast.error(e.response?.data?.message || 'Erreur lors de l\'enregistrement');
+        setErrors({ general: [e.response?.data?.message || 'Erreur lors de l\'enregistrement'] });
       }
     }
   };
@@ -99,7 +111,7 @@ const BrandsPage = () => {
   };
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="admin-page-header">
         <div>
           <h1>Marques</h1>
@@ -197,6 +209,7 @@ const BrandsPage = () => {
         )}
       >
         <div className="admin-form-grid">
+          <div style={{ gridColumn: '1 / -1' }}><FormError error={errors.general} /></div>
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>Nom</div>
             <input className="admin-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />

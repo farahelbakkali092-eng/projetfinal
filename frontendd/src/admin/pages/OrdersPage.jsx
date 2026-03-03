@@ -37,7 +37,7 @@ const OrdersPage = () => {
   }, []);
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="admin-page-header">
         <div>
           <h1>{t('admin.orders')}</h1>

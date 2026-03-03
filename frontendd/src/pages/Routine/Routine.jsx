@@ -90,7 +90,6 @@ const Routine = () => {
     e.preventDefault();
 
     if (!validateForm()) {
-      toast.error(i18n.language === 'fr' ? "Veuillez compléter le formulaire correctement." : "Please complete the form correctly.");
       return;
     }
 
@@ -114,9 +113,8 @@ const Routine = () => {
       if (error.response && error.response.status === 422) {
         // Gestion des erreurs Laravel (Validation Backend)
         setErrors(error.response.data.errors);
-        toast.error(i18n.language === 'fr' ? "Veuillez vérifier les informations saisies." : "Please check the entered information.");
       } else {
-        toast.error(i18n.language === 'fr' ? "Une erreur est survenue lors de l'envoi." : "An error occurred during sending.");
+        setErrors({ general: [error.response?.data?.message || (i18n.language === 'fr' ? "Une erreur est survenue lors de l'envoi." : "An error occurred during sending.")] });
       }
     } finally {
       setLoading(false);
@@ -150,7 +148,7 @@ const Routine = () => {
               {t('routine.desc')}
             </p>
           </div>
-
+          <FormError error={errors.general} />
           <form className="routine-form" onSubmit={handleSubmit}>
 
             {/* SECTION 1: PROFIL */}

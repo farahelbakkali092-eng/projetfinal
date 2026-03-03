@@ -4,16 +4,21 @@ const FormError = ({ error }) => {
     if (!error) return null;
 
     // Si c'est un tableau (Laravel style), on prend le premier message
-    const message = Array.isArray(error) ? error[0] : error;
+    let message = Array.isArray(error) ? error[0] : error;
+
+    if (!message || typeof message !== 'string') return null;
 
     return (
-        <div style={{
-            color: '#c0675a',
+        <div className="form-error-msg" style={{
+            color: '#dc2626', // Red-600
             fontSize: '0.75rem',
             marginTop: '4px',
             fontStyle: 'italic',
             fontFamily: "'Jost', sans-serif",
-            textAlign: 'left'
+            textAlign: 'left',
+            fontWeight: '600', // Un peu plus gras pour la visibilité
+            display: 'block', // S'assurer qu'il est visible
+            zIndex: 10
         }}>
             {message}
         </div>

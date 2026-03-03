@@ -66,7 +66,28 @@ const SectionsPage = () => {
     const onSubmit = async () => {
         setErrors({});
         try {
-            if (!form.name.trim()) return toast.error(t('admin.name_required') || 'Nom obligatoire');
+            const name = form.name.trim();
+            const newErrors = {};
+
+            if (!name) {
+                newErrors.name = ["Veuillez sélectionner une section."];
+            } else {
+                // Uniqueness check
+                const exists = items.some(s => s.name.toUpperCase() === name.toUpperCase() && s.id !== editing?.id);
+                if (exists) {
+                    newErrors.name = ["Cette section existe déjà."];
+                }
+            }
+
+            const orderValue = form.order;
+            if (orderValue === '' || orderValue === null || isNaN(orderValue) || Number(orderValue) < 0) {
+                newErrors.order = ["Ordre d’affichage invalide. Il doit être un nombre positif, supérieur ou égal à 0."];
+            }
+
+            if (Object.keys(newErrors).length > 0) {
+                setErrors(newErrors);
+                return;
+            }
 
             if (editing) {
                 await adminApi.updateSection(editing.id, form);
@@ -84,13 +105,13 @@ const SectionsPage = () => {
             if (e.response?.data?.errors) {
                 setErrors(e.response.data.errors);
             } else {
-                toast.error(e.response?.data?.message || 'Erreur');
+                setErrors({ general: [e.response?.data?.message || 'Erreur'] });
             }
         }
     };
 
     return (
-        <div>
+        <div className="animate-fade-in">
             <div className="admin-page-header">
                 <div>
                     <h1>{t('admin.sections')}</h1>
@@ -142,6 +163,7 @@ const SectionsPage = () => {
                     </>
                 )}
             >
+                <div style={{ padding: '0 20px' }}><FormError error={errors.general} /></div>
                 <div className="admin-form-grid">
                     <div style={{ gridColumn: '1 / -1' }}>
                         <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.name')}</div>

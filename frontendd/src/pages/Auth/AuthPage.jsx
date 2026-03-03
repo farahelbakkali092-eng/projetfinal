@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { toast } from 'react-hot-toast';
 import FormError from '../../components/FormError';
 import './AuthPage.css';
 
@@ -83,7 +82,7 @@ const AuthPage = ({ isOpen, onClose, initialView = 'signin' }) => {
             {view === 'forgot' && "Entrez votre email pour réinitialiser votre mot de passe."}
           </p>
         </div>
-
+        <div style={{ padding: '0 40px' }}><FormError error={errors.general} /></div>
         <form onSubmit={handleSubmit} className="auth-form">
           {view === 'signup' && (
             <div className="form-group-row">

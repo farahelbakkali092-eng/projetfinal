@@ -32,8 +32,7 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             const message = error.response?.data?.message || 'Identifiants invalides';
             const errors = error.response?.data?.errors;
-            toast.error(message);
-            return { success: false, message, errors };
+            return { success: false, message, errors: errors || { general: [message] } };
         } finally {
             setLoading(false);
         }
@@ -55,12 +54,7 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             const errors = error.response?.data?.errors;
             const message = error.response?.data?.message || 'Erreur lors de l’inscription';
-            if (errors) {
-                Object.values(errors).flat().forEach(err => toast.error(err));
-            } else {
-                toast.error(message);
-            }
-            return { success: false, message, errors };
+            return { success: false, message, errors: errors || { general: [message] } };
         } finally {
             setLoading(false);
         }
@@ -87,7 +81,6 @@ export const AuthProvider = ({ children }) => {
             toast.success('Si cet email existe, un lien vous a été envoyé.');
             return true;
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Erreur lors de la demande');
             return false;
         } finally {
             setLoading(false);
@@ -101,7 +94,6 @@ export const AuthProvider = ({ children }) => {
             toast.success('Mot de passe réinitialisé avec succès ! Vous pouvez vous connecter.');
             return true;
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Erreur lors de la réinitialisation');
             return false;
         } finally {
             setLoading(false);
