@@ -22,7 +22,13 @@ class ProductRepository extends BaseRepository
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'ILIKE', "%{$search}%")
-                  ->orWhere('description', 'ILIKE', "%{$search}%");
+                  ->orWhere('description', 'ILIKE', "%{$search}%")
+                  ->orWhereHas('brand', function ($bq) use ($search) {
+                      $bq->where('name', 'ILIKE', "%{$search}%");
+                  })
+                  ->orWhereHas('category', function ($cq) use ($search) {
+                      $cq->where('name', 'ILIKE', "%{$search}%");
+                  });
             });
         }
 

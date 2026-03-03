@@ -39,6 +39,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     Route::get('/products/on-sale', [ProductController::class, 'onSale']);
     Route::get('/products/categories', [CategoryController::class, 'index']);
     Route::get('/products/{id}', [ProductController::class, 'show']);
+    Route::get('/settings', [\App\Http\Controllers\Api\v1\SettingController::class, 'index']);
     
     // Routes pour les marques (BrandController)
     Route::get('/brands', [BrandController::class, 'index']);
@@ -76,6 +77,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             Route::post('/products', [ProductController::class, 'store']);
             Route::put('/products/{id}', [ProductController::class, 'update']);
             Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+            Route::post('/products/import', [ProductController::class, 'bulkImport']);
             
             Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
 
@@ -113,6 +115,9 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             Route::get('/admin/messages', [AdminContactMessageController::class, 'index']);
             Route::get('/admin/messages/{id}', [AdminContactMessageController::class, 'show']);
             Route::patch('/admin/messages/{id}/read', [AdminContactMessageController::class, 'markRead']);
+
+            // Settings
+            Route::patch('/admin/settings', [\App\Http\Controllers\Api\v1\SettingController::class, 'update']);
             
         });
     });

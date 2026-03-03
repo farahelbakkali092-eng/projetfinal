@@ -2,18 +2,12 @@
 
 namespace App\Http\Requests\Admin;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseApiRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
-class SectionRequest extends FormRequest
+class SectionRequest extends BaseApiRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -24,9 +18,18 @@ class SectionRequest extends FormRequest
         $id = $this->route('id');
         return [
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:sections,slug,' . $id,
+            'slug' => ['required', 'string', 'max:255', Rule::unique('sections', 'slug')->ignore($id)],
             'order' => 'nullable|integer',
             'is_active' => 'nullable|boolean',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        if ($this->name) {
+            $this->merge([
+                'slug' => $this->slug ?: Str::slug($this->name),
+            ]);
+        }
     }
 }

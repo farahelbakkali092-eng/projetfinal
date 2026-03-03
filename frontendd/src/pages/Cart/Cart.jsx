@@ -63,7 +63,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                   </div>
 
                   <h3 className="item-name">{item.name}</h3>
-                  <div className="item-price">${item.price}</div>
+                  <div className="item-price">{parseFloat(item.price_sold || item.price).toFixed(2)} MAD</div>
 
                   <div className="quantity-controls">
                     <button onClick={() => updateQuantity(item.id, -1)}><Minus size={14} /></button>

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { adminApi } from '../api';
 import AdminModal from '../components/AdminModal';
 import AdminTableActions from '../components/AdminTableActions';
@@ -8,6 +9,8 @@ const emptyForm = {
   name: '',
   description: '',
   price: '',
+  price_sold: '',
+  discount: '',
   stock: 0,
   category_id: '',
   brand_id: '',
@@ -16,6 +19,7 @@ const emptyForm = {
 };
 
 const ProductsPage = () => {
+  const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,8 +32,21 @@ const ProductsPage = () => {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [importErrors, setImportErrors] = useState([]);
 
-  const title = useMemo(() => (editing ? 'Modifier un produit' : 'Ajouter un produit'), [editing]);
+  const downloadTemplate = () => {
+    const headers = ['name', 'description', 'price', 'price_sold', 'discount', 'stock', 'category', 'brand', 'section'];
+    const example = ['Product Name', 'Short description', '100.00', '80.00', '20', '50', 'Makeup', 'L\'Oreal', 'FEMME'];
+    const csvContent = [headers.join(','), example.join(',')].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'products_template.csv');
+    link.click();
+  };
+
+  const title = useMemo(() => (editing ? `${t('admin.edit')} ${t('admin.products').toLowerCase()}` : `${t('admin.create')} ${t('admin.products').toLowerCase()}`), [editing, t]);
 
   const load = async (page = 1) => {
     setLoading(true);
@@ -40,8 +57,6 @@ const ProductsPage = () => {
         adminApi.listCategories({ per_page: 100 }),
         adminApi.listSections({ per_page: 100 }),
       ]);
-
-      console.log('Admin: Products load() response:', { productsRes, brandsRes, categoriesRes });
 
       const paginated = productsRes?.data?.data || productsRes?.data;
       if (paginated && paginated.data) {
@@ -60,7 +75,7 @@ const ProductsPage = () => {
       setSections(sectionsRes?.data?.data || []);
     } catch (e) {
       console.error('Admin: Error loading products:', e);
-      toast.error('Impossible de charger les produits');
+      toast.error(t('admin.loading_error') || 'Impossible de charger les produits');
     } finally {
       setLoading(false);
     }
@@ -77,6 +92,8 @@ const ProductsPage = () => {
       name: p.name || '',
       description: p.description || '',
       price: p.price || '',
+      price_sold: p.price_sold || '',
+      discount: p.discount || '',
       stock: p.stock || 0,
       category_id: p.category_id || p.category?.id || '',
       brand_id: p.brand_id || p.brand?.id || '',
@@ -87,15 +104,45 @@ const ProductsPage = () => {
   };
 
   const onDelete = async (p) => {
-    if (!confirm(`Supprimer le produit "${p.name}" ?`)) return;
+    if (!confirm(`${t('admin.delete')} "${p.name}" ?`)) return;
     try {
       await adminApi.deleteProduct(p.id);
-      toast.success('Produit supprimé');
+      toast.success(t('admin.deleted_success') || 'Produit supprimé');
       await load(meta?.current_page || 1);
     } catch (e) {
       console.error(e);
       toast.error(e.response?.data?.message || 'Suppression impossible');
     }
+  };
+
+  const exportToCSV = () => {
+    if (items.length === 0) return toast.error('Aucun produit à exporter');
+
+    const headers = ['ID', 'Nom', 'Description', 'Prix', 'Prix Soldé', 'Remise', 'Stock', 'Catégorie', 'Marque', 'Section'];
+    const rows = items.map(p => [
+      p.id,
+      `"${p.name.replace(/"/g, '""')}"`,
+      `"${(p.description || '').replace(/"/g, '""')}"`,
+      p.price,
+      p.price_sold || '',
+      p.discount || '',
+      p.stock,
+      `"${(p.category?.name || p.category_id || '').replace(/"/g, '""')}"`,
+      `"${(p.brand?.name || p.brand_id || '').replace(/"/g, '""')}"`,
+      `"${(p.section?.name || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `products_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Export terminé');
   };
 
   const onSubmit = async () => {
@@ -110,6 +157,12 @@ const ProductsPage = () => {
       fd.append('name', form.name);
       fd.append('description', form.description);
       fd.append('price', String(Number(form.price)));
+      if (form.price_sold !== '' && form.price_sold !== null) {
+        fd.append('price_sold', String(Number(form.price_sold)));
+      }
+      if (form.discount !== '' && form.discount !== null) {
+        fd.append('discount', String(Number(form.discount)));
+      }
       fd.append('stock', String(Number(form.stock)));
       fd.append('category_id', String(form.category_id));
       fd.append('brand_id', String(form.brand_id));
@@ -119,7 +172,6 @@ const ProductsPage = () => {
       }
 
       if (form.image) {
-        // Use images[] instead of images[0] to ensure Laravel always sees it as an array
         fd.append('images[]', form.image);
       }
 
@@ -146,22 +198,63 @@ const ProductsPage = () => {
     }
   };
 
+  const handleImport = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImportErrors([]);
+    const fd = new FormData();
+    fd.append('file', file);
+
+    const loadingToast = toast.loading('Importation en cours...');
+    try {
+      const res = await adminApi.importProducts(fd);
+      toast.dismiss(loadingToast);
+
+      const { imported, errors, total_processed } = res.data?.data || {};
+
+      if (errors && errors.length > 0) {
+        setImportErrors(errors);
+        toast.error(`${errors.length} erreurs lors de l'import.`);
+      }
+
+      if (imported > 0) {
+        toast.success(`${imported} / ${total_processed || imported} produits importés !`);
+        load(1);
+      }
+    } catch (err) {
+      toast.dismiss(loadingToast);
+      toast.error(err.response?.data?.message || 'Erreur lors de l’import');
+    } finally {
+      e.target.value = ''; // Reset input
+    }
+  };
+
   return (
     <div>
       <div className="admin-page-header">
         <div>
-          <h1>Produits</h1>
+          <h1>{t('admin.products')}</h1>
           <div className="admin-muted">CRUD produits + association marque/catégorie</div>
         </div>
         <div className="admin-actions">
           <input
             className="admin-input"
-            placeholder="Rechercher..."
+            placeholder={t('admin.search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ maxWidth: 260 }}
+            style={{ maxWidth: 220 }}
           />
-          <button className="admin-btn secondary" onClick={() => load(1)}>Filtrer</button>
+          <button className="admin-btn secondary" onClick={() => load(1)}>{t('admin.filter')}</button>
+          <button className="admin-btn secondary" onClick={exportToCSV} title="Exporter les produits">Exporter CSV </button>
+
+          <button className="admin-btn secondary" onClick={downloadTemplate} title="Télécharger le modèle CSV">Modèle CSV</button>
+
+          <label className="admin-btn secondary" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} title="Importer un fichier CSV">
+            Importer CSV 
+            <input type="file" accept=".csv" onChange={handleImport} style={{ display: 'none' }} />
+          </label>
+
           <button
             className="admin-btn"
             onClick={() => {
@@ -170,26 +263,40 @@ const ProductsPage = () => {
               setOpen(true);
             }}
           >
-            Ajouter
+            {t('admin.add')}
           </button>
         </div>
       </div>
 
+      {importErrors.length > 0 && (
+        <div style={{ background: '#fff1f1', border: '1px solid #fecaca', padding: 15, borderRadius: 8, marginBottom: 20 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#991b1b', marginBottom: 10, display: 'flex', justifyContent: 'space-between' }}>
+            <span>⚠️ Erreurs lors de l'importation :</span>
+            <button onClick={() => setImportErrors([])} style={{ background: 'none', border: 'none', color: '#991b1b', cursor: 'pointer', fontSize: 11, textDecoration: 'underline' }}>Tout effacer</button>
+          </div>
+          <ul style={{ margin: 0, padding: '0 0 0 20px', maxHeight: 150, overflowY: 'auto' }}>
+            {importErrors.map((err, i) => (
+              <li key={i} style={{ fontSize: 12, color: '#991b1b', marginBottom: 4 }}>{err}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {loading ? (
-        <div className="admin-muted">Chargement...</div>
+        <div className="admin-muted">{t('admin.loading')}</div>
       ) : (
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Image</th>
-              <th>ID</th>
-              <th>Nom</th>
-              <th>Catégorie</th>
-              <th>Marque</th>
-              <th>Prix</th>
-              <th>Stock</th>
-              <th>Section</th>
-              <th style={{ width: 220 }}>Actions</th>
+              <th>{t('admin.image')}</th>
+              <th>{t('admin.id')}</th>
+              <th>{t('admin.name')}</th>
+              <th>{t('admin.category')}</th>
+              <th>{t('admin.brand')}</th>
+              <th>{t('admin.price')}</th>
+              <th>{t('admin.stock')}</th>
+              <th>{t('admin.section')}</th>
+              <th style={{ width: 220 }}>{t('admin.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -220,7 +327,7 @@ const ProductsPage = () => {
                       {p.section ? (
                         <span className="admin-badge secondary">{p.section.name}</span>
                       ) : (
-                        <span className="admin-muted">Aucune</span>
+                        <span className="admin-muted">{t('admin.none')}</span>
                       )}
                     </td>
                     <td>
@@ -244,7 +351,7 @@ const ProductsPage = () => {
             disabled={meta.current_page <= 1}
             onClick={() => load(meta.current_page - 1)}
           >
-            Précédent
+            {t('admin.prev')}
           </button>
           <div className="admin-muted" style={{ alignSelf: 'center' }}>
             Page {meta.current_page} / {meta.last_page}
@@ -254,7 +361,7 @@ const ProductsPage = () => {
             disabled={meta.current_page >= meta.last_page}
             onClick={() => load(meta.current_page + 1)}
           >
-            Suivant
+            {t('admin.next')}
           </button>
         </div>
       )}
@@ -265,26 +372,54 @@ const ProductsPage = () => {
         onClose={() => setOpen(false)}
         footer={(
           <>
-            <button className="admin-btn secondary" onClick={() => setOpen(false)}>Annuler</button>
-            <button className="admin-btn" onClick={onSubmit}>{editing ? 'Enregistrer' : 'Créer'}</button>
+            <button className="admin-btn secondary" onClick={() => setOpen(false)}>{t('admin.cancel')}</button>
+            <button className="admin-btn" onClick={onSubmit}>{editing ? t('admin.save') : t('admin.create')}</button>
           </>
         )}
       >
         <div className="admin-form-grid">
           <div>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>Nom</div>
+            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.name')}</div>
             <input className="admin-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </div>
           <div>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>Prix</div>
-            <input className="admin-input" type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.price')} (MAD)</div>
+            <input className="admin-input" type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
           </div>
           <div>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>Stock</div>
+            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.stock')}</div>
             <input className="admin-input" type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
           </div>
+          <div style={{ gridColumn: '1 / -1', background: '#fff8f0', border: '1px solid #f5dfc8', borderRadius: 8, padding: '14px 16px' }}>
+            <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 10, color: '#c0675a' }}>🏷️ Promotion (optionnel)</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div>
+                <div className="admin-muted" style={{ marginBottom: 6 }}>Prix promotionnel (MAD)</div>
+                <input
+                  className="admin-input"
+                  type="number"
+                  step="0.01"
+                  placeholder="Laisser vide = pas de promo"
+                  value={form.price_sold}
+                  onChange={(e) => setForm({ ...form, price_sold: e.target.value })}
+                />
+              </div>
+              <div>
+                <div className="admin-muted" style={{ marginBottom: 6 }}>Réduction (%)</div>
+                <input
+                  className="admin-input"
+                  type="number"
+                  min="0"
+                  max="100"
+                  placeholder="Ex: 20 pour -20%"
+                  value={form.discount}
+                  onChange={(e) => setForm({ ...form, discount: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
           <div>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>Catégorie</div>
+            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.category')}</div>
             <select className="admin-input" value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })}>
               <option value="">-- Choisir --</option>
               {categories.map((c) => (
@@ -293,7 +428,7 @@ const ProductsPage = () => {
             </select>
           </div>
           <div>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>Marque</div>
+            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.brand')}</div>
             <select className="admin-input" value={form.brand_id} onChange={(e) => setForm({ ...form, brand_id: e.target.value })}>
               <option value="">-- Choisir --</option>
               {brands.map((b) => (
@@ -302,9 +437,9 @@ const ProductsPage = () => {
             </select>
           </div>
           <div>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>Section</div>
+            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.section')}</div>
             <select className="admin-input" value={form.section_id} onChange={(e) => setForm({ ...form, section_id: e.target.value })}>
-              <option value="">-- Aucune --</option>
+              <option value="">-- {t('admin.none')} --</option>
               {sections.map((s) => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
@@ -315,25 +450,13 @@ const ProductsPage = () => {
             <input className="admin-input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>Image (principale)</div>
+            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.image')} (principale)</div>
             <input
               className="admin-input"
               type="file"
               accept="image/png,image/jpeg,image/jpg,image/webp"
               onChange={(e) => setForm({ ...form, image: e.target.files?.[0] || null })}
             />
-            {!form.image && (editing?.images?.length || 0) > 0 && (
-              <div className="admin-muted" style={{ marginTop: 8 }}>
-                Image actuelle:
-                <div style={{ marginTop: 6 }}>
-                  <img
-                    src={(editing.images.find((im) => im.is_main) || editing.images[0])?.image_url}
-                    alt={editing.name}
-                    style={{ width: 90, height: 90, objectFit: 'cover', borderRadius: 10, border: '1px solid var(--border-light)' }}
-                  />
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </AdminModal>

@@ -144,7 +144,7 @@ const CategoriesPage = () => {
               setOpen(true);
             }}
           >
-            + Ajouter
+            Ajouter
           </button>
         </div>
       </div>

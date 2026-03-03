@@ -19,15 +19,15 @@ export const FavoritesProvider = ({ children }) => {
     }, [favorites]);
 
     const toggleFavorite = (product) => {
-        setFavorites(prev => {
-            const isFav = prev.find(item => item.id === product.id);
-            if (isFav) {
-                toast.success(`${product.name} retiré des favoris`);
-                return prev.filter(item => item.id !== product.id);
-            }
+        const isFav = favorites.some(item => item.id === product.id);
+        // Toast called outside the updater to avoid setState-during-render warning
+        if (isFav) {
+            toast.success(`${product.name} retiré des favoris`);
+            setFavorites(prev => prev.filter(item => item.id !== product.id));
+        } else {
             toast.success(`${product.name} ajouté aux favoris`);
-            return [...prev, product];
-        });
+            setFavorites(prev => [...prev, product]);
+        }
     };
 
     const isFavorite = (id) => favorites.some(item => item.id === id);

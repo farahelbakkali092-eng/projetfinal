@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Loader2, ShoppingBag, Heart, Minus, Plus, Truck, RotateCcw, ShieldCheck, Star } from 'lucide-react';
+import { Loader2, ShoppingBag, Heart, Minus, Plus, Truck, RotateCcw, ShieldCheck } from 'lucide-react';
 import api from '../../api/axios';
 import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
@@ -18,7 +18,6 @@ const ProductDetail = () => {
     const [error, setError] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [selectedImage, setSelectedImage] = useState(0);
-    const [selectedSize, setSelectedSize] = useState('50ml');
 
     const isFav = product ? isFavorite(product.id) : false;
 
@@ -64,16 +63,29 @@ const ProductDetail = () => {
 
     const images = product.images && product.images.length > 0
         ? product.images.map(img => `http://localhost:8000/storage/${img.image_path}`)
-        : ['https://via.placeholder.com/600x800?text=No+Image'];
+        : ['https://placehold.co/600x800?text=No+Image'];
+
+    const hasDiscount = product.discount > 0 || (product.price_sold && parseFloat(product.price_sold) < parseFloat(product.price));
+    const discountPercentage = product.discount || (hasDiscount ? Math.round((1 - parseFloat(product.price_sold) / parseFloat(product.price)) * 100) : 0);
+    const finalPrice = product.price_sold
+        ? parseFloat(product.price_sold).toFixed(2)
+        : parseFloat(product.price).toFixed(2);
+    const originalPrice = parseFloat(product.price).toFixed(2);
+
+    const isOutOfStock = product.stock === 0;
 
     return (
         <div className="product-detail-page container">
             {/* Breadcrumbs */}
             <nav className="breadcrumbs">
-                <Link to="/">Home</Link>
+                <Link to="/">Accueil</Link>
                 <span className="separator">/</span>
-                <Link to={`/category/${product.category_id}`}>{product.category?.name || 'Category'}</Link>
-                <span className="separator">/</span>
+                {product.category && (
+                    <>
+                        <Link to={`/category/${product.category_id}`}>{product.category.name}</Link>
+                        <span className="separator">/</span>
+                    </>
+                )}
                 <span className="current">{product.name}</span>
             </nav>
 
@@ -87,56 +99,49 @@ const ProductDetail = () => {
                                 className={`thumbnail ${selectedImage === idx ? 'active' : ''}`}
                                 onClick={() => setSelectedImage(idx)}
                             >
-                                <img src={img} alt={`${product.name} thumbnail ${idx}`} />
+                                <img src={img} alt={`${product.name} thumbnail ${idx + 1}`} />
                             </div>
                         ))}
                     </div>
                     <div className="main-image">
-                        <div className="image-badges">
-                            {product.stock >= 10 && <span className="badge-bestseller">BESTSELLER</span>}
-                            {product.price < 40 && <span className="badge-promo">-21%</span>}
-                        </div>
+                        {hasDiscount && (
+                            <div className="image-badges">
+                                <span className="badge-promo">-{discountPercentage}%</span>
+                            </div>
+                        )}
+                        {isOutOfStock && (
+                            <div className="image-badges">
+                                <span className="badge-stock">Sur commande</span>
+                            </div>
+                        )}
                         <img src={images[selectedImage]} alt={product.name} />
                     </div>
                 </div>
 
                 {/* Product Info */}
                 <div className="product-info-panel">
-                    <span className="brand-name">{product.brand?.name || 'DAWSM'}</span>
+                    {product.brand && (
+                        <span className="brand-name">{product.brand.name}</span>
+                    )}
                     <h1 className="product-title">{product.name}</h1>
 
-                    <div className="product-rating">
-                        <div className="stars">
-                            {[1, 2, 3, 4, 5].map(s => (
-                                <Star key={s} size={16} fill="#c49a6c" color="#c49a6c" />
-                            ))}
-                        </div>
-                        <span className="rating-text">4.8 (1247 reviews)</span>
-                    </div>
+                    {product.description && (
+                        <p className="product-description">{product.description}</p>
+                    )}
 
                     <div className="product-price-row">
-                        <span className="current-price">${product.price}</span>
-                        <span className="old-price">${(product.price * 1.2).toFixed(2)}</span>
-                        <span className="save-badge">Save $10</span>
+                        <span className="current-price">{finalPrice} MAD</span>
+                        {hasDiscount && (
+                            <span className="old-price">{originalPrice} MAD</span>
+                        )}
                     </div>
 
-                    <p className="product-description">
-                        {product.description || "Indulge in the luxurious formula of this beauty essential. Crafted with the finest ingredients, it delivers visible results from the very first use. Experience the perfect blend of science and beauty."}
-                    </p>
-
-                    <div className="size-selector">
-                        <span className="selector-label">SIZE</span>
-                        <div className="size-options">
-                            {['30ml', '50ml', '75ml', '100ml'].map(size => (
-                                <button
-                                    key={size}
-                                    className={`size-btn ${selectedSize === size ? 'active' : ''}`}
-                                    onClick={() => setSelectedSize(size)}
-                                >
-                                    {size}
-                                </button>
-                            ))}
-                        </div>
+                    <div className="stock-info">
+                        {isOutOfStock ? (
+                            <span className="out-of-stock-text">Sur commande</span>
+                        ) : (
+                            <span className="in-stock-text">En stock ({product.stock} disponibles)</span>
+                        )}
                     </div>
 
                     {!isAdmin && (
@@ -149,11 +154,11 @@ const ProductDetail = () => {
 
                             <button
                                 className="btn-add-to-bag"
-                                disabled={product.stock === 0}
-                                onClick={() => addToCart(product)}
+                                disabled={isOutOfStock}
+                                onClick={() => addToCart({ ...product, quantity })}
                             >
                                 <ShoppingBag size={20} />
-                                <span>ADD TO BAG</span>
+                                <span>Ajouter au panier</span>
                             </button>
 
                             <button
@@ -168,15 +173,15 @@ const ProductDetail = () => {
                     <div className="product-features-list">
                         <div className="feature-item">
                             <Truck size={20} />
-                            <span>Free Shipping</span>
+                            <span>Livraison disponible</span>
                         </div>
                         <div className="feature-item">
                             <RotateCcw size={20} />
-                            <span>30-Day Returns</span>
+                            <span>Retours acceptés</span>
                         </div>
                         <div className="feature-item">
                             <ShieldCheck size={20} />
-                            <span>Authentic Guaranteed</span>
+                            <span>Produit authentique garanti</span>
                         </div>
                     </div>
                 </div>

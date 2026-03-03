@@ -12,6 +12,7 @@ import BrandDetails from './pages/BrandDetails/BrandDetails';
 import Routine from './pages/Routine/Routine';
 import Promotions from './pages/Promotions/Promotions';
 import Cart from './pages/Cart/Cart';
+import CartPage from './pages/Cart/CartPage';
 import Contact from './pages/Contact/Contact';
 import Favorites from './pages/Favorites/Favorites';
 
@@ -96,7 +97,7 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/routine" element={<Routine />} />
           <Route path="/promotions" element={<Promotions />} />
-          <Route path="/cart" element={<Cart />} />
+          <Route path="/cart" element={<CartPage />} />
           <Route path="/favorites" element={<Favorites />} />
 
           {/* Nouvelles Routes (Recherche & Produits) */}
