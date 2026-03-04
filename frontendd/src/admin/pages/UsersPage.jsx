@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { adminApi } from '../api';
 
 const UsersPage = () => {
+  const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
   const [roles, setRoles] = useState([]);
@@ -27,7 +29,7 @@ const UsersPage = () => {
       setRoles(rolesRes?.data?.data || []);
     } catch (e) {
       console.error(e);
-      toast.error('Impossible de charger les utilisateurs');
+      toast.error(t('admin.loading_error') || 'Impossible de charger les utilisateurs');
     } finally {
       setLoading(false);
     }
@@ -41,7 +43,7 @@ const UsersPage = () => {
   const setUserRole = async (userId, roleId) => {
     try {
       await adminApi.updateUserRole(userId, Number(roleId));
-      toast.success('Rôle mis à jour');
+      toast.success(t('admin.role_updated') || 'Rôle mis à jour');
       await load(meta?.current_page || 1);
     } catch (e) {
       console.error('Admin: Error updating role:', e);
@@ -57,7 +59,7 @@ const UsersPage = () => {
   const onUpdateStatus = async (id, status) => {
     try {
       await adminApi.updateUserStatus(id, status);
-      toast.success('Statut mis à jour');
+      toast.success(t('admin.status_updated') || 'Statut mis à jour');
       await load(meta?.current_page || 1);
     } catch (e) {
       console.error('Admin: Error updating status:', e);
@@ -71,35 +73,37 @@ const UsersPage = () => {
   };
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="admin-page-header">
         <div>
-          <h1>Utilisateurs</h1>
-          <div className="admin-muted">Rôles et activation/désactivation</div>
+          <h1>{t('admin.users')}</h1>
         </div>
         <div className="admin-actions">
           <input
             className="admin-input"
-            placeholder="Rechercher..."
+            placeholder={t('admin.search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ maxWidth: 260 }}
           />
-          <button className="admin-btn secondary" onClick={() => load(1)}>Filtrer</button>
+          <button className="admin-btn secondary" onClick={() => load(1)}>{t('admin.filter')}</button>
         </div>
       </div>
 
       {loading ? (
-        <div className="admin-muted">Chargement...</div>
+        <div className="admin-muted">{t('admin.loading')}</div>
       ) : (
-        <table className="admin-table">
+        <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '35%' }} />
+            <col style={{ width: '40%' }} />
+            <col style={{ width: '25%' }} />
+          </colgroup>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Nom</th>
-              <th>Email</th>
-              <th>Téléphone</th>
-              <th>Rôle</th>
+              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.name')}</th>
+              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.email') || 'Email'}</th>
+              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.phone')}</th>
             </tr>
           </thead>
           <tbody>
@@ -107,14 +111,14 @@ const UsersPage = () => {
               .filter((u) => u.role?.name !== 'admin')
               .map((u) => (
                 <tr key={u.id}>
-                  <td>{u.id}</td>
-                  <td>{u.first_name} {u.last_name}</td>
-                  <td>{u.email}</td>
-                  <td>{u.phone}</td>
-                  <td>
-                    <span className="admin-badge secondary">
-                      {u.role?.name || 'Client'}
-                    </span>
+                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {u.first_name} {u.last_name}
+                  </td>
+                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {u.email}
+                  </td>
+                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {u.phone}
                   </td>
                 </tr>
               ))}
@@ -129,7 +133,7 @@ const UsersPage = () => {
             disabled={meta.current_page <= 1}
             onClick={() => load(meta.current_page - 1)}
           >
-            Précédent
+            {t('admin.prev')}
           </button>
           <div className="admin-muted" style={{ alignSelf: 'center' }}>
             Page {meta.current_page} / {meta.last_page}
@@ -139,7 +143,7 @@ const UsersPage = () => {
             disabled={meta.current_page >= meta.last_page}
             onClick={() => load(meta.current_page + 1)}
           >
-            Suivant
+            {t('admin.next')}
           </button>
         </div>
       )}

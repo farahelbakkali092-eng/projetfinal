@@ -296,19 +296,7 @@ const BrandsSlider = () => {
         </div>
       </div>
 
-      {/* ── Footer hint ── */}
-      <p style={{
-        marginTop: '52px',
-        fontFamily: 'Helvetica Neue, Arial, sans-serif',
-        fontSize: '8px',
-        letterSpacing: '0.24em',
-        textTransform: 'uppercase',
-        color: '#d4b5a8',
-        position: 'relative',
-        zIndex: 1,
-      }}>
-        Survolez pour mettre en pause
-      </p>
+  
     </div>
   );
 };

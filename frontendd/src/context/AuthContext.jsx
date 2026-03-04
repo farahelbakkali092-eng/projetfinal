@@ -28,11 +28,11 @@ export const AuthProvider = ({ children }) => {
             setUser(userData);
 
             toast.success('Bon retour !');
-            return true;
+            return { success: true };
         } catch (error) {
             const message = error.response?.data?.message || 'Identifiants invalides';
-            toast.error(message);
-            return false;
+            const errors = error.response?.data?.errors;
+            return { success: false, message, errors: errors || { general: [message] } };
         } finally {
             setLoading(false);
         }
@@ -50,15 +50,11 @@ export const AuthProvider = ({ children }) => {
             setUser(newUser);
 
             toast.success('Bienvenue chez DAWSM !');
-            return true;
+            return { success: true };
         } catch (error) {
             const errors = error.response?.data?.errors;
-            if (errors) {
-                Object.values(errors).flat().forEach(err => toast.error(err));
-            } else {
-                toast.error(error.response?.data?.message || 'Erreur lors de l’inscription');
-            }
-            return false;
+            const message = error.response?.data?.message || 'Erreur lors de l’inscription';
+            return { success: false, message, errors: errors || { general: [message] } };
         } finally {
             setLoading(false);
         }
@@ -85,7 +81,6 @@ export const AuthProvider = ({ children }) => {
             toast.success('Si cet email existe, un lien vous a été envoyé.');
             return true;
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Erreur lors de la demande');
             return false;
         } finally {
             setLoading(false);
@@ -99,7 +94,6 @@ export const AuthProvider = ({ children }) => {
             toast.success('Mot de passe réinitialisé avec succès ! Vous pouvez vous connecter.');
             return true;
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Erreur lors de la réinitialisation');
             return false;
         } finally {
             setLoading(false);

@@ -1,171 +1,233 @@
-/* --- ISOLATION GLOBALE --- */
+/* ── PAGE ── */
 .promotions-page {
-  display: flex;
-  flex-direction: column;
   min-height: 100vh;
-  background-color: #f9f9f9;
+  background: #fdf6f1;
+  font-family: serif;
+  padding-bottom: 80px;
 }
 
-/* CORRECTION MAJEURE :
-   On cible .container UNIQUEMENT s'il est dans .main-content 
-   Cela empêche de casser le Header et le Footer.
-*/
-.promotions-page .main-content .container {
-  display: block;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-.promotions-page .main-content {
-  flex: 1;
-  padding: 60px 0;
-  width: 100%;
-}
-
-/* --- En-tête de la page --- */
-.promotions-page .page-header {
-  text-align: center;
-  max-width: 800px;
-  margin: 0 auto 50px auto;
-}
-
-.promotions-page .page-header h1 {
-  font-size: 36px;
-  color: var(--text);
-  margin-bottom: 12px;
-  font-weight: 700;
-}
-
-.promotions-page .page-header p {
-  color: var(--text-gray);
-  font-size: 18px;
-}
-
-
-
-
-
-.promotions-page .card-badge {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  background-color: #ff4d4f;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-weight: 700;
-  font-size: 14px;
-  z-index: 2;
-}
-
-.promotions-page .card-image {
-  width: 100%;
-  aspect-ratio: 1;
-  /* Carré parfait */
-  background-color: #f0f0f0;
-}
-
-.promotions-page .card-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.promotions-page .card-info {
-  padding: 24px;
+/* ── ÉTAT CHARGEMENT ── */
+.promo-state-wrapper {
+  min-height: 100vh;
+  background: #fdf6f1;
   display: flex;
   flex-direction: column;
-  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px 20px;
 }
 
-.promotions-page .card-info h3 {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: var(--text);
+.promo-spinner {
+  width: 40px;
+  height: 40px;
+  color: #b07865;
+  animation: promo-spin 1s linear infinite;
 }
 
-.promotions-page .description {
-  font-size: 14px;
-  color: var(--text-gray);
-  margin-bottom: 16px;
-  flex: 1;
+@keyframes promo-spin { to { transform: rotate(360deg); } }
+
+.promo-state-text {
+  color: #b07865;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-family: sans-serif;
 }
 
-.promotions-page .price-row {
+/* ── HEADER ── */
+.promo-header {
+  position: relative;
+  padding: 80px 24px 64px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.promo-header::before {
+  content: '';
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  background: rgba(244, 194, 194, 0.18);
+  border-radius: 50%;
+  filter: blur(60px);
+  top: -60px;
+  left: -80px;
+  pointer-events: none;
+}
+
+.promo-header::after {
+  content: '';
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  background: rgba(253, 186, 116, 0.12);
+  border-radius: 50%;
+  filter: blur(60px);
+  bottom: -80px;
+  right: -80px;
+  pointer-events: none;
+}
+
+.promo-header-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.promo-breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #b89080;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  text-decoration: none;
+  margin-bottom: 28px;
+  font-family: sans-serif;
+  transition: color 0.2s;
+}
+
+.promo-breadcrumb:hover { color: #b07865; }
+
+.promo-title {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
-  margin-bottom: 20px;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 300;
+  color: #261812;
+  margin: 0 0 16px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
-.promotions-page .old-price {
-  text-decoration: line-through;
-  color: #999;
-  font-size: 16px;
-}
-
-.promotions-page .current-price {
+.promo-title-icon {
   color: #d4a373;
-  font-size: 20px;
-  font-weight: 700;
+  stroke-width: 1.5px;
+  flex-shrink: 0;
 }
 
-.promotions-page .card-actions {
+.promo-subtitle {
+  color: #8e6458;
+  max-width: 500px;
+  margin: 0 auto 16px;
+  line-height: 1.8;
+  font-size: 1.05rem;
+  font-style: italic;
+  font-weight: 300;
+  font-family: sans-serif;
+}
+
+.promo-count {
+  display: block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  color: #b89080;
+  font-weight: 500;
+  font-family: sans-serif;
+}
+
+.promo-divider {
+  width: 64px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #c4a098, transparent);
+  margin: 32px auto 0;
+}
+
+/* ── SECTION PRODUITS ── */
+.promo-products-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px 96px;
+}
+
+/* ── ÉTAT VIDE ── */
+.promo-empty {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-/* Boutons */
-.promotions-page .btn-add-cart {
-  background-color: #000;
-  color: white;
-  border: none;
-  padding: 12px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.promotions-page .btn-add-cart:hover {
-  background-color: #d4a373;
-}
-
-.promotions-page .btn-details {
-  background-color: transparent;
-  color: #000;
-  border: 1px solid #e0e0e0;
-  padding: 12px;
-  border-radius: 6px;
-  font-weight: 600;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 32px;
+  background: #fff;
+  border: 1.5px dashed #d9bfb7;
+  border-radius: 24px;
   text-align: center;
+  gap: 12px;
+}
+
+.promo-empty-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  background: #fdf0eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.promo-empty-icon {
+  color: #d9bfb7;
+}
+
+.promo-empty-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: #261812;
+  margin: 0;
+}
+
+.promo-empty-text {
+  color: #8e6458;
+  font-size: 0.95rem;
+  font-style: italic;
+  font-weight: 300;
+  font-family: sans-serif;
+  max-width: 360px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ── BOUTON RETOUR ── */
+.promo-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 12px 28px;
+  background: #3a2a22;
+  color: #fdf6f1;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
   text-decoration: none;
-  transition: all 0.3s;
+  font-family: sans-serif;
+  transition: opacity 0.2s, transform 0.2s;
 }
 
-.promotions-page .btn-details:hover {
-  background-color: #f5f5f5;
-  border-color: #000;
+.promo-back-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
 }
 
-/* --- Responsive --- */
-@media (max-width: 1024px) {
-  .promotions-page .products-grid {
-    grid-template-columns: repeat(2, 1fr);
-    /* 2 colonnes tablette */
-  }
+/* ── GRILLE ── */
+.shared-products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
 }
 
-@media (max-width: 768px) {
-  .promotions-page .products-grid {
-    grid-template-columns: 1fr;
-    /* 1 colonne mobile */
-  }
-
-  .promotions-page .page-header h1 {
-    font-size: 28px;
-  }
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .promo-header { padding: 60px 16px 48px; }
+  .promo-products-section { padding: 0 16px 64px; }
+  .shared-products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .promo-empty { padding: 60px 20px; }
 }

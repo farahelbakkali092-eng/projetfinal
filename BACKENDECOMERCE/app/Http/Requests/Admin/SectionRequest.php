@@ -19,8 +19,17 @@ class SectionRequest extends BaseApiRequest
         return [
             'name' => 'required|string|max:255',
             'slug' => ['required', 'string', 'max:255', Rule::unique('sections', 'slug')->ignore($id)],
-            'order' => 'nullable|integer',
+            'order' => 'required|integer|min:0',
             'is_active' => 'nullable|boolean',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'order.required' => 'Ordre d’affichage invalide. Il doit être un nombre positif, supérieur ou égal à 0.',
+            'order.integer' => 'Ordre d’affichage invalide. Il doit être un nombre positif, supérieur ou égal à 0.',
+            'order.min' => 'Ordre d’affichage invalide. Il doit être un nombre positif, supérieur ou égal à 0.',
         ];
     }
 

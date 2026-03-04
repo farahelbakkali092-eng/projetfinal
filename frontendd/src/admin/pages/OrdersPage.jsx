@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { adminApi } from '../api';
 
 const OrdersPage = () => {
+  const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,40 +37,37 @@ const OrdersPage = () => {
   }, []);
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="admin-page-header">
         <div>
-          <h1>Commandes</h1>
-          <div className="admin-muted">Liste des commandes</div>
+          <h1>{t('admin.orders')}</h1>
         </div>
       </div>
 
       {loading ? (
-        <div className="admin-muted">Chargement...</div>
+        <div className="admin-muted">{t('admin.loading')}</div>
       ) : (
         <table className="admin-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Numéro</th>
-              <th>Utilisateur</th>
-              <th>Total</th>
-              <th>Statut</th>
-              <th>Paiement</th>
-              <th>Détails</th>
+              <th>{t('admin.orderNumber')}</th>
+              <th>{t('admin.customer')}</th>
+              <th>{t('admin.total')}</th>
+              <th>{t('admin.status')}</th>
+              <th>{t('admin.paymentStatus')}</th>
+              <th>{t('admin.actions')}</th>
             </tr>
           </thead>
           <tbody>
             {items.map((o) => (
               <tr key={o.id}>
-                <td>{o.id}</td>
                 <td><span className="admin-badge">{o.order_number}</span></td>
                 <td>{o.user?.email || '-'}</td>
                 <td>{o.total_price}</td>
                 <td><span className="admin-badge">{o.status}</span></td>
                 <td><span className="admin-badge">{o.payment_status}</span></td>
                 <td>
-                  <Link className="admin-btn secondary" to={`/admin/orders/${o.id}`}>Voir</Link>
+                  <Link className="admin-btn secondary" to={`/admin/commandes/${o.id}`}>{t('admin.seeDetail')}</Link>
                 </td>
               </tr>
             ))}
@@ -83,7 +82,7 @@ const OrdersPage = () => {
             disabled={meta.current_page <= 1}
             onClick={() => load(meta.current_page - 1)}
           >
-            Précédent
+            {t('admin.prev')}
           </button>
           <div className="admin-muted" style={{ alignSelf: 'center' }}>
             Page {meta.current_page} / {meta.last_page}
@@ -93,7 +92,7 @@ const OrdersPage = () => {
             disabled={meta.current_page >= meta.last_page}
             onClick={() => load(meta.current_page + 1)}
           >
-            Suivant
+            {t('admin.next')}
           </button>
         </div>
       )}

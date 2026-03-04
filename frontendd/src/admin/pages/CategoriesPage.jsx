@@ -3,6 +3,7 @@ import { toast } from 'react-hot-toast';
 import { adminApi } from '../api';
 import AdminModal from '../components/AdminModal';
 import AdminTableActions from '../components/AdminTableActions';
+import FormError from '../../components/FormError';
 
 const emptyForm = { name: '', description: '', image: null, section_id: '' };
 
@@ -15,6 +16,7 @@ const CategoriesPage = () => {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [errors, setErrors] = useState({});
   const [sections, setSections] = useState([]);
   const title = useMemo(() => (editing ? 'Modifier une catégorie' : 'Ajouter une catégorie'), [editing]);
 
@@ -53,9 +55,26 @@ const CategoriesPage = () => {
   }, []);
 
   const onSubmit = async () => {
+    setErrors({});
     try {
-      if (!form.name.trim()) {
-        toast.error('Le nom est obligatoire');
+      const name = form.name.trim();
+      const desc = form.description.trim();
+
+      const newErrors = {};
+      if (name.length < 3 || name.length > 50) {
+        newErrors.name = ["Le nom doit contenir entre 3 et 50 caractères."];
+      } else if (/^[0-9]+$/.test(name)) {
+        newErrors.name = ["Le nom ne peut pas être composé uniquement de chiffres."];
+      }
+
+      if (desc.length < 10 || desc.length > 300) {
+        newErrors.description = ["La description doit contenir entre 10 et 300 caractères."];
+      } else if (/^[0-9]+$/.test(desc)) {
+        newErrors.description = ["La description ne peut pas être composée uniquement de chiffres."];
+      }
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
         return;
       }
 
@@ -84,10 +103,9 @@ const CategoriesPage = () => {
     } catch (e) {
       console.error('Admin: Error submitting category:', e);
       if (e.response?.data?.errors) {
-        const errs = e.response.data.errors;
-        Object.values(errs).flat().forEach((msg) => toast.error(String(msg)));
+        setErrors(e.response.data.errors);
       } else {
-        toast.error(e.response?.data?.message || 'Erreur lors de l\'enregistrement');
+        setErrors({ general: [e.response?.data?.message || 'Erreur lors de l\'enregistrement'] });
       }
     }
   };
@@ -100,6 +118,7 @@ const CategoriesPage = () => {
       image: null,
       section_id: item.section_id || ''
     });
+    setErrors({});
     setOpen(true);
   };
 
@@ -116,37 +135,37 @@ const CategoriesPage = () => {
   };
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="admin-page-header">
         <div>
           <h1>Catégories</h1>
-          <div className="admin-muted">Gérer les catégories</div>
         </div>
-        <div className="admin-actions">
-          <input
-            className="admin-input"
-            placeholder="Rechercher..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{ maxWidth: 260 }}
-          />
-          <button
-            className="admin-btn secondary"
-            onClick={() => load(1)}
-          >
-            Filtrer
-          </button>
-          <button
-            className="admin-btn"
-            onClick={() => {
-              setEditing(null);
-              setForm(emptyForm);
-              setOpen(true);
-            }}
-          >
-            Ajouter
-          </button>
-        </div>
+       <div className="admin-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+  <input
+    className="admin-input"
+    placeholder="Rechercher..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    style={{ maxWidth: 260 }}
+  />
+  <button
+    className="admin-btn secondary"
+    onClick={() => load(1)}
+  >
+    Filtrer
+  </button>
+  <button
+    className="admin-btn"
+    onClick={() => {
+      setEditing(null);
+      setForm(emptyForm);
+      setErrors({});
+      setOpen(true);
+    }}
+  >
+    Ajouter
+  </button>
+</div>
       </div>
 
       {loading ? (
@@ -156,7 +175,6 @@ const CategoriesPage = () => {
           <thead>
             <tr>
               <th>Image</th>
-              <th>ID</th>
               <th>Nom</th>
               <th>Section</th>
               <th>Slug</th>
@@ -177,7 +195,6 @@ const CategoriesPage = () => {
                     <span className="admin-muted">-</span>
                   )}
                 </td>
-                <td>{c.id}</td>
                 <td>{c.name}</td>
                 <td>
                   {c.section ? (
@@ -233,13 +250,16 @@ const CategoriesPage = () => {
         )}
       >
         <div className="admin-form-grid">
+          <div style={{ gridColumn: '1 / -1' }}><FormError error={errors.general} /></div>
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>Nom</div>
             <input className="admin-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <FormError error={errors.name} />
           </div>
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>Description</div>
             <input className="admin-input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            <FormError error={errors.description} />
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
             <div className="admin-muted" style={{ marginBottom: 6 }}>Section parente</div>
@@ -253,6 +273,7 @@ const CategoriesPage = () => {
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
+            <FormError error={errors.section_id} />
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
             <div className="admin-muted" style={{ marginBottom: 6 }}>Image</div>
@@ -262,6 +283,7 @@ const CategoriesPage = () => {
               accept="image/png,image/jpeg,image/jpg,image/webp"
               onChange={(e) => setForm({ ...form, image: e.target.files?.[0] || null })}
             />
+            <FormError error={errors.image} />
             {editing?.image_url && !form.image && (
               <div className="admin-muted" style={{ marginTop: 8 }}>
                 Image actuelle:

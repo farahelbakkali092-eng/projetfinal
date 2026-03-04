@@ -33,9 +33,8 @@ const AdminApp = () => {
         <Route path="products" element={<Navigate to="/admin/produits" replace />} />
         <Route path="brands" element={<Navigate to="/admin/marques" replace />} />
         <Route path="orders" element={<Navigate to="/admin/commandes" replace />} />
-        <Route path="orders/:id" element={<Navigate to="/admin/commandes" replace />} />
+        <Route path="orders/:id" element={<Navigate to="/admin/commandes/:id" replace />} />
         <Route path="users" element={<Navigate to="/admin/utilisateurs" replace />} />
-        <Route path="messages" element={<Navigate to="/admin" replace />} />
 
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Route>

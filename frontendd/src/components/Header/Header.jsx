@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Heart, ShoppingBag, User, LogOut, Menu, X, ShieldCheck } from "lucide-react";
+import { Search, Heart, ShoppingBag, User, Menu, X } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
@@ -8,7 +8,7 @@ import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import './Header.css';
 
-const Header = ({ onLoginClick }) => {
+const Header = ({ onLoginClick, onCartClick }) => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { user, logout, isAdmin } = useAuth();
@@ -22,7 +22,6 @@ const Header = ({ onLoginClick }) => {
   const [showSubMenu, setShowSubMenu] = useState(false);
   const [advertisingText, setAdvertisingText] = useState(" ");
 
-  // Language switcher
   const currentLang = i18n.language?.startsWith('en') ? 'en' : 'fr';
 
   const toggleLanguage = () => {
@@ -31,7 +30,6 @@ const Header = ({ onLoginClick }) => {
     localStorage.setItem('lang', newLang);
   };
 
-  // Récupération dynamique des catégories et sections pour le menu
   useEffect(() => {
     const fetchMenuData = async () => {
       try {
@@ -65,7 +63,6 @@ const Header = ({ onLoginClick }) => {
     }
   };
 
-  // Construction des liens de navigation
   const navLinks = [
     { label: t('nav.home'), path: "/", type: 'link' },
     ...sections.map(sec => ({
@@ -101,7 +98,7 @@ const Header = ({ onLoginClick }) => {
       <header className="header sticky-header">
         <div className="container">
           <div className="header-top-row">
-            {/* Toggle Mobile */}
+
             <button
               className="mobile-toggle"
               onClick={() => setIsMobileOpen(!isMobileOpen)}
@@ -109,7 +106,6 @@ const Header = ({ onLoginClick }) => {
               {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
 
-            {/* Logo Luxury Design */}
             <Link to="/" className="logo-group">
               <div className="logo-circular-icon">
                 <span className="icon-d">D</span>
@@ -125,7 +121,6 @@ const Header = ({ onLoginClick }) => {
               </div>
             </Link>
 
-            {/* Barre de recherche (Pill design) */}
             <div className="search-wrapper">
               <form onSubmit={handleSearchSubmit} className="pill-search-form">
                 <Search size={18} className="search-icon-left" />
@@ -142,9 +137,7 @@ const Header = ({ onLoginClick }) => {
               </form>
             </div>
 
-            {/* Actions (Compte, Favoris, Panier, Langue) */}
             <div className="header-actions">
-              {/* Language switcher */}
               <button
                 className="lang-switcher-btn"
                 onClick={toggleLanguage}
@@ -168,16 +161,16 @@ const Header = ({ onLoginClick }) => {
                     {favoritesCount > 0 && <span className="badge">{favoritesCount}</span>}
                   </Link>
 
-                  <Link to="/cart" className="icon-btn relative">
+                  {/* ✅ Ouvre le drawer au lieu de naviguer vers /cart */}
+                  <button className="icon-btn relative" onClick={onCartClick}>
                     <ShoppingBag size={20} />
                     {cartCount > 0 && <span className="badge">{cartCount}</span>}
-                  </Link>
+                  </button>
                 </>
               )}
             </div>
           </div>
 
-          {/* Navigation Desktop */}
           <nav className="desktop-nav-center" onMouseLeave={() => setShowSubMenu(false)}>
             {navLinks.map((link) => (
               link.type === 'section' ? (
@@ -197,7 +190,6 @@ const Header = ({ onLoginClick }) => {
             ))}
           </nav>
 
-          {/* Sub-menu Dynamique pour les catégories */}
           {showSubMenu && activeCategories.length > 0 && (
             <div
               className="header-submenu animate-fade-in-down"
@@ -220,7 +212,6 @@ const Header = ({ onLoginClick }) => {
           )}
         </div>
 
-        {/* Menu Mobile Dropdown */}
         {isMobileOpen && (
           <nav className="mobile-nav">
             {navLinks.map((link) => (
@@ -259,7 +250,6 @@ const Header = ({ onLoginClick }) => {
                 </Link>
               )
             ))}
-            {/* Mobile language switcher */}
             <button
               className="mobile-nav-link w-full text-left"
               onClick={toggleLanguage}

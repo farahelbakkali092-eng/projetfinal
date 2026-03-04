@@ -3,6 +3,7 @@ import { toast } from 'react-hot-toast';
 import { adminApi } from '../api';
 import AdminModal from '../components/AdminModal';
 import AdminTableActions from '../components/AdminTableActions';
+import FormError from '../../components/FormError';
 
 const emptyForm = { name: '', description: '' };
 
@@ -15,6 +16,7 @@ const BrandsPage = () => {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [errors, setErrors] = useState({});
   const title = useMemo(() => (editing ? 'Modifier une marque' : 'Ajouter une marque'), [editing]);
 
   const load = async (page = 1) => {
@@ -40,9 +42,26 @@ const BrandsPage = () => {
   }, []);
 
   const onSubmit = async () => {
+    setErrors({});
     try {
-      if (!form.name.trim()) {
-        toast.error('Le nom est obligatoire');
+      const name = form.name.trim();
+      const desc = form.description.trim();
+
+      const newErrors = {};
+      if (name.length < 3 || name.length > 50) {
+        newErrors.name = ["Le nom doit contenir entre 3 et 50 caractères."];
+      } else if (/^[0-9]+$/.test(name)) {
+        newErrors.name = ["Le nom ne peut pas être composé uniquement de chiffres."];
+      }
+
+      if (desc.length < 10 || desc.length > 300) {
+        newErrors.description = ["La description doit contenir entre 10 et 300 caractères."];
+      } else if (/^[0-9]+$/.test(desc)) {
+        newErrors.description = ["La description ne peut pas être composée uniquement de chiffres."];
+      }
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
         return;
       }
 
@@ -65,10 +84,9 @@ const BrandsPage = () => {
     } catch (e) {
       console.error('Admin: Error submitting brand:', e);
       if (e.response?.data?.errors) {
-        const errs = e.response.data.errors;
-        Object.values(errs).flat().forEach((msg) => toast.error(String(msg)));
+        setErrors(e.response.data.errors);
       } else {
-        toast.error(e.response?.data?.message || 'Erreur lors de l\'enregistrement');
+        setErrors({ general: [e.response?.data?.message || 'Erreur lors de l\'enregistrement'] });
       }
     }
   };
@@ -76,6 +94,7 @@ const BrandsPage = () => {
   const onEdit = (item) => {
     setEditing(item);
     setForm({ name: item.name || '', description: item.description || '' });
+    setErrors({});
     setOpen(true);
   };
 
@@ -92,11 +111,10 @@ const BrandsPage = () => {
   };
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="admin-page-header">
         <div>
           <h1>Marques</h1>
-          <div className="admin-muted">Gérer les marques</div>
         </div>
         <div className="admin-actions">
           <input
@@ -117,6 +135,7 @@ const BrandsPage = () => {
             onClick={() => {
               setEditing(null);
               setForm(emptyForm);
+              setErrors({});
               setOpen(true);
             }}
           >
@@ -131,7 +150,6 @@ const BrandsPage = () => {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>ID</th>
               <th>Nom</th>
               <th>Slug</th>
               <th style={{ width: 220 }}>Actions</th>
@@ -140,7 +158,6 @@ const BrandsPage = () => {
           <tbody>
             {items.map((b) => (
               <tr key={b.id}>
-                <td>{b.id}</td>
                 <td>{b.name}</td>
                 <td><span className="admin-badge">{b.slug}</span></td>
                 <td>
@@ -189,13 +206,16 @@ const BrandsPage = () => {
         )}
       >
         <div className="admin-form-grid">
+          <div style={{ gridColumn: '1 / -1' }}><FormError error={errors.general} /></div>
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>Nom</div>
             <input className="admin-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <FormError error={errors.name} />
           </div>
           <div>
             <div className="admin-muted" style={{ marginBottom: 6 }}>Description</div>
             <input className="admin-input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            <FormError error={errors.description} />
           </div>
         </div>
       </AdminModal>

@@ -1,169 +1,393 @@
+/* ============================================================
+   ADMIN.CSS — Systeme de design Admin DAWSM PRO
+   ============================================================
+   Sommaire :
+   1.  Variables & Base
+   2.  Animations
+   3.  Layout (shell, container, grille)
+   4.  Sidebar & Navigation
+   5.  Contenu principal & En-tete de page
+   6.  Boutons
+   7.  Cartes & Dashboard
+   8.  Tables
+   9.  Formulaires & Inputs
+   10. Badges & Statuts
+   11. Modals
+   12. Utilitaires
+   13. Responsive
+   ============================================================ */
+
+
+/* ============================================================
+   1. VARIABLES & BASE
+   ============================================================ */
+
 :root {
-  --primary: #000;
-  --text: #333;
-  --text-light: #666;
-  --accent: #d4a373;
-  --bg-header: rgba(255, 255, 255, 0.95);
-  --border-color: #e5e5e5;
+  /* Couleurs */
+  --primary:      #2d0a0a;
+  --accent:       #d4a373;
+  --accent-light: #e6c8a8;
+  --bg-color:     #fdfaf6;
+  --sidebar-bg:   #ffffff;
+  --text-main:    #2d0a0a;
+  --text-muted:   #7c6a6a;
+  --border-light: #f0ebe4;
+  --glass-bg:     rgba(255, 255, 255, 0.7);
 
-  --rose: hsl(350, 60%, 72%);
-  --gold: hsl(35, 60%, 52%);
-  --gold-light: hsl(38, 55%, 70%);
-  --burgundy: hsl(340, 45%, 25%);
-  --cream: hsl(30, 33%, 98%);
-  --blush: hsl(15, 40%, 95%);
+  /* Ombres */
+  --shadow-sm: 0 2px 8px rgba(45, 10, 10, 0.05);
+  --shadow-md: 0 10px 30px rgba(45, 10, 10, 0.08);
+  --shadow-lg: 0 20px 50px rgba(45, 10, 10, 0.12);
 
+  /* Transitions */
+  --transition-smooth: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+
+  /* Typographie */
   --font-heading: "Playfair Display", serif;
-  --font-body: "Poppins", sans-serif;
-
-  --bg-color: var(--cream);
-  --border-light: #eee;
-  --text-color: var(--burgundy);
-  --text-gray: #777;
+  --font-body:    "Poppins", sans-serif;
 }
 
-.admin-shell {
-  width: 100%;
-  min-height: calc(100vh - 160px);
-  background: var(--bg-color);
-  color: var(--text-color);
+body {
+  background-color: var(--bg-color);
+  font-family: var(--font-body);
+  color: var(--text-main);
+  overflow-x: hidden;
 }
 
-.admin-container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 24px 16px;
-}
 
-.admin-layout {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 20px;
-}
+/* ============================================================
+   2. ANIMATIONS
+   ============================================================ */
 
-@media (max-width: 1024px) {
-  .admin-layout {
-    grid-template-columns: 1fr;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Applique sur la plupart des pages via className="animate-fade-in" */
+.animate-fade-in {
+  animation: fadeInUp 0.6s ease out forwards;
+}
+
+
+/* ============================================================
+   3. LAYOUT — Shell, Container, Grille principale
+   ============================================================ */
+
+/* Enveloppe globale de l'admin */
+.admin-shell {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg-color);
+  padding-bottom: 40px;
+}
+
+/* Centrage du contenu avec largeur max */
+.admin-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+/* Grille sidebar | contenu principal */
+.admin-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+
+/* ============================================================
+   4. SIDEBAR & NAVIGATION
+   ============================================================ */
+
 .admin-sidebar {
-  background: #fff;
+  background: var(--sidebar-bg);
   border: 1px solid var(--border-light);
-  border-radius: 8px;
-  padding: 16px;
-  height: fit-content;
+  border-radius: 20px;
+  padding: 30px 20px;
+  position: sticky;
+  top: 100px;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-smooth);
+}
+
+.admin-sidebar:hover {
+  box-shadow: var(--shadow-lg);
 }
 
 .admin-sidebar-title {
   font-family: var(--font-heading);
-  color: var(--burgundy);
-  font-size: 1.4rem;
-  margin: 0 0 12px 0;
+  color: var(--primary);
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+  letter-spacing: -0.02em;
+  text-align: center;
+  position: relative;
 }
 
+/* Ligne doree decorative sous le titre */
+.admin-sidebar-title::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 2px;
+  background: var(--accent);
+  margin: 10px auto 0;
+}
+
+/* Colonne de liens de navigation */
 .admin-nav {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .admin-nav a {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  color: var(--burgundy);
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  color: var(--text-main);
   text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: var(--transition-smooth);
   border: 1px solid transparent;
 }
 
-.admin-nav button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  color: var(--burgundy);
-  text-decoration: none;
-  border: 1px solid var(--border-light);
-  background: #fff;
-  cursor: pointer;
-}
-
-.admin-nav button:hover {
-  background: var(--blush);
-}
-
 .admin-nav a:hover {
-  background: var(--blush);
+  background: var(--bg-color);
+  color: var(--accent);
+  transform: translateX(5px);
   border-color: var(--border-light);
 }
 
 .admin-nav a.active {
-  background: rgba(212, 163, 115, 0.18);
-  border-color: rgba(212, 163, 115, 0.45);
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(45, 10, 10, 0.2);
 }
 
+.admin-nav a.active svg {
+  color: var(--accent);
+}
+
+/* Bouton de deconnexion dans la nav */
+.admin-nav button {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  color: #b91c1c;
+  background: #fff5f5;
+  border: 1px solid #fee2e2;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  transition: var(--transition-smooth);
+}
+
+.admin-nav button:hover {
+  background: #fef2f2;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(185, 28, 28, 0.1);
+}
+
+
+/* ============================================================
+   5. CONTENU PRINCIPAL & EN-TETE DE PAGE
+   ============================================================ */
+
+/* Zone de contenu a droite de la sidebar */
 .admin-main {
-  background: #fff;
+  background: var(--sidebar-bg);
   border: 1px solid var(--border-light);
-  border-radius: 8px;
-  padding: 18px;
+  border-radius: 20px;
+  padding: 35px;
+  box-shadow: var(--shadow-md);
+  min-height: 500px;
+  animation: fadeInUp 0.8s ease out;
 }
 
+/* En-tete de chaque page : titre a gauche, actions a droite */
 .admin-page-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  gap: 12px;
-  margin-bottom: 16px;
+  align-items: center;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .admin-page-header h1 {
   font-family: var(--font-heading);
-  color: var(--burgundy);
-  font-size: 2rem;
+  color: var(--primary);
+  font-size: 2.2rem;
   margin: 0;
+  font-weight: 700;
 }
 
-.admin-muted {
-  color: var(--text-gray);
-  font-size: 0.9rem;
-}
 
-.admin-actions {
-  display: flex;
-  gap: 10px;
-}
+/* ============================================================
+   6. BOUTONS
+   ============================================================ */
 
+/* Bouton primaire (bordeaux) */
 .admin-btn {
-  background: linear-gradient(135deg, var(--gold), hsl(35, 60%, 45%));
+  background: linear-gradient(135deg, var(--primary), #4a1414);
   color: #fff;
-  border: 0;
-  padding: 10px 14px;
-  border-radius: 6px;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  font-size: 0.9rem;
+  transition: var(--transition-smooth);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(45, 10, 10, 0.15);
 }
 
+.admin-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(45, 10, 10, 0.25);
+  background: linear-gradient(135deg, #4a1414, var(--primary));
+}
+
+/* Bouton secondaire (blanc avec bordure) */
 .admin-btn.secondary {
   background: #fff;
-  color: var(--burgundy);
+  color: var(--primary);
   border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
 }
 
+.admin-btn.secondary:hover {
+  background: var(--bg-color);
+  border-color: var(--accent);
+}
+
+/* Bouton danger — Supprimer (utilise dans AdminTableActions) */
 .admin-btn.danger {
-  background: #b91c1c;
+  background: linear-gradient(135deg, #b91c1c, #991b1b);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(185, 28, 28, 0.15);
 }
 
-.admin-input {
-  width: 100%;
+.admin-btn.danger:hover {
+  background: linear-gradient(135deg, #991b1b, #7f1d1d);
+  box-shadow: 0 8px 25px rgba(185, 28, 28, 0.25);
+  transform: translateY(-3px);
+}
+
+/* Etat desactive — partage par tous les variants */
+.admin-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+
+/* ============================================================
+   7. CARTES & DASHBOARD
+   ============================================================ */
+
+/* Grille des 4 stat cards du Dashboard */
+.admin-grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+/* Carte generique (stat card, panel messages, etc.) */
+.admin-card {
+  background: #fff;
   border: 1px solid var(--border-light);
-  padding: 10px 12px;
-  border-radius: 6px;
+  border-radius: 18px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Trait dore gauche qui apparait au hover */
+.admin-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--accent);
+  opacity: 0;
+  transition: var(--transition-smooth);
+}
+
+.admin-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-light);
+}
+
+.admin-card:hover::before {
+  opacity: 1;
+}
+
+/* Label au-dessus de la valeur dans les stat cards */
+.admin-card-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* Chiffre principal affiche dans les stat cards */
+.admin-card-value {
+  font-family: var(--font-heading);
+  font-size: 2.4rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+
+/* ============================================================
+   8. TABLES
+   ============================================================ */
+
+/* Wrapper optionnel pour le scroll horizontal sur mobile */
+.admin-table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
 }
 
 .admin-table {
@@ -171,105 +395,175 @@
   border-collapse: collapse;
 }
 
-.admin-table th,
-.admin-table td {
-  text-align: left;
-  padding: 12px 10px;
-  border-bottom: 1px solid var(--border-light);
-  vertical-align: middle;
-}
-
 .admin-table th {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-gray);
-}
-
-.admin-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  border: 1px solid var(--border-light);
-  background: #fff;
-}
-
-.admin-grid-cards {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-}
-
-@media (max-width: 1024px) {
-  .admin-grid-cards { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 520px) {
-  .admin-grid-cards { grid-template-columns: 1fr; }
-}
-
-.admin-card {
-  border: 1px solid var(--border-light);
-  border-radius: 10px;
-  padding: 14px;
-  background: linear-gradient(180deg, #fff, var(--blush));
-}
-
-.admin-card-label {
-  color: var(--text-gray);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  background: var(--bg-color);
+  padding: 16px;
+  text-align: left;
   font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  font-weight: 700;
+  border-bottom: 2px solid var(--border-light);
 }
 
-.admin-card-value {
-  font-family: var(--font-heading);
-  color: var(--burgundy);
-  font-size: 2rem;
-  margin-top: 4px;
+.admin-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.95rem;
+  transition: background 0.2s;
 }
 
+.admin-table tr:hover td {
+  background: #fdfaf8;
+}
+
+
+/* ============================================================
+   9. FORMULAIRES & INPUTS
+   ============================================================ */
+
+/* Champ texte, select, file — utilise partout dans les modals et headers */
+.admin-input {
+  width: 100%;
+  background: var(--bg-color);
+  border: 1px solid var(--border-light);
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: var(--transition-smooth);
+}
+
+.admin-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(212, 163, 115, 0.1);
+}
+
+/* Grille 2 colonnes dans les modals de formulaire */
 .admin-form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 20px;
 }
 
-@media (max-width: 768px) {
-  .admin-form-grid { grid-template-columns: 1fr; }
+
+/* ============================================================
+   10. BADGES & STATUTS
+   ============================================================ */
+
+/* Badge dore — slugs, statuts commandes, numeros de commande */
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  background: rgba(212, 163, 115, 0.12);
+  color: var(--primary);
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  white-space: nowrap;
 }
 
+/* Badge secondaire gris — sections, roles clients */
+.admin-badge.secondary {
+  background: var(--bg-color);
+  color: var(--text-muted);
+  border-color: var(--border-light);
+}
+
+
+/* ============================================================
+   11. MODALS
+   ============================================================ */
+
+/* Overlay plein ecran avec blur */
 .admin-modal-overlay {
-  position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
+  background: rgba(45, 10, 10, 0.4);
+  backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
-  align-items: center;
   z-index: 2000;
-  padding: 18px;
+  padding: 20px;
+  overflow-y: auto;
 }
 
+/* Fenetre modale centree */
 .admin-modal {
   width: 100%;
-  max-width: 720px;
+  max-width: 760px;
   background: #fff;
-  border-radius: 12px;
-  border: 1px solid var(--border-light);
-  padding: 18px;
+  border-radius: 24px;
+  padding: 40px;
+  margin: auto;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  animation: fadeInUp 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .admin-modal h2 {
-  margin: 0 0 10px 0;
   font-family: var(--font-heading);
-  color: var(--burgundy);
+  color: var(--primary);
+  font-size: 2rem;
+  margin-bottom: 25px;
+  text-align: center;
 }
 
+/* Pied de modal avec boutons Annuler / Confirmer */
 .admin-modal-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 35px;
+  padding-top: 25px;
+  border-top: 1px solid var(--border-light);
+}
+
+
+/* ============================================================
+   12. UTILITAIRES
+   ============================================================ */
+
+/* Texte secondaire — labels, descriptions, etats vides, pagination */
+.admin-muted {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Groupe d'actions dans admin-page-header (boutons + input recherche) */
+.admin-actions {
+  display: flex;
+  align-items: center;
   gap: 10px;
-  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+
+/* Dans admin-actions, les inputs respectent leur maxWidth sans prendre toute la largeur */
+.admin-actions .admin-input {
+  width: auto;
+}
+
+/* ============================================================
+   13. RESPONSIVE
+   ============================================================ */
+
+/* Sidebar collapse en mobile */
+@media (max-width: 1100px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Formulaires en colonne unique sur petit ecran */
+@media (max-width: 600px) {
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
 }
