@@ -77,7 +77,6 @@ const UsersPage = () => {
       <div className="admin-page-header">
         <div>
           <h1>{t('admin.users')}</h1>
-          <div className="admin-muted">{t('admin.manage_users_desc') || "Gestion des rôles et utilisateurs"}</div>
         </div>
         <div className="admin-actions">
           <input
@@ -94,14 +93,17 @@ const UsersPage = () => {
       {loading ? (
         <div className="admin-muted">{t('admin.loading')}</div>
       ) : (
-        <table className="admin-table">
+        <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '35%' }} />
+            <col style={{ width: '40%' }} />
+            <col style={{ width: '25%' }} />
+          </colgroup>
           <thead>
             <tr>
-              <th>{t('admin.id')}</th>
-              <th>{t('admin.name')}</th>
-              <th>{t('admin.email') || 'Email'}</th>
-              <th>{t('admin.phone')}</th>
-              <th>{t('admin.role')}</th>
+              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.name')}</th>
+              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.email') || 'Email'}</th>
+              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.phone')}</th>
             </tr>
           </thead>
           <tbody>
@@ -109,14 +111,14 @@ const UsersPage = () => {
               .filter((u) => u.role?.name !== 'admin')
               .map((u) => (
                 <tr key={u.id}>
-                  <td>{u.id}</td>
-                  <td>{u.first_name} {u.last_name}</td>
-                  <td>{u.email}</td>
-                  <td>{u.phone}</td>
-                  <td>
-                    <span className="admin-badge secondary">
-                      {u.role?.name || t('admin.client') || 'Client'}
-                    </span>
+                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {u.first_name} {u.last_name}
+                  </td>
+                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {u.email}
+                  </td>
+                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {u.phone}
                   </td>
                 </tr>
               ))}

@@ -1,21 +1,48 @@
+/* ============================================================
+   ADMIN.CSS — Systeme de design Admin DAWSM PRO
+   ============================================================
+   Sommaire :
+   1.  Variables & Base
+   2.  Animations
+   3.  Layout (shell, container, grille)
+   4.  Sidebar & Navigation
+   5.  Contenu principal & En-tete de page
+   6.  Boutons
+   7.  Cartes & Dashboard
+   8.  Tables
+   9.  Formulaires & Inputs
+   10. Badges & Statuts
+   11. Modals
+   12. Utilitaires
+   13. Responsive
+   ============================================================ */
+
+
+/* ============================================================
+   1. VARIABLES & BASE
+   ============================================================ */
+
 :root {
+  /* Couleurs */
   --primary: #2d0a0a;
-  /* Deep Burgundy */
   --accent: #d4a373;
-  /* Champagne Gold */
   --accent-light: #e6c8a8;
   --bg-color: #fdfaf6;
-  /* Soft Cream */
   --sidebar-bg: #ffffff;
   --text-main: #2d0a0a;
   --text-muted: #7c6a6a;
   --border-light: #f0ebe4;
   --glass-bg: rgba(255, 255, 255, 0.7);
+
+  /* Ombres */
   --shadow-sm: 0 2px 8px rgba(45, 10, 10, 0.05);
   --shadow-md: 0 10px 30px rgba(45, 10, 10, 0.08);
   --shadow-lg: 0 20px 50px rgba(45, 10, 10, 0.12);
+
+  /* Transitions */
   --transition-smooth: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 
+  /* Typographie */
   --font-heading: "Playfair Display", serif;
   --font-body: "Poppins", sans-serif;
 }
@@ -27,7 +54,11 @@ body {
   overflow-x: hidden;
 }
 
-/* --- Animations --- */
+
+/* ============================================================
+   2. ANIMATIONS
+   ============================================================ */
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -52,11 +83,17 @@ body {
   }
 }
 
+/* Applique sur la plupart des pages via className="animate-fade-in" */
 .animate-fade-in {
   animation: fadeInUp 0.6s ease out forwards;
 }
 
-/* --- Layout Structure --- */
+
+/* ============================================================
+   3. LAYOUT — Shell, Container, Grille principale
+   ============================================================ */
+
+/* Enveloppe globale de l'admin */
 .admin-shell {
   width: 100%;
   min-height: 100vh;
@@ -64,12 +101,14 @@ body {
   padding-bottom: 40px;
 }
 
+/* Centrage du contenu avec largeur max */
 .admin-container {
   max-width: 1400px;
   margin: 0 auto;
   padding: 30px 20px;
 }
 
+/* Grille sidebar | contenu principal */
 .admin-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -77,13 +116,11 @@ body {
   align-items: start;
 }
 
-@media (max-width: 1100px) {
-  .admin-layout {
-    grid-template-columns: 1fr;
-  }
-}
 
-/* --- Sidebar Luxury Style --- */
+/* ============================================================
+   4. SIDEBAR & NAVIGATION
+   ============================================================ */
+
 .admin-sidebar {
   background: var(--sidebar-bg);
   border: 1px solid var(--border-light);
@@ -109,6 +146,7 @@ body {
   position: relative;
 }
 
+/* Ligne doree decorative sous le titre */
 .admin-sidebar-title::after {
   content: '';
   display: block;
@@ -118,6 +156,7 @@ body {
   margin: 10px auto 0;
 }
 
+/* Colonne de liens de navigation */
 .admin-nav {
   display: flex;
   flex-direction: column;
@@ -155,6 +194,7 @@ body {
   color: var(--accent);
 }
 
+/* Bouton de deconnexion dans la nav */
 .admin-nav button {
   margin-top: 20px;
   display: flex;
@@ -177,7 +217,12 @@ body {
   box-shadow: 0 5px 15px rgba(185, 28, 28, 0.1);
 }
 
-/* --- Main Content Area --- */
+
+/* ============================================================
+   5. CONTENU PRINCIPAL & EN-TETE DE PAGE
+   ============================================================ */
+
+/* Zone de contenu a droite de la sidebar */
 .admin-main {
   background: var(--sidebar-bg);
   border: 1px solid var(--border-light);
@@ -188,10 +233,11 @@ body {
   animation: fadeInUp 0.8s ease out;
 }
 
+/* En-tete de chaque page : titre a gauche, actions a droite */
 .admin-page-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
   margin-bottom: 40px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--border-light);
@@ -205,8 +251,13 @@ body {
   font-weight: 700;
 }
 
+
+/* ============================================================
+   6. BOUTONS
+   ============================================================ */
+
+/* Bouton primaire (bordeaux) */
 .admin-btn {
-  background: var(--primary);
   background: linear-gradient(135deg, var(--primary), #4a1414);
   color: #fff;
   border: none;
@@ -228,6 +279,7 @@ body {
   background: linear-gradient(135deg, #4a1414, var(--primary));
 }
 
+/* Bouton secondaire (blanc avec bordure) */
 .admin-btn.secondary {
   background: #fff;
   color: var(--primary);
@@ -240,7 +292,34 @@ body {
   border-color: var(--accent);
 }
 
-/* --- Cards & Dashboard --- */
+/* Bouton danger — Supprimer (utilise dans AdminTableActions) */
+.admin-btn.danger {
+  background: linear-gradient(135deg, #b91c1c, #991b1b);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(185, 28, 28, 0.15);
+}
+
+.admin-btn.danger:hover {
+  background: linear-gradient(135deg, #991b1b, #7f1d1d);
+  box-shadow: 0 8px 25px rgba(185, 28, 28, 0.25);
+  transform: translateY(-3px);
+}
+
+/* Etat desactive — partage par tous les variants */
+.admin-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+
+/* ============================================================
+   7. CARTES & DASHBOARD
+   ============================================================ */
+
+/* Grille des 4 stat cards du Dashboard */
 .admin-grid-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -248,6 +327,7 @@ body {
   margin-bottom: 40px;
 }
 
+/* Carte generique (stat card, panel messages, etc.) */
 .admin-card {
   background: #fff;
   border: 1px solid var(--border-light);
@@ -259,6 +339,7 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
+/* Trait dore gauche qui apparait au hover */
 .admin-card::before {
   content: '';
   position: absolute;
@@ -281,6 +362,7 @@ body {
   opacity: 1;
 }
 
+/* Label au-dessus de la valeur dans les stat cards */
 .admin-card-label {
   font-size: 0.8rem;
   text-transform: uppercase;
@@ -290,6 +372,7 @@ body {
   margin-bottom: 8px;
 }
 
+/* Chiffre principal affiche dans les stat cards */
 .admin-card-value {
   font-family: var(--font-heading);
   font-size: 2.4rem;
@@ -297,7 +380,12 @@ body {
   font-weight: 700;
 }
 
-/* --- Tables --- */
+
+/* ============================================================
+   8. TABLES
+   ============================================================ */
+
+/* Wrapper optionnel pour le scroll horizontal sur mobile */
 .admin-table-container {
   overflow-x: auto;
   border-radius: 12px;
@@ -332,9 +420,71 @@ body {
   background: #fdfaf8;
 }
 
-/* --- Modals --- */
+
+/* ============================================================
+   9. FORMULAIRES & INPUTS
+   ============================================================ */
+
+/* Champ texte, select, file — utilise partout dans les modals et headers */
+.admin-input {
+  width: 100%;
+  background: var(--bg-color);
+  border: 1px solid var(--border-light);
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: var(--transition-smooth);
+}
+
+.admin-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(212, 163, 115, 0.1);
+}
+
+/* Grille 2 colonnes dans les modals de formulaire */
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+
+/* ============================================================
+   10. BADGES & STATUTS
+   ============================================================ */
+
+/* Badge dore — slugs, statuts commandes, numeros de commande */
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  background: rgba(212, 163, 115, 0.12);
+  color: var(--primary);
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  white-space: nowrap;
+}
+
+/* Badge secondaire gris — sections, roles clients */
+.admin-badge.secondary {
+  background: var(--bg-color);
+  color: var(--text-muted);
+  border-color: var(--border-light);
+}
+
+
+/* ============================================================
+   11. MODALS
+   ============================================================ */
+
+/* Overlay plein ecran avec blur */
 .admin-modal-overlay {
-  position: fixed;
   inset: 0;
   background: rgba(45, 10, 10, 0.4);
   backdrop-filter: blur(8px);
@@ -345,6 +495,7 @@ body {
   overflow-y: auto;
 }
 
+/* Fenetre modale centree */
 .admin-modal {
   width: 100%;
   max-width: 760px;
@@ -365,36 +516,7 @@ body {
   text-align: center;
 }
 
-.admin-input {
-  width: 100%;
-  background: var(--bg-color);
-  border: 1px solid var(--border-light);
-  padding: 14px 18px;
-  border-radius: 12px;
-  font-family: inherit;
-  font-size: 0.95rem;
-  transition: var(--transition-smooth);
-}
-
-.admin-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(212, 163, 115, 0.1);
-}
-
-.admin-form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-@media (max-width: 600px) {
-  .admin-form-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
+/* Pied de modal avec boutons Annuler / Confirmer */
 .admin-modal-footer {
   display: flex;
   justify-content: center;
@@ -402,4 +524,48 @@ body {
   margin-top: 35px;
   padding-top: 25px;
   border-top: 1px solid var(--border-light);
+}
+
+
+/* ============================================================
+   12. UTILITAIRES
+   ============================================================ */
+
+/* Texte secondaire — labels, descriptions, etats vides, pagination */
+.admin-muted {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Groupe d'actions dans admin-page-header (boutons + input recherche) */
+.admin-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+
+/* Dans admin-actions, les inputs respectent leur maxWidth sans prendre toute la largeur */
+.admin-actions .admin-input {
+  width: auto;
+}
+
+/* ============================================================
+   13. RESPONSIVE
+   ============================================================ */
+
+/* Sidebar collapse en mobile */
+@media (max-width: 1100px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Formulaires en colonne unique sur petit ecran */
+@media (max-width: 600px) {
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
 }

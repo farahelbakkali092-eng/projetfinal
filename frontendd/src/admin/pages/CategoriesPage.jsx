@@ -139,9 +139,8 @@ const CategoriesPage = () => {
       <div className="admin-page-header">
         <div>
           <h1>Catégories</h1>
-          <div className="admin-muted">Gérer les catégories</div>
         </div>
-        <div className="admin-actions">
+        <div className="admin-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <input
             className="admin-input"
             placeholder="Rechercher..."
@@ -176,7 +175,6 @@ const CategoriesPage = () => {
           <thead>
             <tr>
               <th>Image</th>
-              <th>ID</th>
               <th>Nom</th>
               <th>Section</th>
               <th>Slug</th>
@@ -197,7 +195,6 @@ const CategoriesPage = () => {
                     <span className="admin-muted">-</span>
                   )}
                 </td>
-                <td>{c.id}</td>
                 <td>{c.name}</td>
                 <td>
                   {c.section ? (

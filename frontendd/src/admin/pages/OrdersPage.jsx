@@ -41,7 +41,6 @@ const OrdersPage = () => {
       <div className="admin-page-header">
         <div>
           <h1>{t('admin.orders')}</h1>
-          <div className="admin-muted">{t('admin.manage')} {t('admin.orders').toLowerCase()}</div>
         </div>
       </div>
 
@@ -51,7 +50,6 @@ const OrdersPage = () => {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>{t('admin.id')}</th>
               <th>{t('admin.orderNumber')}</th>
               <th>{t('admin.customer')}</th>
               <th>{t('admin.total')}</th>
@@ -63,7 +61,6 @@ const OrdersPage = () => {
           <tbody>
             {items.map((o) => (
               <tr key={o.id}>
-                <td>{o.id}</td>
                 <td><span className="admin-badge">{o.order_number}</span></td>
                 <td>{o.user?.email || '-'}</td>
                 <td>{o.total_price}</td>

@@ -80,7 +80,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
           <div className="cart-footer">
             <div className="subtotal-row">
               <span>Sous-total</span>
-              <span className="subtotal-price">${subtotal.toFixed(2)}</span>
+              <span className="subtotal-price">{subtotal.toFixed(2)} MAD</span>
             </div>
             <p className="shipping-note">Frais de port calculés à la caisse</p>
 

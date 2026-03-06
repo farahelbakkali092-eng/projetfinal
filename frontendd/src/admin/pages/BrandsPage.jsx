@@ -115,7 +115,6 @@ const BrandsPage = () => {
       <div className="admin-page-header">
         <div>
           <h1>Marques</h1>
-          <div className="admin-muted">Gérer les marques</div>
         </div>
         <div className="admin-actions">
           <input
@@ -151,7 +150,6 @@ const BrandsPage = () => {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>ID</th>
               <th>Nom</th>
               <th>Slug</th>
               <th style={{ width: 220 }}>Actions</th>
@@ -160,7 +158,6 @@ const BrandsPage = () => {
           <tbody>
             {items.map((b) => (
               <tr key={b.id}>
-                <td>{b.id}</td>
                 <td>{b.name}</td>
                 <td><span className="admin-badge">{b.slug}</span></td>
                 <td>

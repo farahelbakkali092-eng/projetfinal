@@ -19,11 +19,9 @@ const CategoryProducts = () => {
             setIsLoading(true);
             setError(null);
             try {
-                // Fetch all categories to find the one matching the slug or ID
                 const catRes = await api.get('/products/categories');
                 const allCategories = Array.isArray(catRes?.data?.data) ? catRes.data.data : [];
 
-                // Find the specific category (handle both ID and Slug)
                 const currentCat = allCategories.find(c =>
                     c.id.toString() === id || c.slug === id.toLowerCase()
                 );
@@ -36,7 +34,6 @@ const CategoryProducts = () => {
 
                 setCategory(currentCat);
 
-                // Fetch products filtered by the actual category ID
                 const prodRes = await api.get(`/products?category_id=${currentCat.id}&per_page=20`);
                 setProducts(prodRes?.data?.data?.data || []);
 
@@ -53,43 +50,71 @@ const CategoryProducts = () => {
 
     if (isLoading) {
         return (
-            <div className="category-loading container">
-                <Loader2 className="animate-spin text-gold" size={48} />
+            <div className="cat-state-wrapper">
+                <Loader2 className="cat-spinner" size={48} />
+                <p className="cat-state-text">Chargement de la collection...</p>
             </div>
         );
     }
 
     if (error || !category) {
         return (
-            <div className="category-error container">
-                <h2>Oups !</h2>
-                <p>{error || "Catégorie introuvable."}</p>
-                <Link to="/" className="btn btn-gold">Retour à l'accueil</Link>
+            <div className="cat-state-wrapper">
+                <div className="cat-error-card">
+                    <ShoppingBag className="cat-error-icon" />
+                    <h2 className="cat-error-title">Oups !</h2>
+                    <p className="cat-error-msg">{error || "Catégorie introuvable."}</p>
+                    <Link to="/" className="cat-back-btn">
+                        <ArrowLeft size={15} /> Retour à l'accueil
+                    </Link>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="category-products-page container">
+        <div className="category-products-page">
+
+            {/* Header */}
             <div className="category-header">
-                <Link to="/" className="back-link">
-                    <ArrowLeft size={16} /> Retour à l'accueil
-                </Link>
-                <div className="category-title-section">
-                    <h1>{category.name}</h1>
-                    <p className="product-count">{products.length} {products.length > 1 ? 'produits' : 'produit'}</p>
-                    {category.description && <p className="category-description">{category.description}</p>}
+                <div className="category-header-inner">
+                    <Link to="/" className="back-link">
+                        <ArrowLeft size={16} /> Toutes les catégories
+                    </Link>
+                    <div className="category-title-section">
+                        <h1>{category.name}</h1>
+                        {category.description && (
+                            <p className="category-description">{category.description}</p>
+                        )}
+                    </div>
+                    <div className="category-divider" />
                 </div>
             </div>
 
-            <div className="shared-products-grid">
+            {/* Produits */}
+            <div className="category-products-section">
+                <div className="category-products-header">
+                    <span className="product-count">
+                        Collection — {products.length} {products.length > 1 ? 'Articles' : 'Article'}
+                    </span>
+                </div>
+
                 {products.length > 0 ? (
-                    products.map((product) => (
-                        <ProductCard key={product.id} product={product} />
-                    ))
+                    <div className="shared-products-grid">
+                        {products.map((product) => (
+                            <ProductCard key={product.id} product={product} />
+                        ))}
+                    </div>
                 ) : (
-                    <div className="no-products">
-                        <p>Aucun produit trouvé dans cette catégorie pour le moment.</p>
+                    <div className="cat-empty">
+                        <ShoppingBag className="cat-empty-icon" />
+                        <p className="cat-empty-title">Collection vide</p>
+                        <p className="cat-empty-text">
+                            Aucun produit n'est disponible dans cette catégorie pour le moment.
+                        </p>
+                        <Link to="/" className="cat-back-btn">
+                            <ArrowLeft size={15} /> Retour à l'accueil
+                        </Link>
                     </div>
                 )}
             </div>

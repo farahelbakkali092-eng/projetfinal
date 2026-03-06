@@ -66,8 +66,5 @@ export const adminApi = {
   updateUserRole: (id, role_id) => api.patch(`/admin/users/${id}/role`, { role_id }),
   updateUserStatus: (id, is_active) => api.patch(`/admin/users/${id}/status`, { is_active }),
 
-  // Messages
-  listMessages: (params) => api.get('/admin/messages', { params }),
-  getMessage: (id) => api.get(`/admin/messages/${id}`),
-  markMessageRead: (id) => api.patch(`/admin/messages/${id}/read`),
+
 };

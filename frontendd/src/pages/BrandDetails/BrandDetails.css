@@ -1,8 +1,252 @@
-/* BrandDetails.css */
+/* ── PAGE WRAPPER ── */
+.brand-page {
+  min-height: 100vh;
+  background: #fdf6f1;
+  font-family: serif;
+}
 
+/* ── ÉTATS GLOBAUX (loading / erreur) ── */
+.brand-state-wrapper {
+  min-height: 100vh;
+  background: #fdf6f1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px 20px;
+}
 
+.brand-spinner {
+  width: 40px;
+  height: 40px;
+  color: #b07865;
+  animation: spin 1s linear infinite;
+}
 
-/* On s'assure que la section a assez de padding */
-.max-w-\[1400px\] {
-  padding-bottom: 5rem;
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.brand-state-text {
+  color: #b07865;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+}
+
+/* ── CARTE ERREUR ── */
+.brand-error-card {
+  background: #fff;
+  border: 1px solid #fce4e4;
+  border-radius: 20px;
+  padding: 48px 40px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+.brand-error-icon {
+  width: 48px;
+  height: 48px;
+  color: #f87171;
+  margin: 0 auto 16px;
+}
+
+.brand-error-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #261812;
+  margin: 0 0 8px;
+}
+
+.brand-error-msg {
+  color: #8e6458;
+  margin: 0 0 24px;
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+.brand-header {
+  position: relative;
+  padding: 80px 24px 64px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.brand-header-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.brand-header-blob--left {
+  width: 280px;
+  height: 280px;
+  background: rgba(244, 194, 194, 0.18);
+  top: -60px;
+  left: -80px;
+}
+
+.brand-header-blob--right {
+  width: 380px;
+  height: 380px;
+  background: rgba(253, 186, 116, 0.12);
+  bottom: -80px;
+  right: -80px;
+}
+
+.brand-header-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.brand-breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #b89080;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  text-decoration: none;
+  margin-bottom: 32px;
+  transition: color 0.2s;
+}
+
+.brand-breadcrumb:hover { color: #b07865; }
+
+.brand-logo-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.brand-logo {
+  height: 80px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  opacity: 0.9;
+}
+
+.brand-name {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 300;
+  color: #261812;
+  margin: 0 0 20px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.brand-description {
+  color: #8e6458;
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.8;
+  font-size: 1.05rem;
+  font-style: italic;
+  font-weight: 300;
+}
+
+.brand-divider {
+  width: 64px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #c4a098, transparent);
+  margin: 40px auto 0;
+}
+
+/* ── SECTION PRODUITS ── */
+.brand-products-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px 96px;
+}
+
+.brand-products-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.brand-count {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  color: #b89080;
+  font-weight: 500;
+}
+
+/* ── ÉTAT VIDE ── */
+.brand-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 32px;
+  background: #fff;
+  border: 1.5px dashed #d9bfb7;
+  border-radius: 24px;
+  text-align: center;
+  gap: 12px;
+}
+
+.brand-empty-icon {
+  width: 48px;
+  height: 48px;
+  color: #d9bfb7;
+  margin-bottom: 4px;
+}
+
+.brand-empty-title {
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: #261812;
+  margin: 0;
+}
+
+.brand-empty-text {
+  color: #8e6458;
+  font-size: 0.95rem;
+  font-style: italic;
+  font-weight: 300;
+  max-width: 360px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ── BOUTON RETOUR ── */
+.brand-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 10px 22px;
+  background: #3a2a22;
+  color: #fdf6f1;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.brand-back-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+/* ── GRILLE PRODUITS ── */
+.shared-products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 640px) {
+  .brand-header { padding: 60px 16px 48px; }
+  .brand-products-section { padding: 0 16px 64px; }
+  .shared-products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
 }

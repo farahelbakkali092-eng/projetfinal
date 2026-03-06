@@ -29,26 +29,14 @@ const AdminHeader = () => {
               DAWSM <span style={{ color: 'var(--accent)', fontWeight: 400, fontSize: '1rem', letterSpacing: '0.1em', marginLeft: 5 }}>PRO</span>
             </div>
 
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <Search size={16} style={{ position: 'absolute', left: 12, color: 'var(--text-muted)' }} />
-              <input
-                placeholder="Rechercher..."
-                className="admin-input"
-                style={{ width: 260, paddingLeft: 35, paddingRight: 15, paddingTop: 8, paddingBottom: 8, fontSize: '0.85rem' }}
-              />
-            </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-            <button style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', position: 'relative' }}>
-              <Bell size={20} />
-              <div style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: 'var(--accent)', borderRadius: '50%', border: '2px solid #fff' }}></div>
-            </button>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '5px 15px', background: '#fff', borderRadius: 12, border: '1px solid var(--border-light)' }}>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary)' }}>{user?.name || 'Administrateur'}</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Boss</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}></div>
               </div>
               <div style={{ width: 32, height: 32, borderRadius: 10, background: 'var(--primary)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 {user?.name?.charAt(0) || 'A'}

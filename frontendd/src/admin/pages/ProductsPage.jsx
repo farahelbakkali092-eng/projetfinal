@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+import { Upload, Download, FileText } from 'lucide-react';
 import { adminApi } from '../api';
 import AdminModal from '../components/AdminModal';
 import AdminTableActions from '../components/AdminTableActions';
@@ -157,7 +158,6 @@ const ProductsPage = () => {
   const onSubmit = async () => {
     setErrors({});
     try {
-      // 1. Validations Frontend Strictes
       const name = form.name.trim();
       const desc = form.description.trim();
       const price = Number(form.price);
@@ -166,31 +166,26 @@ const ProductsPage = () => {
 
       const newErrors = {};
 
-      // Check name (3-50 chars, no digits only)
       if (name.length < 3 || name.length > 50) {
         newErrors.name = ["Le nom doit contenir entre 3 et 50 caractères."];
       } else if (/^[0-9]+$/.test(name)) {
         newErrors.name = ["Le nom ne peut pas être composé uniquement de chiffres."];
       }
 
-      // Check description (10-300 chars, no digits only)
       if (desc.length < 10 || desc.length > 300) {
         newErrors.description = ["La description doit contenir entre 10 et 300 caractères."];
       } else if (/^[0-9]+$/.test(desc)) {
         newErrors.description = ["La description ne peut pas être composée uniquement de chiffres."];
       }
 
-      // Check price (10 - 10,000)
       if (price < 10 || price > 10000) {
         newErrors.price = ["Le prix doit être compris entre 10 et 10 000 MAD."];
       }
 
-      // Check stock (1 - 50,000)
       if (stock < 1 || stock > 50000) {
         newErrors.stock = ["Le stock doit être compris entre 1 et 50 000."];
       }
 
-      // Check promotional price
       if (priceSold !== null) {
         if (priceSold <= 5) {
           newErrors.price_sold = ["Le prix soldé doit être supérieur à 5 MAD."];
@@ -215,7 +210,6 @@ const ProductsPage = () => {
 
       if (priceSold !== null) {
         fd.append('price_sold', String(priceSold));
-        // Recalculer le discount exact pour le backend au cas où
         const disc = Math.round((1 - priceSold / price) * 100);
         fd.append('discount', String(disc));
       } else {
@@ -282,48 +276,73 @@ const ProductsPage = () => {
       }
     } catch (err) {
       toast.dismiss(loadingToast);
-      toast.error(err.response?.data?.message || 'Erreur lors de l’import');
+      toast.error(err.response?.data?.message || 'Erreur lors de l\'import');
     } finally {
-      e.target.value = ''; // Reset input
+      e.target.value = '';
     }
   };
 
   return (
     <div className="animate-fade-in">
-      <div className="admin-page-header">
-        <div>
+      <div className="admin-page-header" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
           <h1>{t('admin.products')}</h1>
-          <div className="admin-muted">CRUD produits + association marque/catégorie</div>
+
+          {/* Ligne 1 : Recherche + Filtrer + Ajouter */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <input
+              className="admin-input"
+              placeholder={t('admin.search')}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ maxWidth: 220 }}
+            />
+            <button className="admin-btn secondary" onClick={() => load(1)}>{t('admin.filter')}</button>
+            <button
+              className="admin-btn"
+              onClick={() => {
+                setEditing(null);
+                setForm(emptyForm);
+                setErrors({});
+                setOpen(true);
+              }}
+            >
+              {t('admin.add')}
+            </button>
+          </div>
         </div>
-        <div className="admin-actions">
-          <input
-            className="admin-input"
-            placeholder={t('admin.search')}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{ maxWidth: 220 }}
-          />
-          <button className="admin-btn secondary" onClick={() => load(1)}>{t('admin.filter')}</button>
-          <button className="admin-btn secondary" onClick={exportToCSV} title="Exporter les produits">Exporter CSV </button>
 
-          <button className="admin-btn secondary" onClick={downloadTemplate} title="Télécharger le modèle CSV">Modèle CSV</button>
+        {/* Ligne 2 : Modèle CSV + Exporter CSV + Importer CSV */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
+          <button
+            className="admin-btn secondary"
+            onClick={downloadTemplate}
+            title="Télécharger le modèle CSV"
+            style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <FileText size={15} />
+            Modèle CSV
+          </button>
 
-          <label className="admin-btn secondary" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} title="Importer un fichier CSV">
+          <button
+            className="admin-btn secondary"
+            onClick={exportToCSV}
+            title="Exporter les produits"
+            style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <Download size={15} />
+            Exporter CSV
+          </button>
+
+          <label
+            className="admin-btn secondary"
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+            title="Importer un fichier CSV"
+          >
+            <Upload size={15} />
             Importer CSV
             <input type="file" accept=".csv" onChange={handleImport} style={{ display: 'none' }} />
           </label>
-
-          <button
-            className="admin-btn"
-            onClick={() => {
-              setEditing(null);
-              setForm(emptyForm);
-              setErrors({});
-              setOpen(true);
-            }}
-          >
-            {t('admin.add')}
-          </button>
         </div>
       </div>
 
@@ -344,63 +363,70 @@ const ProductsPage = () => {
       {loading ? (
         <div className="admin-muted">{t('admin.loading')}</div>
       ) : (
-        <table className="admin-table">
+        <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '6%' }} />
+            <col style={{ width: '18%' }} />
+            <col style={{ width: '13%' }} />
+            <col style={{ width: '13%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '8%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '12%' }} />
+          </colgroup>
           <thead>
             <tr>
-              <th>{t('admin.image')}</th>
-              <th>{t('admin.id')}</th>
-              <th>{t('admin.name')}</th>
-              <th>{t('admin.category')}</th>
-              <th>{t('admin.brand')}</th>
-              <th>Réf</th>
-              <th>{t('admin.price')}</th>
-              <th>{t('admin.stock')}</th>
-              <th>{t('admin.section')}</th>
-              <th style={{ width: 220 }}>{t('admin.actions')}</th>
+              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.image')}</th>
+              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.name')}</th>
+              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.category')}</th>
+              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.brand')}</th>
+              <th style={{ textAlign: 'left', padding: '12px 16px' }}>Réf</th>
+              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.price')}</th>
+              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.stock')}</th>
+              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.section')}</th>
+              <th style={{ textAlign: 'center', padding: '12px 16px' }}>{t('admin.actions')}</th>
             </tr>
           </thead>
           <tbody>
-            {items.map((p) => (
-              (() => {
-                const mainImg = (p.images || []).find((im) => im.is_main) || (p.images || [])[0];
-                const url = mainImg?.image_url;
-                return (
-                  <tr key={p.id}>
-                    <td>
-                      {url ? (
-                        <img
-                          src={url}
-                          alt={p.name}
-                          style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border-light)' }}
-                        />
-                      ) : (
-                        <span className="admin-muted">-</span>
-                      )}
-                    </td>
-                    <td>{p.id}</td>
-                    <td>{p.name}</td>
-                    <td>{p.category?.name || p.category_id}</td>
-                    <td>{p.brand?.name || p.brand_id}</td>
-                    <td style={{ fontSize: 11, color: '#666' }}>{p.reference || '-'}</td>
-                    <td>{p.price}</td>
-                    <td><span className="admin-badge">{p.stock}</span></td>
-                    <td>
-                      {p.section ? (
-                        <span className="admin-badge secondary">{p.section.name}</span>
-                      ) : (
-                        <span className="admin-muted">{t('admin.none')}</span>
-                      )}
-                    </td>
-                    <td>
-                      <AdminTableActions
-                        onEdit={() => onEdit(p)}
-                        onDelete={() => onDelete(p)}
+            {items.map((p) => {
+              const mainImg = (p.images || []).find((im) => im.is_main) || (p.images || [])[0];
+              const url = mainImg?.image_url;
+              return (
+                <tr key={p.id}>
+                  <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
+                    {url ? (
+                      <img
+                        src={url}
+                        alt={p.name}
+                        style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border-light)' }}
                       />
-                    </td>
-                  </tr>
-                );
-              })()
-            ))}
+                    ) : (
+                      <span className="admin-muted">-</span>
+                    )}
+                  </td>
+                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</td>
+                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.category?.name || p.category_id}</td>
+                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.brand?.name || p.brand_id}</td>
+                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', fontSize: 11, color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.reference || '-'}</td>
+                  <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>{p.price}</td>
+                  <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}><span className="admin-badge">{p.stock}</span></td>
+                  <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
+                    {p.section ? (
+                      <span className="admin-badge secondary">{p.section.name}</span>
+                    ) : (
+                      <span className="admin-muted">{t('admin.none')}</span>
+                    )}
+                  </td>
+                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', textAlign: 'center' }}>
+                    <AdminTableActions
+                      onEdit={() => onEdit(p)}
+                      onDelete={() => onDelete(p)}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}
