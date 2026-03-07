@@ -38,16 +38,20 @@ const AccountInfoPage = () => {
   const onChangePassword = async (e) => {
     e.preventDefault();
     if (!form.current_password || !form.password || !form.password_confirmation) {
-      toast.error('Veuillez remplir tous les champs');
+      toast.error(t('auth.fill_all') || 'Veuillez remplir tous les champs');
       return;
     }
     if (form.password !== form.password_confirmation) {
-      toast.error('Les mots de passe ne correspondent pas');
+      toast.error(t('auth.pass_mismatch') || 'Les mots de passe ne correspondent pas');
       return;
     }
     setSaving(true);
     try {
       await api.patch('/me/password', form);
+<<<<<<< HEAD
+=======
+      toast.success(t('auth.pass_updated') || 'Mot de passe mis à jour');
+>>>>>>> main
       toast.success('Mot de passe mis à jour', {
         style: { background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0' },
         iconTheme: { primary: '#16a34a', secondary: '#fff' },
@@ -57,7 +61,7 @@ const AccountInfoPage = () => {
       if (err.response?.data?.errors) {
         Object.values(err.response.data.errors).flat().forEach((m) => toast.error(String(m)));
       } else {
-        toast.error(err.response?.data?.message || 'Impossible de modifier le mot de passe');
+        toast.error(err.response?.data?.message || t('auth.pass_error') || 'Impossible de modifier le mot de passe');
       }
     } finally {
       setSaving(false);
@@ -96,6 +100,17 @@ const AccountInfoPage = () => {
 
   return (
     <div>
+<<<<<<< HEAD
+=======
+      <div className="account-page-header">
+        <div>
+          <h1>{isAdmin ? t('admin.changePass') : t('auth.accountInfo')}</h1>
+          <div className="account-muted">
+            {isAdmin ? t('admin.changePassDesc') || 'Change ton mot de passe administrateur' : t('auth.accountInfoDesc') || 'Consulte tes informations personnelles et change ton mot de passe'}
+          </div>
+        </div>
+      </div>
+>>>>>>> main
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Jost:wght@300;400;500&display=swap');
 
@@ -346,6 +361,95 @@ const AccountInfoPage = () => {
       <div className="ai-grid">
 
         {/* ── INFOS PERSO ── */}
+        {!isAdmin && (
+          <div className="ai-card">
+            <div className="ai-card-head">
+              <p className="ai-card-head-title">Profil</p>
+              <p className="ai-card-head-sub">Vos informations de compte</p>
+            </div>
+            <div className="ai-card-body">
+              <table className="ai-info-table">
+                <tbody>
+                  {infoRows.map(({ label, value }) => (
+                    <tr key={label}>
+                      <th>{label}</th>
+                      <td>{value || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ── FORMULAIRE MOT DE PASSE ── */}
+        <div className="ai-card">
+          <div className="ai-card-head">
+            <p className="ai-card-head-title">{t('admin.changePass')}</p>
+            <p className="ai-card-head-sub">Choisissez un mot de passe d'au moins 8 caractères</p>
+          </div>
+          <div className="ai-card-body">
+            <form onSubmit={onChangePassword}>
+              {fields.map(({ key, label, showKey }) => (
+                <div className="ai-field" key={key}>
+                  <label className="ai-label">{label}</label>
+                  <div className="ai-input-row">
+                    <input
+                      className={`ai-input${focusedField === key ? ' is-focused' : ''}`}
+                      type={showPasswords[showKey] ? 'text' : 'password'}
+                      value={form[key]}
+                      onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                      onFocus={() => setFocusedField(key)}
+                      onBlur={() => setFocusedField(null)}
+                      autoComplete="off"
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      className="ai-eye-btn"
+                      onClick={() => setShowPasswords(p => ({ ...p, [showKey]: !p[showKey] }))}
+                      tabIndex={-1}
+                    >
+                      <EyeIcon visible={showPasswords[showKey]} />
+                    </button>
+                  </div>
+
+                  {key === 'password' && form.password && (
+                    <div className="ai-strength">
+                      {[1,2,3,4].map(i => (
+                        <div key={i} className="ai-strength-seg" style={{
+                          background: i <= strength ? strengthColors[strength] : '#ede8e3'
+                        }} />
+                      ))}
+                      <span className="ai-strength-lbl" style={{ color: strengthColors[strength] }}>
+                        {strengthLabels[strength]}
+                      </span>
+                    </div>
+                  )}
+
+                  {key === 'password_confirmation' && form.password_confirmation && (
+                    <div className="ai-match">
+                      {form.password === form.password_confirmation
+                        ? <span style={{ color: '#10b981' }}>✓ Les mots de passe correspondent</span>
+                        : <span style={{ color: '#ef4444' }}>✗ Ne correspondent pas</span>
+                      }
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              <div className="ai-divider" />
+
+              <button className="ai-submit-btn" type="submit" disabled={saving}>
+                {saving
+                  ? <><div className="ai-spinner" /> Enregistrement...</>
+                  : t('admin.save') || 'Enregistrer'
+                }
+              </button>
+            </form>
+          </div>
+        </div>
+
         {!isAdmin && (
           <div className="ai-card">
             <div className="ai-card-head">
