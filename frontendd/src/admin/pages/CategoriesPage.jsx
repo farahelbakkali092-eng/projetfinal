@@ -140,32 +140,32 @@ const CategoriesPage = () => {
         <div>
           <h1>Catégories</h1>
         </div>
-       <div className="admin-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-  <input
-    className="admin-input"
-    placeholder="Rechercher..."
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    style={{ maxWidth: 260 }}
-  />
-  <button
-    className="admin-btn secondary"
-    onClick={() => load(1)}
-  >
-    Filtrer
-  </button>
-  <button
-    className="admin-btn"
-    onClick={() => {
-      setEditing(null);
-      setForm(emptyForm);
-      setErrors({});
-      setOpen(true);
-    }}
-  >
-    Ajouter
-  </button>
-</div>
+        <div className="admin-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <input
+            className="admin-input"
+            placeholder="Rechercher..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ maxWidth: 260 }}
+          />
+          <button
+            className="admin-btn secondary"
+            onClick={() => load(1)}
+          >
+            Filtrer
+          </button>
+          <button
+            className="admin-btn"
+            onClick={() => {
+              setEditing(null);
+              setForm(emptyForm);
+              setErrors({});
+              setOpen(true);
+            }}
+          >
+            Ajouter
+          </button>
+        </div>
       </div>
 
       {loading ? (

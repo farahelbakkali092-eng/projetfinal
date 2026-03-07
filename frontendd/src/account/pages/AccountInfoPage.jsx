@@ -38,11 +38,11 @@ const AccountInfoPage = () => {
   const onChangePassword = async (e) => {
     e.preventDefault();
     if (!form.current_password || !form.password || !form.password_confirmation) {
-      toast.error('Veuillez remplir tous les champs');
+      toast.error(t('auth.fill_all') || 'Veuillez remplir tous les champs');
       return;
     }
     if (form.password !== form.password_confirmation) {
-      toast.error('Les mots de passe ne correspondent pas');
+      toast.error(t('auth.pass_mismatch') || 'Les mots de passe ne correspondent pas');
       return;
     }
     setSaving(true);
@@ -57,7 +57,7 @@ const AccountInfoPage = () => {
       if (err.response?.data?.errors) {
         Object.values(err.response.data.errors).flat().forEach((m) => toast.error(String(m)));
       } else {
-        toast.error(err.response?.data?.message || 'Impossible de modifier le mot de passe');
+        toast.error(err.response?.data?.message || t('auth.pass_error') || 'Impossible de modifier le mot de passe');
       }
     } finally {
       setSaving(false);
@@ -82,16 +82,16 @@ const AccountInfoPage = () => {
   );
 
   const fields = [
-    { key: 'current_password', label: 'Mot de passe actuel',    showKey: 'current' },
-    { key: 'password',         label: 'Nouveau mot de passe',   showKey: 'new'     },
-    { key: 'password_confirmation', label: 'Confirmer',         showKey: 'confirm' },
+    { key: 'current_password', label: 'Mot de passe actuel', showKey: 'current' },
+    { key: 'password', label: 'Nouveau mot de passe', showKey: 'new' },
+    { key: 'password_confirmation', label: 'Confirmer', showKey: 'confirm' },
   ];
 
   const infoRows = [
-    { label: t('routine.prenom'),          value: user?.first_name },
-    { label: t('routine.nom'),             value: user?.last_name  },
-    { label: t('admin.email') || 'Email',  value: user?.email      },
-    { label: t('checkout.phone'),          value: displayPhone     },
+    { label: t('routine.prenom'), value: user?.first_name },
+    { label: t('routine.nom'), value: user?.last_name },
+    { label: t('admin.email') || 'Email', value: user?.email },
+    { label: t('checkout.phone'), value: displayPhone },
   ];
 
   return (
@@ -401,7 +401,7 @@ const AccountInfoPage = () => {
 
                   {key === 'password' && form.password && (
                     <div className="ai-strength">
-                      {[1,2,3,4].map(i => (
+                      {[1, 2, 3, 4].map(i => (
                         <div key={i} className="ai-strength-seg" style={{
                           background: i <= strength ? strengthColors[strength] : '#ede8e3'
                         }} />
