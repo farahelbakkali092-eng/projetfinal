@@ -96,6 +96,11 @@ const AccountInfoPage = () => {
 
   return (
     <div>
+      <div className="account-page-header">
+        <div>
+          
+        </div>
+      </div>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Jost:wght@300;400;500&display=swap');
 
@@ -345,7 +350,7 @@ const AccountInfoPage = () => {
 
       <div className="ai-grid">
 
-        {/* ── INFOS PERSO ── */}
+        {/* ── INFOS PERSO (NOUVEAU DESIGN) ── */}
         {!isAdmin && (
           <div className="ai-card">
             <div className="ai-card-head">
