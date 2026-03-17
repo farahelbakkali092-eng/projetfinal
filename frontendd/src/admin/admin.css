@@ -522,10 +522,12 @@ body {
 
 /* Overlay plein ecran avec blur */
 .admin-modal-overlay {
+  position: fixed;          /* couvre tout l'ecran, quelle que soit la page */
   inset: 0;
-  background: rgba(45, 10, 10, 0.4);
-  backdrop-filter: blur(8px);
+  background: rgba(45, 10, 10, 0.45);
+  backdrop-filter: blur(6px);
   display: flex;
+  align-items: center;      /* centrage vertical */
   justify-content: center;
   z-index: 2000;
   padding: 20px;
@@ -542,15 +544,44 @@ body {
   margin: auto;
   box-shadow: var(--shadow-lg);
   position: relative;
-  animation: fadeInUp 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+  animation: fadeInUp 0.35s cubic-bezier(0.165, 0.84, 0.44, 1) both;
 }
 
+/* Titre du modal */
 .admin-modal h2 {
   font-family: var(--font-heading);
   color: var(--primary);
-  font-size: 2rem;
+  font-size: 1.8rem;
   margin-bottom: 25px;
   text-align: center;
+  padding-right: 32px;     /* espace pour ne pas chevauchir le bouton fermer */
+}
+
+/* Bouton fermer (✕) en haut a droite */
+.admin-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-light);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+}
+
+.admin-modal-close:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+  transform: scale(1.1);
 }
 
 /* Pied de modal avec boutons Annuler / Confirmer */

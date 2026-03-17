@@ -7,8 +7,19 @@ const AdminModal = ({ title, open, onClose, children, footer }) => {
   return (
     <div className="admin-modal-overlay" onClick={onClose}>
       <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+        {/* Bouton fermer ✕ */}
+        <button
+          className="admin-modal-close"
+          onClick={onClose}
+          title="Fermer"
+          aria-label="Fermer la fenêtre"
+        >
+          ✕
+        </button>
+
         <h2>{title}</h2>
         {children}
+
         <div className="admin-modal-footer">
           {footer}
         </div>
