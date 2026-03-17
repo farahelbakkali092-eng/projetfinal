@@ -284,18 +284,18 @@ const ProductsPage = () => {
 
   return (
     <div className="animate-fade-in">
-      <div className="admin-page-header" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+      {/* ── En-tête : titre + actions principales + outils CSV ── */}
+      <div className="admin-page-header admin-page-header--stacked">
+        <div className="admin-header-row">
           <h1>{t('admin.products')}</h1>
 
           {/* Ligne 1 : Recherche + Filtrer + Ajouter */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="admin-actions">
             <input
-              className="admin-input"
+              className="admin-input admin-search-input"
               placeholder={t('admin.search')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              style={{ maxWidth: 220 }}
             />
             <button className="admin-btn secondary" onClick={() => load(1)}>{t('admin.filter')}</button>
             <button
@@ -313,30 +313,27 @@ const ProductsPage = () => {
         </div>
 
         {/* Ligne 2 : Modèle CSV + Exporter CSV + Importer CSV */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
+        <div className="admin-csv-actions">
           <button
-            className="admin-btn secondary"
+            className="admin-btn secondary admin-btn--icon"
             onClick={downloadTemplate}
             title="Télécharger le modèle CSV"
-            style={{ display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <FileText size={15} />
             Modèle CSV
           </button>
 
           <button
-            className="admin-btn secondary"
+            className="admin-btn secondary admin-btn--icon"
             onClick={exportToCSV}
             title="Exporter les produits"
-            style={{ display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <Download size={15} />
             Exporter CSV
           </button>
 
           <label
-            className="admin-btn secondary"
-            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+            className="admin-btn secondary admin-btn--icon"
             title="Importer un fichier CSV"
           >
             <Upload size={15} />
@@ -346,46 +343,50 @@ const ProductsPage = () => {
         </div>
       </div>
 
+      {/* ── Panneau d'erreurs d'importation ── */}
       {importErrors.length > 0 && (
-        <div style={{ background: '#fff1f1', border: '1px solid #fecaca', padding: 15, borderRadius: 8, marginBottom: 20 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#991b1b', marginBottom: 10, display: 'flex', justifyContent: 'space-between' }}>
+        <div className="admin-import-errors">
+          <div className="admin-import-errors__header">
             <span>⚠️ Erreurs lors de l'importation :</span>
-            <button onClick={() => setImportErrors([])} style={{ background: 'none', border: 'none', color: '#991b1b', cursor: 'pointer', fontSize: 11, textDecoration: 'underline' }}>Tout effacer</button>
+            <button className="admin-import-errors__clear" onClick={() => setImportErrors([])}>
+              Tout effacer
+            </button>
           </div>
-          <ul style={{ margin: 0, padding: '0 0 0 20px', maxHeight: 150, overflowY: 'auto' }}>
+          <ul className="admin-import-errors__list">
             {importErrors.map((err, i) => (
-              <li key={i} style={{ fontSize: 12, color: '#991b1b', marginBottom: 4 }}>{err}</li>
+              <li key={i} className="admin-import-errors__item">{err}</li>
             ))}
           </ul>
         </div>
       )}
 
+      {/* ── Table des produits ── */}
       {loading ? (
         <div className="admin-muted">{t('admin.loading')}</div>
       ) : (
-        <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <table className="admin-table" style={{ tableLayout: 'fixed' }}>
           <colgroup>
             <col style={{ width: '6%' }} />
-            <col style={{ width: '18%' }} />
-            <col style={{ width: '13%' }} />
-            <col style={{ width: '13%' }} />
-            <col style={{ width: '10%' }} />
-            <col style={{ width: '10%' }} />
-            <col style={{ width: '8%' }} />
-            <col style={{ width: '10%' }} />
+            <col style={{ width: '16%' }} />
             <col style={{ width: '12%' }} />
+            <col style={{ width: '12%' }} />
+            <col style={{ width: '9%' }} />
+            <col style={{ width: '9%' }} />
+            <col style={{ width: '7%' }} />
+            <col style={{ width: '9%' }} />
+            <col style={{ width: '20%' }} />
           </colgroup>
           <thead>
             <tr>
-              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.image')}</th>
-              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.name')}</th>
-              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.category')}</th>
-              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.brand')}</th>
-              <th style={{ textAlign: 'left', padding: '12px 16px' }}>Réf</th>
-              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.price')}</th>
-              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.stock')}</th>
-              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.section')}</th>
-              <th style={{ textAlign: 'center', padding: '12px 16px' }}>{t('admin.actions')}</th>
+              <th>{t('admin.image')}</th>
+              <th>{t('admin.name')}</th>
+              <th>{t('admin.category')}</th>
+              <th>{t('admin.brand')}</th>
+              <th>Réf</th>
+              <th>{t('admin.price')}</th>
+              <th>{t('admin.stock')}</th>
+              <th>{t('admin.section')}</th>
+              <th style={{ textAlign: 'center' }}>{t('admin.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -394,31 +395,31 @@ const ProductsPage = () => {
               const url = mainImg?.image_url;
               return (
                 <tr key={p.id}>
-                  <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
+                  <td>
                     {url ? (
                       <img
                         src={url}
                         alt={p.name}
-                        style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border-light)' }}
+                        className="admin-product-thumb"
                       />
                     ) : (
                       <span className="admin-muted">-</span>
                     )}
                   </td>
-                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</td>
-                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.category?.name || p.category_id}</td>
-                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.brand?.name || p.brand_id}</td>
-                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', fontSize: 11, color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.reference || '-'}</td>
-                  <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>{p.price}</td>
-                  <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}><span className="admin-badge">{p.stock}</span></td>
-                  <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
+                  <td className="col-text">{p.name}</td>
+                  <td className="col-text">{p.category?.name || p.category_id}</td>
+                  <td className="col-text">{p.brand?.name || p.brand_id}</td>
+                  <td className="col-ref">{p.reference || '-'}</td>
+                  <td>{p.price}</td>
+                  <td><span className="admin-badge">{p.stock}</span></td>
+                  <td>
                     {p.section ? (
                       <span className="admin-badge secondary">{p.section.name}</span>
                     ) : (
                       <span className="admin-muted">{t('admin.none')}</span>
                     )}
                   </td>
-                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', textAlign: 'center' }}>
+                  <td style={{ textAlign: 'center' }}>
                     <AdminTableActions
                       onEdit={() => onEdit(p)}
                       onDelete={() => onDelete(p)}
@@ -431,8 +432,9 @@ const ProductsPage = () => {
         </table>
       )}
 
+      {/* ── Pagination ── */}
       {meta && meta.last_page > 1 && (
-        <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+        <div className="admin-pagination">
           <button
             className="admin-btn secondary"
             disabled={meta.current_page <= 1}
@@ -440,7 +442,7 @@ const ProductsPage = () => {
           >
             {t('admin.prev')}
           </button>
-          <div className="admin-muted" style={{ alignSelf: 'center' }}>
+          <div className="admin-muted admin-pagination__label">
             Page {meta.current_page} / {meta.last_page}
           </div>
           <button
@@ -453,6 +455,7 @@ const ProductsPage = () => {
         </div>
       )}
 
+      {/* ── Modal création / édition ── */}
       <AdminModal
         title={title}
         open={open}
@@ -465,24 +468,28 @@ const ProductsPage = () => {
         )}
       >
         <div className="admin-form-grid">
-          <div style={{ gridColumn: '1 / -1' }}><FormError error={errors.general} /></div>
+          <div className="admin-form-grid__full"><FormError error={errors.general} /></div>
+
           <div>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.name')}</div>
+            <div className="admin-muted admin-field-label">{t('admin.name')}</div>
             <input className="admin-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             <FormError error={errors.name} />
           </div>
+
           <div>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.price')} (MAD)</div>
+            <div className="admin-muted admin-field-label">{t('admin.price')} (MAD)</div>
             <input className="admin-input" type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
             <FormError error={errors.price} />
           </div>
+
           <div>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.stock')}</div>
+            <div className="admin-muted admin-field-label">{t('admin.stock')}</div>
             <input className="admin-input" type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
             <FormError error={errors.stock} />
           </div>
+
           <div>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>Référence (optionnel)</div>
+            <div className="admin-muted admin-field-label">Référence (optionnel)</div>
             <input
               className="admin-input"
               placeholder="Ex: REF-123"
@@ -491,11 +498,13 @@ const ProductsPage = () => {
             />
             <FormError error={errors.reference} />
           </div>
-          <div style={{ gridColumn: '1 / -1', background: '#fff8f0', border: '1px solid #f5dfc8', borderRadius: 8, padding: '14px 16px' }}>
-            <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 10, color: '#c0675a' }}>🏷️ Promotion (Prix Soldé)</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+
+          {/* Encart Promotion */}
+          <div className="admin-promo-box">
+            <div className="admin-promo-box__title">🏷️ Promotion (Prix Soldé)</div>
+            <div className="admin-promo-box__grid">
               <div>
-                <div className="admin-muted" style={{ marginBottom: 6 }}>Nouveau prix soldé (MAD)</div>
+                <div className="admin-muted admin-field-label">Nouveau prix soldé (MAD)</div>
                 <input
                   className="admin-input"
                   type="number"
@@ -512,8 +521,8 @@ const ProductsPage = () => {
                   }}
                 />
               </div>
-              <div style={{ opacity: 0.7 }}>
-                <div className="admin-muted" style={{ marginBottom: 6 }}>Réduction calculée (%)</div>
+              <div className="admin-promo-box__readonly">
+                <div className="admin-muted admin-field-label">Réduction calculée (%)</div>
                 <input
                   className="admin-input"
                   type="number"
@@ -525,8 +534,9 @@ const ProductsPage = () => {
             </div>
             <FormError error={errors.price_sold} />
           </div>
+
           <div>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.category')}</div>
+            <div className="admin-muted admin-field-label">{t('admin.category')}</div>
             <select className="admin-input" value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })}>
               <option value="">-- Choisir --</option>
               {categories.map((c) => (
@@ -535,8 +545,9 @@ const ProductsPage = () => {
             </select>
             <FormError error={errors.category_id} />
           </div>
+
           <div>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.brand')}</div>
+            <div className="admin-muted admin-field-label">{t('admin.brand')}</div>
             <select className="admin-input" value={form.brand_id} onChange={(e) => setForm({ ...form, brand_id: e.target.value })}>
               <option value="">-- Choisir --</option>
               {brands.map((b) => (
@@ -545,8 +556,9 @@ const ProductsPage = () => {
             </select>
             <FormError error={errors.brand_id} />
           </div>
+
           <div>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.section')}</div>
+            <div className="admin-muted admin-field-label">{t('admin.section')}</div>
             <select className="admin-input" value={form.section_id} onChange={(e) => setForm({ ...form, section_id: e.target.value })}>
               <option value="">-- {t('admin.none')} --</option>
               {sections.map((s) => (
@@ -555,13 +567,14 @@ const ProductsPage = () => {
             </select>
             <FormError error={errors.section_id} />
           </div>
+
           {(() => {
             const selectedCat = categories.find(c => String(c.id) === String(form.category_id));
             const isPerfume = selectedCat && selectedCat.name.toLowerCase().includes('parfum');
             if (!isPerfume) return null;
             return (
               <div>
-                <div className="admin-muted" style={{ marginBottom: 6 }}>💨 Contenance (ml)</div>
+                <div className="admin-muted admin-field-label">💨 Contenance (ml)</div>
                 <select className="admin-input" value={form.capacity} onChange={(e) => setForm({ ...form, capacity: e.target.value })}>
                   <option value="">-- Choisir --</option>
                   {['30 ml', '50 ml', '75 ml', '90 ml', '100 ml'].map(v => (
@@ -572,13 +585,15 @@ const ProductsPage = () => {
               </div>
             );
           })()}
-          <div style={{ gridColumn: '1 / -1' }}>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>Description</div>
+
+          <div className="admin-form-grid__full">
+            <div className="admin-muted admin-field-label">Description</div>
             <input className="admin-input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
             <FormError error={errors.description} />
           </div>
-          <div style={{ gridColumn: '1 / -1' }}>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.image')} (principale)</div>
+
+          <div className="admin-form-grid__full">
+            <div className="admin-muted admin-field-label">{t('admin.image')} (principale)</div>
             <input
               className="admin-input"
               type="file"

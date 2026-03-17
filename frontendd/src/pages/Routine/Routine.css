@@ -724,3 +724,217 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ══════════════════════════════
+   AI RECOMMENDATIONS SECTION
+══════════════════════════════ */
+
+.reco-loading {
+  text-align: center;
+  padding: 60px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.loader-spinner {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--frost-rose);
+  border-top-color: var(--terracotta);
+  border-radius: 50%;
+  animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+  to { transform: rotate(360deg); }
+}
+
+.reco-loading p {
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  color: var(--brown-mid);
+  letter-spacing: 0.05em;
+  animation: pulseText 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulseText {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+.reco-error {
+  background: rgba(185, 74, 66, 0.05);
+  border: 1px solid var(--error);
+  padding: 20px;
+  border-radius: 4px;
+  text-align: center;
+  margin-top: 40px;
+  color: var(--error);
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+}
+
+.recommendations-section {
+  margin-top: 64px;
+  padding-top: 48px;
+  border-top: 1px solid var(--frost-rose);
+  animation: cardEnter 0.8s ease forwards;
+}
+
+.reco-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.reco-header h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--espresso);
+  margin: 0 0 10px;
+}
+
+.reco-header p {
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  color: var(--rose-warm);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.reco-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.reco-card {
+  background: var(--ivory);
+  border: 1px solid var(--blush);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: cardEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.reco-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(38, 24, 18, 0.08);
+}
+
+.reco-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--espresso);
+  color: var(--ivory);
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 100px;
+  z-index: 2;
+}
+
+.reco-image-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--frost-rose);
+}
+
+.reco-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.reco-card:hover .reco-image {
+  transform: scale(1.05);
+}
+
+.reco-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 100vw/3);
+}
+
+.reco-content h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--espresso);
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+
+.reco-desc {
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  color: var(--brown-mid);
+  line-height: 1.6;
+  margin-bottom: auto;
+  padding-bottom: 20px;
+}
+
+.reco-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--frost-rose);
+  padding-top: 16px;
+  margin-top: auto;
+}
+
+.reco-price {
+  font-family: 'Jost', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--espresso);
+}
+
+.btn-add-cart {
+  background: transparent;
+  border: 1px solid var(--brown-mid);
+  color: var(--espresso);
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 8px 16px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-add-cart:hover {
+  background: var(--espresso);
+  color: var(--ivory);
+  border-color: var(--espresso);
+}
+
+@media (max-width: 900px) {
+  .reco-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .reco-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .reco-header h3 {
+    font-size: 1.8rem;
+  }
+}

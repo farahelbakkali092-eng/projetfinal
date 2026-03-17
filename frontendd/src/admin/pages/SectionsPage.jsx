@@ -137,7 +137,7 @@ const SectionsPage = () => {
             {loading ? (
                 <div className="admin-muted">{t('admin.loading')}</div>
             ) : (
-                <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                <table className="admin-table">
                     <colgroup>
                         <col style={{ width: '50%' }} />
                         <col style={{ width: '25%' }} />
@@ -145,19 +145,19 @@ const SectionsPage = () => {
                     </colgroup>
                     <thead>
                         <tr>
-                            <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.name')}</th>
-                            <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.order') || 'Ordre'}</th>
-                            <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.actions')}</th>
+                            <th>{t('admin.name')}</th>
+                            <th>{t('admin.order') || 'Ordre'}</th>
+                            <th>{t('admin.actions')}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {items.map((s) => (
                             <tr key={s.id}>
-                                <td style={{ padding: '12px 16px', verticalAlign: 'middle', textAlign: 'left' }}>
+                                <td>
                                     {t(`sections.${s.name.toLowerCase()}`, { defaultValue: s.name })}
                                 </td>
-                                <td style={{ padding: '12px 16px', verticalAlign: 'middle', textAlign: 'left' }}>{s.order}</td>
-                                <td style={{ padding: '12px 16px', verticalAlign: 'middle', textAlign: 'left' }}>
+                                <td>{s.order}</td>
+                                <td>
                                     <AdminTableActions
                                         onEdit={() => onEdit(s)}
                                         onDelete={() => onDelete(s)}

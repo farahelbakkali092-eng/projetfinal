@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\v1\OrderController;
 use App\Http\Controllers\Api\v1\PaymentController;
 use App\Http\Controllers\Api\v1\ContactMessageController;
 use App\Http\Controllers\Api\v1\DiagnosticController;
+use App\Http\Controllers\Api\v1\IaRecommandationController;
 use App\Http\Controllers\Api\v1\BrandController;
 use App\Http\Controllers\Api\v1\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\v1\Admin\BrandController as AdminBrandController;
@@ -23,7 +24,7 @@ use App\Http\Controllers\Api\v1\PasswordResetController;
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('v1')->middleware('throttle:api')->group(function () {
+Route::group(['prefix' => 'v1', 'middleware' => ['throttle:api']], function () {
     
     // --- 🟢 ROUTES PUBLIQUES (Accessibles à tous) ---
     Route::post('/register', [AuthController::class, 'register']);
@@ -46,13 +47,14 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     Route::get('/brands/{slug}/products', [BrandController::class, 'products']);
 
     // Sections publiques
-    Route::get('/sections', [\App\Http\Controllers\Api\v1\Admin\SectionController::class, 'index']);
+    Route::get('/sections', [AdminSectionController::class, 'index']);
 
     // Contact messages (public)
     Route::post('/contact/messages', [ContactMessageController::class, 'store']);
 
     // Diagnostic (Public - DiagnosticController)
     Route::post('/diagnostic', [DiagnosticController::class, 'store']);
+    Route::post('/routine/recommend', [IaRecommandationController::class, 'generateRoutine']);
 
     // Webhook Stripe/Paiements
     Route::post('/payments/webhook', [PaymentController::class, 'handleWebhook']);
