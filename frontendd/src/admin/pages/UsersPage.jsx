@@ -93,7 +93,7 @@ const UsersPage = () => {
       {loading ? (
         <div className="admin-muted">{t('admin.loading')}</div>
       ) : (
-        <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <table className="admin-table">
           <colgroup>
             <col style={{ width: '35%' }} />
             <col style={{ width: '40%' }} />
@@ -101,9 +101,9 @@ const UsersPage = () => {
           </colgroup>
           <thead>
             <tr>
-              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.name')}</th>
-              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.email') || 'Email'}</th>
-              <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.phone')}</th>
+              <th>{t('admin.name')}</th>
+              <th>{t('admin.email') || 'Email'}</th>
+              <th>{t('admin.phone')}</th>
             </tr>
           </thead>
           <tbody>
@@ -111,15 +111,9 @@ const UsersPage = () => {
               .filter((u) => u.role?.name !== 'admin')
               .map((u) => (
                 <tr key={u.id}>
-                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {u.first_name} {u.last_name}
-                  </td>
-                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {u.email}
-                  </td>
-                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {u.phone}
-                  </td>
+                  <td>{u.first_name} {u.last_name}</td>
+                  <td>{u.email}</td>
+                  <td>{u.phone}</td>
                 </tr>
               ))}
           </tbody>
@@ -127,7 +121,7 @@ const UsersPage = () => {
       )}
 
       {meta && meta.last_page > 1 && (
-        <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+        <div className="admin-pagination">
           <button
             className="admin-btn secondary"
             disabled={meta.current_page <= 1}
@@ -135,7 +129,7 @@ const UsersPage = () => {
           >
             {t('admin.prev')}
           </button>
-          <div className="admin-muted" style={{ alignSelf: 'center' }}>
+          <div className="admin-muted admin-pagination__label">
             Page {meta.current_page} / {meta.last_page}
           </div>
           <button

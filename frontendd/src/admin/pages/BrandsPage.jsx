@@ -148,11 +148,16 @@ const BrandsPage = () => {
         <div className="admin-muted">Chargement...</div>
       ) : (
         <table className="admin-table">
+          <colgroup>
+            <col style={{ width: '40%' }} />
+            <col style={{ width: '40%' }} />
+            <col style={{ width: '20%' }} />
+          </colgroup>
           <thead>
             <tr>
               <th>Nom</th>
               <th>Slug</th>
-              <th style={{ width: 220 }}>Actions</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -173,7 +178,7 @@ const BrandsPage = () => {
       )}
 
       {meta && meta.last_page > 1 && (
-        <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+        <div className="admin-pagination">
           <button
             className="admin-btn secondary"
             disabled={meta.current_page <= 1}
@@ -181,7 +186,7 @@ const BrandsPage = () => {
           >
             Précédent
           </button>
-          <div className="admin-muted" style={{ alignSelf: 'center' }}>
+          <div className="admin-muted admin-pagination__label">
             Page {meta.current_page} / {meta.last_page}
           </div>
           <button
