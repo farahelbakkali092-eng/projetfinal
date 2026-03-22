@@ -38,6 +38,7 @@ const ProductsPage = () => {
   const [form, setForm] = useState(emptyForm);
   const [errors, setErrors] = useState({});
   const [importErrors, setImportErrors] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
 
   const downloadTemplate = () => {
     const headers = ['name', 'description', 'price', 'price_sold', 'discount', 'stock', 'category', 'brand', 'section'];
@@ -56,12 +57,7 @@ const ProductsPage = () => {
   const load = async (page = 1) => {
     setLoading(true);
     try {
-      const [productsRes, brandsRes, categoriesRes, sectionsRes] = await Promise.all([
-        adminApi.listProducts({ search, page, per_page: 12 }),
-        adminApi.listBrands({ per_page: 100 }),
-        adminApi.listCategories({ per_page: 100 }),
-        adminApi.listSections({ per_page: 100 }),
-      ]);
+      const productsRes = await adminApi.listProducts({ search, page, per_page: 12 });
 
       const paginated = productsRes?.data?.data || productsRes?.data;
       if (paginated && paginated.data) {
@@ -70,14 +66,6 @@ const ProductsPage = () => {
       } else if (Array.isArray(paginated)) {
         setItems(paginated);
       }
-
-      const bData = brandsRes?.data?.data?.data || brandsRes?.data?.data || brandsRes?.data;
-      setBrands(Array.isArray(bData) ? bData : (bData?.data || []));
-
-      const cData = categoriesRes?.data?.data?.data || categoriesRes?.data?.data || categoriesRes?.data;
-      setCategories(Array.isArray(cData) ? cData : (cData?.data || []));
-
-      setSections(sectionsRes?.data?.data || []);
     } catch (e) {
       console.error('Admin: Error loading products:', e);
       toast.error(t('admin.loading_error') || 'Impossible de charger les produits');
@@ -86,13 +74,35 @@ const ProductsPage = () => {
     }
   };
 
+  // Load reference data only once (brands, categories, sections)
   useEffect(() => {
+    const loadReferenceData = async () => {
+      try {
+        const [brandsRes, categoriesRes, sectionsRes] = await Promise.all([
+          adminApi.listBrands({ per_page: 100 }),
+          adminApi.listCategories({ per_page: 100 }),
+          adminApi.listSections({ per_page: 100 }),
+        ]);
+
+        const bData = brandsRes?.data?.data?.data || brandsRes?.data?.data || brandsRes?.data;
+        setBrands(Array.isArray(bData) ? bData : (bData?.data || []));
+
+        const cData = categoriesRes?.data?.data?.data || categoriesRes?.data?.data || categoriesRes?.data;
+        setCategories(Array.isArray(cData) ? cData : (cData?.data || []));
+
+        setSections(sectionsRes?.data?.data || []);
+      } catch (e) {
+        console.error('Admin: Error loading reference data:', e);
+      }
+    };
+    loadReferenceData();
     load(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onEdit = (p) => {
     setEditing(p);
+    setExistingImages(Array.isArray(p.images) ? p.images : []);
     setForm({
       name: p.name || '',
       description: p.description || '',
@@ -109,6 +119,17 @@ const ProductsPage = () => {
     });
     setErrors({});
     setOpen(true);
+  };
+
+  const handleDeleteImage = async (imgId) => {
+    if (!confirm('Supprimer cette image ?')) return;
+    try {
+      await adminApi.deleteProductImage(imgId);
+      setExistingImages(prev => prev.filter(im => im.id !== imgId));
+      toast.success('Image supprimée');
+    } catch (e) {
+      toast.error(e.response?.data?.message || 'Impossible de supprimer');
+    }
   };
 
   const onDelete = async (p) => {
@@ -224,9 +245,11 @@ const ProductsPage = () => {
       if (form.capacity) fd.append('capacity', form.capacity);
       if (form.reference) fd.append('reference', form.reference);
 
-      if (form.image) {
-        fd.append('images[]', form.image);
-      }
+      // Send all selected images (extraImages includes all files from the multi-select input)
+      const filesToUpload = form.extraImages?.length > 0 ? form.extraImages : (form.image ? [form.image] : []);
+      filesToUpload.forEach((file) => {
+        fd.append('images[]', file);
+      });
 
       if (editing) {
         await adminApi.updateProduct(editing.id, fd);
@@ -411,7 +434,14 @@ const ProductsPage = () => {
                   <td className="col-text">{p.brand?.name || p.brand_id}</td>
                   <td className="col-ref">{p.reference || '-'}</td>
                   <td>{p.price}</td>
-                  <td><span className="admin-badge">{p.stock}</span></td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span className="admin-badge">{p.stock}</span>
+                      {p.stock < 10 && (
+                        <span title="Stock faible !" style={{ color: '#dc2626', fontSize: 15 }}>⚠️</span>
+                      )}
+                    </div>
+                  </td>
                   <td>
                     {p.section ? (
                       <span className="admin-badge secondary">{p.section.name}</span>
@@ -598,7 +628,8 @@ const ProductsPage = () => {
               className="admin-input"
               type="file"
               accept="image/png,image/jpeg,image/jpg,image/webp"
-              onChange={(e) => setForm({ ...form, image: e.target.files?.[0] || null })}
+              multiple
+              onChange={(e) => setForm({ ...form, image: e.target.files?.[0] || null, extraImages: Array.from(e.target.files || []) })}
             />
             <FormError error={errors.image || errors['images.0']} />
           </div>

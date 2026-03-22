@@ -21,9 +21,11 @@ return [
     'stripe' => [
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        'frontend_url' => env('FRONTEND_URL', env('APP_URL')),
     ],
 
-   'resend' => [
+    'resend' => [
         'key' => env('RESEND_API_KEY'),
     ],
 
@@ -38,6 +40,11 @@ return [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
+    ],
+
+    // Chatbot IA
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
     ],
 
 ];
