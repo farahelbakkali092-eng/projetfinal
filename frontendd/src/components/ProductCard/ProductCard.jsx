@@ -59,11 +59,15 @@ const ProductCard = ({ product }) => {
                 <img
                     src={
                         product.images && product.images.length > 0
-                            ? `http://localhost:8000/storage/${product.images[0].image_path}`
+                            ? (product.images[0].image_url || `http://localhost:8000/storage/${product.images[0].image_path}`)
                             : 'https://placehold.co/400x500?text=Produit'
                     }
                     alt={product.name}
                     className="product-main-image"
+                    loading="lazy"
+                    decoding="async"
+                    width="400"
+                    height="500"
                 />
 
                 {/* Add to Cart - Hover Pill */}

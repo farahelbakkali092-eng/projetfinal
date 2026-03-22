@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
+import { useAppData } from '../../context/AppDataContext';
 
 // Assets
 import foto from "../../assets/foto.jpg";
@@ -18,57 +18,17 @@ import './Home.css';
 const Home = () => {
   const { t } = useTranslation();
   const { isAdmin } = useAuth();
-  const [categories, setCategories] = useState([]);
-  const [sessions, setSessions] = useState([]);
+  // Consume shared data from AppDataContext — no duplicate fetches
+  const { categories, sections, bestSellers, onSaleProducts, isLoaded } = useAppData();
   const [selectedSection, setSelectedSection] = useState(null);
-  const [bestSellers, setBestSellers] = useState([]);
-  const [onSaleProducts, setOnSaleProducts] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [categoriesError, setCategoriesError] = useState(false);
+  const [categoriesError] = useState(false);
 
-  // Détermine l'URL de base du backend pour les images
-  const backendOrigin = (() => {
-    const base = import.meta.env.VITE_API_BASE_URL;
-    if (!base || typeof base !== 'string') return '';
-    return base.replace(/\/api\/v\d+\/?$/, '');
-  })();
-
-  useEffect(() => {
-    const fetchHomeData = async () => {
-      try {
-        // Chargement parallèle des données
-        const [catRes, secRes, bestRes, saleRes] = await Promise.all([
-          api.get('/products/categories'),
-          api.get('/sections'),
-          api.get('/products/best-sellers?limit=4'),
-          api.get('/products/on-sale?limit=4')
-        ]);
-
-        const apiCategories = Array.isArray(catRes?.data?.data) ? catRes.data.data : [];
-        const apiSessions = Array.isArray(secRes?.data?.data) ? secRes.data.data : [];
-
-        setCategories(apiCategories);
-        setSessions(apiSessions);
-
-        // Auto-select first session if exists
-        if (apiSessions.length > 0) {
-          setSelectedSection(apiSessions[0].id);
-        }
-
-        setCategoriesError(false);
-
-        setBestSellers(bestRes.data.data || []);
-        setOnSaleProducts(saleRes.data.data || []);
-      } catch (error) {
-        console.error("Error fetching home data", error);
-        setCategoriesError(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchHomeData();
-  }, []);
+  // Auto-select first section once data is loaded
+  React.useEffect(() => {
+    if (sections.length > 0 && selectedSection === null) {
+      setSelectedSection(sections[0].id);
+    }
+  }, [sections, selectedSection]);
 
   return (
     <div className="home-page">
@@ -115,7 +75,7 @@ const Home = () => {
       </section>
 
       {/* 3. SHOP BY SESSION & CATEGORY */}
-      {!categoriesError && sessions.length > 0 && (
+      {!categoriesError && sections.length > 0 && (
         <section id="categories" className="categories-section section-padding">
           <div className="container">
             <div className="section-header text-center">
@@ -123,15 +83,15 @@ const Home = () => {
               <h2 className="section-title">{t('home.collectionsTitle')}</h2>
             </div>
 
-            {/* Session Tabs/Selectors */}
+            {/* Section Tabs/Selectors */}
             <div className="sessions-tabs flex justify-center gap-4 mb-12">
-              {sessions.map((session) => (
+              {sections.map((section) => (
                 <button
-                  key={session.id}
-                  onClick={() => setSelectedSection(session.id)}
-                  className={`session-tab-btn ${selectedSection === session.id ? 'active' : ''}`}
+                  key={section.id}
+                  onClick={() => setSelectedSection(section.id)}
+                  className={`session-tab-btn ${selectedSection === section.id ? 'active' : ''}`}
                 >
-                  {session.name}
+                  {section.name}
                 </button>
               ))}
             </div>
@@ -142,21 +102,7 @@ const Home = () => {
                 .map((cat) => (
                   <Link to={`/category/${cat.slug || cat.id}`} key={cat.id || cat.name} className="category-card group">
                     <img
-                      src={(() => {
-                        if (cat.image_url) return cat.image_url;
-                        const raw = cat.image || null;
-                        if (!raw) return 'https://placehold.co/600x400?text=Category';
-
-                        // Fallback: if it's already an absolute URL
-                        if (typeof raw === 'string' && raw.startsWith('http')) return raw;
-
-                        // Fallback: append /storage/ if missing and prepend backendOrigin
-                        const path = raw.startsWith('categories/') || raw.startsWith('brands/')
-                          ? `/storage/${raw}`
-                          : (raw.startsWith('/') ? raw : `/${raw}`);
-
-                        return `${backendOrigin}${path}`;
-                      })()}
+                      src={cat.image_url || 'https://placehold.co/600x400?text=Category'}
                       alt={cat.name}
                       className="cat-img"
                     />
@@ -190,7 +136,7 @@ const Home = () => {
             <h2 className="section-title">{t('home.bestSellers')}</h2>
           </div>
 
-          {isLoading ? (
+          {!isLoaded ? (
             <div className="flex justify-center p-20">
               <Loader2 className="animate-spin text-gold" size={48} />
             </div>

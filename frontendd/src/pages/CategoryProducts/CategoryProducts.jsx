@@ -4,49 +4,58 @@ import { Loader2, ShoppingBag, ArrowLeft } from 'lucide-react';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import api from '../../api/axios';
 import { useCart } from '../../context/CartContext';
+import { useAppData } from '../../context/AppDataContext';
 import './CategoryProducts.css';
 
 const CategoryProducts = () => {
     const { id } = useParams();
     const { addToCart } = useCart();
+    // Use categories already loaded by AppDataContext — no extra API call needed
+    const { categories } = useAppData();
     const [products, setProducts] = useState([]);
     const [category, setCategory] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchCategoryData = async () => {
+        if (categories.length === 0) return; // Wait for AppDataContext to load
+
+        const currentCat = categories.find(c =>
+            c.id.toString() === id || c.slug === id.toLowerCase()
+        );
+
+        if (!currentCat) {
+            setError('Catégorie introuvable.');
+            setIsLoading(false);
+            return;
+        }
+
+        setCategory(currentCat);
+
+        const controller = new AbortController();
+
+        const fetchProducts = async () => {
             setIsLoading(true);
             setError(null);
             try {
-                const catRes = await api.get('/products/categories');
-                const allCategories = Array.isArray(catRes?.data?.data) ? catRes.data.data : [];
-
-                const currentCat = allCategories.find(c =>
-                    c.id.toString() === id || c.slug === id.toLowerCase()
+                const prodRes = await api.get(
+                    `/products?category_id=${currentCat.id}&per_page=20`,
+                    { signal: controller.signal }
                 );
-
-                if (!currentCat) {
-                    setError("Catégorie introuvable.");
-                    setIsLoading(false);
-                    return;
-                }
-
-                setCategory(currentCat);
-
-                const prodRes = await api.get(`/products?category_id=${currentCat.id}&per_page=20`);
                 setProducts(prodRes?.data?.data?.data || []);
-
             } catch (err) {
-                console.error("Error fetching category data:", err);
-                setError("Impossible de charger les produits de cette catégorie.");
+                if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED') {
+                    console.error('Error fetching products:', err);
+                    setError('Impossible de charger les produits de cette catégorie.');
+                }
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchCategoryData();
-    }, [id]);
+        fetchProducts();
+        return () => controller.abort();
+    }, [id, categories]);
 
     if (isLoading) {
         return (

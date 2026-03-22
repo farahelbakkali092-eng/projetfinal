@@ -24,17 +24,6 @@
 
 :root {
   /* Couleurs */
-<<<<<<< HEAD
-  --primary:      #2d0a0a;
-  --accent:       #d4a373;
-  --accent-light: #e6c8a8;
-  --bg-color:     #fdfaf6;
-  --sidebar-bg:   #ffffff;
-  --text-main:    #2d0a0a;
-  --text-muted:   #7c6a6a;
-  --border-light: #f0ebe4;
-  --glass-bg:     rgba(255, 255, 255, 0.7);
-=======
   --primary: #2d0a0a;
   --accent: #d4a373;
   --accent-light: #e6c8a8;
@@ -44,7 +33,6 @@
   --text-muted: #7c6a6a;
   --border-light: #f0ebe4;
   --glass-bg: rgba(255, 255, 255, 0.7);
->>>>>>> main
 
   /* Ombres */
   --shadow-sm: 0 2px 8px rgba(45, 10, 10, 0.05);
@@ -56,11 +44,7 @@
 
   /* Typographie */
   --font-heading: "Playfair Display", serif;
-<<<<<<< HEAD
-  --font-body:    "Poppins", sans-serif;
-=======
   --font-body: "Poppins", sans-serif;
->>>>>>> main
 }
 
 body {
@@ -80,10 +64,6 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> main
   to {
     opacity: 1;
     transform: translateY(0);
@@ -95,10 +75,6 @@ body {
     opacity: 0;
     transform: translateX(-30px);
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> main
   to {
     opacity: 1;
     transform: translateX(0);
@@ -507,11 +483,13 @@ body {
 
 /* Overlay plein ecran avec blur */
 .admin-modal-overlay {
+  position: fixed;
   inset: 0;
   background: rgba(45, 10, 10, 0.4);
   backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
+  align-items: flex-start;
   z-index: 2000;
   padding: 20px;
   overflow-y: auto;
@@ -568,10 +546,14 @@ body {
   flex-wrap: wrap;
 }
 
-
 /* Dans admin-actions, les inputs respectent leur maxWidth sans prendre toute la largeur */
 .admin-actions .admin-input {
   width: auto;
+}
+
+/* Cellule ACTIONS dans les tableaux — force les boutons sur une seule ligne */
+.admin-table td:last-child {
+  white-space: nowrap;
 }
 
 /* ============================================================

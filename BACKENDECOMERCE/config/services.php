@@ -40,4 +40,9 @@ return [
         ],
     ],
 
+    // Chatbot IA
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+    ],
+
 ];

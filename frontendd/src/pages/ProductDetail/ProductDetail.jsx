@@ -22,19 +22,25 @@ const ProductDetail = () => {
     const isFav = product ? isFavorite(product.id) : false;
 
     useEffect(() => {
+        const controller = new AbortController();
+
         const fetchProduct = async () => {
             setIsLoading(true);
             try {
-                const res = await api.get(`/products/${id}`);
+                const res = await api.get(`/products/${id}`, { signal: controller.signal });
                 setProduct(res.data.data);
             } catch (err) {
-                console.error("Error fetching product:", err);
-                setError("Oups ! Nous n'avons pas pu charger les détails du produit.");
+                if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED') {
+                    console.error('Error fetching product:', err);
+                    setError("Oups ! Nous n'avons pas pu charger les détails du produit.");
+                }
             } finally {
                 setIsLoading(false);
             }
         };
+
         fetchProduct();
+        return () => controller.abort();
     }, [id]);
 
     const handleQuantityChange = (val) => {

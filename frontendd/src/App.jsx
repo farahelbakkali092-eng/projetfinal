@@ -5,6 +5,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import AuthPage from './pages/Auth/AuthPage';
+import ChatBot from './components/ChatBot/ChatBot';
 
 // --- IMPORTS DES PAGES ---
 import Home from './pages/Home/Home';
@@ -133,6 +134,7 @@ const App = () => {
           />
         </Routes>
 
+        {!isAdminRoute && <ChatBot />}
         {!isAdminRoute && <Footer />}
       </div>
 

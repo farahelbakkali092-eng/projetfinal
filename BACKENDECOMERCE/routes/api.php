@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\v1\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\v1\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Api\v1\Admin\SectionController as AdminSectionController;
 use App\Http\Controllers\Api\v1\PasswordResetController;
+use App\Http\Controllers\Api\v1\ChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +52,9 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     // Contact messages (public)
     Route::post('/contact/messages', [ContactMessageController::class, 'store']);
 
+    // Chatbot — Recommandation produits par IA
+    Route::post('/chat/recommend', [ChatController::class, 'recommend']);
+
     // Diagnostic (Public - DiagnosticController)
     Route::post('/diagnostic', [DiagnosticController::class, 'store']);
 
@@ -75,9 +79,10 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         // --- 🛡️ ROUTES ADMIN (Connexion + Rôle Admin obligatoire) ---
         Route::middleware('admin')->group(function () {
             Route::post('/products', [ProductController::class, 'store']);
+            Route::post('/products/import', [ProductController::class, 'bulkImport']);
             Route::put('/products/{id}', [ProductController::class, 'update']);
             Route::delete('/products/{id}', [ProductController::class, 'destroy']);
-            Route::post('/products/import', [ProductController::class, 'bulkImport']);
+            Route::delete('/products/images/{imageId}', [ProductController::class, 'destroyImage']);
             
             Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
 

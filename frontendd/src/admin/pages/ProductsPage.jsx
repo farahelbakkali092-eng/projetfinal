@@ -38,6 +38,7 @@ const ProductsPage = () => {
   const [form, setForm] = useState(emptyForm);
   const [errors, setErrors] = useState({});
   const [importErrors, setImportErrors] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
 
   const downloadTemplate = () => {
     const headers = ['name', 'description', 'price', 'price_sold', 'discount', 'stock', 'category', 'brand', 'section'];
@@ -56,12 +57,7 @@ const ProductsPage = () => {
   const load = async (page = 1) => {
     setLoading(true);
     try {
-      const [productsRes, brandsRes, categoriesRes, sectionsRes] = await Promise.all([
-        adminApi.listProducts({ search, page, per_page: 12 }),
-        adminApi.listBrands({ per_page: 100 }),
-        adminApi.listCategories({ per_page: 100 }),
-        adminApi.listSections({ per_page: 100 }),
-      ]);
+      const productsRes = await adminApi.listProducts({ search, page, per_page: 12 });
 
       const paginated = productsRes?.data?.data || productsRes?.data;
       if (paginated && paginated.data) {
@@ -70,14 +66,6 @@ const ProductsPage = () => {
       } else if (Array.isArray(paginated)) {
         setItems(paginated);
       }
-
-      const bData = brandsRes?.data?.data?.data || brandsRes?.data?.data || brandsRes?.data;
-      setBrands(Array.isArray(bData) ? bData : (bData?.data || []));
-
-      const cData = categoriesRes?.data?.data?.data || categoriesRes?.data?.data || categoriesRes?.data;
-      setCategories(Array.isArray(cData) ? cData : (cData?.data || []));
-
-      setSections(sectionsRes?.data?.data || []);
     } catch (e) {
       console.error('Admin: Error loading products:', e);
       toast.error(t('admin.loading_error') || 'Impossible de charger les produits');
@@ -86,13 +74,35 @@ const ProductsPage = () => {
     }
   };
 
+  // Load reference data only once (brands, categories, sections)
   useEffect(() => {
+    const loadReferenceData = async () => {
+      try {
+        const [brandsRes, categoriesRes, sectionsRes] = await Promise.all([
+          adminApi.listBrands({ per_page: 100 }),
+          adminApi.listCategories({ per_page: 100 }),
+          adminApi.listSections({ per_page: 100 }),
+        ]);
+
+        const bData = brandsRes?.data?.data?.data || brandsRes?.data?.data || brandsRes?.data;
+        setBrands(Array.isArray(bData) ? bData : (bData?.data || []));
+
+        const cData = categoriesRes?.data?.data?.data || categoriesRes?.data?.data || categoriesRes?.data;
+        setCategories(Array.isArray(cData) ? cData : (cData?.data || []));
+
+        setSections(sectionsRes?.data?.data || []);
+      } catch (e) {
+        console.error('Admin: Error loading reference data:', e);
+      }
+    };
+    loadReferenceData();
     load(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onEdit = (p) => {
     setEditing(p);
+    setExistingImages(Array.isArray(p.images) ? p.images : []);
     setForm({
       name: p.name || '',
       description: p.description || '',
@@ -109,6 +119,17 @@ const ProductsPage = () => {
     });
     setErrors({});
     setOpen(true);
+  };
+
+  const handleDeleteImage = async (imgId) => {
+    if (!confirm('Supprimer cette image ?')) return;
+    try {
+      await adminApi.deleteProductImage(imgId);
+      setExistingImages(prev => prev.filter(im => im.id !== imgId));
+      toast.success('Image supprimée');
+    } catch (e) {
+      toast.error(e.response?.data?.message || 'Impossible de supprimer');
+    }
   };
 
   const onDelete = async (p) => {
@@ -224,9 +245,11 @@ const ProductsPage = () => {
       if (form.capacity) fd.append('capacity', form.capacity);
       if (form.reference) fd.append('reference', form.reference);
 
-      if (form.image) {
-        fd.append('images[]', form.image);
-      }
+      // Send all selected images (extraImages includes all files from the multi-select input)
+      const filesToUpload = form.extraImages?.length > 0 ? form.extraImages : (form.image ? [form.image] : []);
+      filesToUpload.forEach((file) => {
+        fd.append('images[]', file);
+      });
 
       if (editing) {
         await adminApi.updateProduct(editing.id, fd);
@@ -366,14 +389,14 @@ const ProductsPage = () => {
         <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
           <colgroup>
             <col style={{ width: '6%' }} />
-            <col style={{ width: '18%' }} />
-            <col style={{ width: '13%' }} />
-            <col style={{ width: '13%' }} />
-            <col style={{ width: '10%' }} />
-            <col style={{ width: '10%' }} />
-            <col style={{ width: '8%' }} />
-            <col style={{ width: '10%' }} />
+            <col style={{ width: '17%' }} />
             <col style={{ width: '12%' }} />
+            <col style={{ width: '12%' }} />
+            <col style={{ width: '8%' }} />
+            <col style={{ width: '9%' }} />
+            <col style={{ width: '7%' }} />
+            <col style={{ width: '9%' }} />
+            <col style={{ width: '20%' }} />
           </colgroup>
           <thead>
             <tr>
@@ -410,7 +433,17 @@ const ProductsPage = () => {
                   <td style={{ padding: '12px 16px', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.brand?.name || p.brand_id}</td>
                   <td style={{ padding: '12px 16px', verticalAlign: 'middle', fontSize: 11, color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.reference || '-'}</td>
                   <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>{p.price}</td>
-                  <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}><span className="admin-badge">{p.stock}</span></td>
+                  <td style={{ padding: '12px 8px', verticalAlign: 'middle' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span className="admin-badge">{p.stock}</span>
+                      {p.stock < 10 && (
+                        <span
+                          title="Stock faible !"
+                          style={{ color: '#dc2626', fontSize: 15, lineHeight: 1, cursor: 'default' }}
+                        >⚠️</span>
+                      )}
+                    </div>
+                  </td>
                   <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
                     {p.section ? (
                       <span className="admin-badge secondary">{p.section.name}</span>
@@ -418,7 +451,7 @@ const ProductsPage = () => {
                       <span className="admin-muted">{t('admin.none')}</span>
                     )}
                   </td>
-                  <td style={{ padding: '12px 16px', verticalAlign: 'middle', textAlign: 'center' }}>
+                  <td style={{ padding: '12px 8px', verticalAlign: 'middle', textAlign: 'center' }}>
                     <AdminTableActions
                       onEdit={() => onEdit(p)}
                       onDelete={() => onDelete(p)}
@@ -578,12 +611,70 @@ const ProductsPage = () => {
             <FormError error={errors.description} />
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.image')} (principale)</div>
+            {/* ── Images existantes ── */}
+            {editing && existingImages.length > 0 && (
+              <div style={{ marginBottom: 16 }}>
+                <div className="admin-muted" style={{ marginBottom: 8 }}>Images actuelles</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                  {existingImages.map((img) => (
+                    <div
+                      key={img.id}
+                      style={{
+                        position: 'relative',
+                        width: 80,
+                        height: 80,
+                        borderRadius: 8,
+                        overflow: 'hidden',
+                        border: '1px solid var(--border-light)',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <img
+                        src={img.image_url}
+                        alt=""
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      />
+                      <button
+                        onClick={() => handleDeleteImage(img.id)}
+                        style={{
+                          position: 'absolute',
+                          top: 3,
+                          right: 3,
+                          width: 20,
+                          height: 20,
+                          borderRadius: '50%',
+                          background: 'rgba(220,38,38,0.9)',
+                          color: '#fff',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: 13,
+                          lineHeight: '20px',
+                          textAlign: 'center',
+                          padding: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                        title="Supprimer cette image"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── Ajouter de nouvelles images ── */}
+            <div className="admin-muted" style={{ marginBottom: 6 }}>
+              {editing ? 'Ajouter de nouvelles images (optionnel)' : `${t('admin.image')} (principale)`}
+            </div>
             <input
               className="admin-input"
               type="file"
               accept="image/png,image/jpeg,image/jpg,image/webp"
-              onChange={(e) => setForm({ ...form, image: e.target.files?.[0] || null })}
+              multiple
+              onChange={(e) => setForm({ ...form, image: e.target.files?.[0] || null, extraImages: Array.from(e.target.files || []) })}
             />
             <FormError error={errors.image || errors['images.0']} />
           </div>
