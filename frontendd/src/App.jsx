@@ -16,20 +16,21 @@ import Cart from './pages/Cart/Cart';
 import Contact from './pages/Contact/Contact';
 import Favorites from './pages/Favorites/Favorites';
 
-// Imports ajoutés par Farah (Recherche & Produits)
+// Imports ajoutes par Farah (Recherche & Produits)
 import SearchResults from './pages/SearchResults/SearchResults';
 import CategoryProducts from './pages/CategoryProducts/CategoryProducts';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
 
-// Imports ajoutés par toi (Support)
+// Imports ajoutes par toi (Support)
 import Support from './pages/Support/Support';
 
-// --- GUARDS ET APPS DÉDIÉES ---
+// --- GUARDS ET APPS DEDIEES ---
 import AdminGuard from './admin/AdminGuard';
 import AdminApp from './admin/AdminApp';
 import AccountGuard from './account/AccountGuard';
 import AccountApp from './account/AccountApp';
 import Checkout from './pages/Checkout/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation/OrderConfirmation';
 import ResetPassword from './pages/Auth/ResetPassword';
 
 import './App.css';
@@ -37,17 +38,13 @@ import './App.css';
 const App = () => {
   const location = useLocation();
 
-  // Vérifie si on est sur une route admin pour masquer le Header/Footer standard
   const isAdminRoute = useMemo(() => location.pathname.startsWith('/admin'), [location.pathname]);
 
-  // 1. États pour les Modals / Drawers (Overlay)
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // 2. État pour la vue Auth (Connexion ou Inscription)
   const [authView, setAuthView] = useState('signin');
 
-  // 3. Fonctions de contrôle
   const openLogin = () => {
     setAuthView('signin');
     setIsAuthOpen(true);
@@ -62,8 +59,6 @@ const App = () => {
 
   return (
     <div className="app-container">
-
-      {/* --- LES FENÊTRES FLOTTANTES (Overlay) --- */}
       {!isAdminRoute && (
         <>
           <AuthPage
@@ -79,9 +74,7 @@ const App = () => {
         </>
       )}
 
-      {/* --- LE SITE (CONTENU QUI SERA FLOUTÉ SI MODAL OUVERTE) --- */}
       <div className={(!isAdminRoute && (isAuthOpen || isCartOpen)) ? 'content-blurred' : ''}>
-
         {!isAdminRoute && (
           <Header
             onLoginClick={openLogin}
@@ -91,7 +84,6 @@ const App = () => {
         )}
 
         <Routes>
-          {/* --- Routes Publiques --- */}
           <Route path="/" element={<Home />} />
           <Route path="/brands/:slug" element={<BrandDetails />} />
           <Route path="/contact" element={<Contact />} />
@@ -99,21 +91,19 @@ const App = () => {
           <Route path="/promotions" element={<Promotions />} />
           <Route path="/favorites" element={<Favorites />} />
 
-          {/* Nouvelles Routes (Recherche & Produits) */}
           <Route path="/search" element={<SearchResults />} />
           <Route path="/category/:id" element={<CategoryProducts />} />
           <Route path="/product/:id" element={<ProductDetail />} />
 
-          {/* Support Routes (Pages d'aide) */}
           <Route path="/faq" element={<Support />} />
           <Route path="/livraison" element={<Support />} />
           <Route path="/cgv" element={<Support />} />
           <Route path="/privacy" element={<Support />} />
           <Route path="/support" element={<Support />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-confirmation" element={<OrderConfirmation />} />
           <Route path="/reset-password" element={<ResetPassword />} />
 
-          {/* --- Espace Client Sécurisé --- */}
           <Route
             path="/account/*"
             element={
@@ -123,7 +113,6 @@ const App = () => {
             }
           />
 
-          {/* --- Espace Admin Sécurisé --- */}
           <Route
             path="/admin/*"
             element={
@@ -137,7 +126,6 @@ const App = () => {
         {!isAdminRoute && <ChatBot />}
         {!isAdminRoute && <Footer />}
       </div>
-
     </div>
   );
 };
