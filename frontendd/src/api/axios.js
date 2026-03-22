@@ -5,7 +5,6 @@ const api = axios.create({
     headers: {
         'Accept': 'application/json'
     }
-    // AUCUN withCredentials ici !
 });
 
 api.interceptors.request.use((config) => {
@@ -15,5 +14,22 @@ api.interceptors.request.use((config) => {
     }
     return config;
 });
+
+// If the server returns 401, the token is expired/invalid.
+// Clear the session and redirect to home so the user can log in again.
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            // Only redirect if currently on an admin page to avoid disrupting normal users
+            if (window.location.pathname.startsWith('/admin')) {
+                window.location.href = '/';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
 
 export default api;

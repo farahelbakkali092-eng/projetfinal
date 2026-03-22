@@ -7,6 +7,8 @@ use App\Models\Order;
 use App\Services\PaymentService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
+use RuntimeException;
+use Stripe\Exception\ApiErrorException;
 
 class PaymentController extends Controller
 {
@@ -41,52 +43,82 @@ class PaymentController extends Controller
         try {
             if ($order->payment_method === 'stripe') {
                 $session = $this->paymentService->createStripeSession($order);
+
                 return $this->successResponse([
                     'checkout_url' => $session->url,
-                    'session_id' => $session->id
+                    'session_id' => $session->id,
                 ]);
             }
 
-            // COD logic
             if ($order->payment_method === 'cod') {
-                return $this->successResponse(null, 'Cash on Delivery selected. Order will be processed.');
+                return $this->successResponse([
+                    'order_id' => $order->id,
+                    'payment_method' => 'cod',
+                ], 'Cash on Delivery selected. Order will be processed.');
             }
 
             return $this->errorResponse('Unsupported payment method', 400);
-        } catch (\Exception $e) {
+        } catch (ApiErrorException $e) {
+            return $this->errorResponse('Stripe API error: ' . $e->getMessage(), 502);
+        } catch (\Throwable $e) {
             return $this->errorResponse($e->getMessage(), 500);
         }
     }
 
     /**
-     * Stripe Webhook (Simplified)
+     * Confirm a Stripe checkout session after frontend redirect.
+     */
+    public function processStripeSession(Request $request)
+    {
+        $validated = $request->validate([
+            'session_id' => ['required', 'string'],
+        ]);
+
+        try {
+            $session = $this->paymentService->retrieveStripeSession($validated['session_id']);
+
+            $synced = $this->paymentService->syncOrderFromCheckoutSession($session);
+
+            return $this->successResponse([
+                'session_id' => $session->id,
+                'stripe_payment_status' => $session->payment_status,
+                'order' => $synced['order'],
+                'payment' => $synced['payment'],
+            ], 'Stripe session processed successfully');
+        } catch (RuntimeException $e) {
+            return $this->errorResponse($e->getMessage(), 422);
+        } catch (ApiErrorException $e) {
+            return $this->errorResponse('Stripe API error: ' . $e->getMessage(), 502);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Unable to process Stripe session', 500);
+        }
+    }
+
+    /**
+     * Stripe webhook endpoint.
      */
     public function handleWebhook(Request $request)
     {
-        // In a real app, verify Stripe signature
-        $payload = $request->all();
-        $event = $payload['type'] ?? null;
+        $payload = $request->getContent();
+        $signature = $request->header('Stripe-Signature');
 
-       if ($event === 'checkout.session.completed') {
-            $session = $payload['data']['object'];
-            $orderId = $session['metadata']['order_id'] ?? null;
+        try {
+            $event = $this->paymentService->constructWebhookEvent($payload, $signature);
 
-            if ($orderId) {
-                $order = Order::find($orderId);
-                
-                // AJOUTE CETTE VÉRIFICATION :
-                if ($order) {
-                    $order->update(['payment_status' => 'paid', 'status' => 'processing']);
-                    $order->payment()->create([
-                        'payment_method' => 'stripe',
-                        'status' => 'paid',
-                        'transaction_id' => $session['id'],
-                        'amount' => $session['amount_total'] / 100,
-                    ]);
-                }
+            if ($event->type === 'checkout.session.completed') {
+                $session = $event->data->object;
+                $this->paymentService->syncOrderFromCheckoutSession($session);
             }
-        }
 
-        return response()->json(['status' => 'success']);
+            return response()->json(['received' => true]);
+        } catch (RuntimeException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 400);
+        } catch (\Throwable) {
+            return response()->json([
+                'message' => 'Webhook processing failed',
+            ], 500);
+        }
     }
 }

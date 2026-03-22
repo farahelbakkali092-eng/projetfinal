@@ -529,6 +529,7 @@ body {
   display: flex;
   align-items: center;      /* centrage vertical */
   justify-content: center;
+  align-items: flex-start;
   z-index: 2000;
   padding: 20px;
   overflow-y: auto;
@@ -614,10 +615,14 @@ body {
   flex-wrap: wrap;
 }
 
-
 /* Dans admin-actions, les inputs respectent leur maxWidth sans prendre toute la largeur */
 .admin-actions .admin-input {
   width: auto;
+}
+
+/* Cellule ACTIONS dans les tableaux — force les boutons sur une seule ligne */
+.admin-table td:last-child {
+  white-space: nowrap;
 }
 
 /* ============================================================
