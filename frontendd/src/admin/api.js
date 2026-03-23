@@ -16,6 +16,7 @@ export const adminApi = {
     return api.put(`/products/${id}`, data);
   },
   deleteProduct: (id) => api.delete(`/products/${id}`),
+  deleteProductImage: (imageId) => api.delete(`/products/images/${imageId}`),
   importProducts: (formData) => api.post('/products/import', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),

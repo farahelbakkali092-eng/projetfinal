@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { FavoritesProvider } from './context/FavoritesContext';
+import { AppDataProvider } from './context/AppDataContext';
 import { Toaster } from 'react-hot-toast';
 import App from './App';
 import './i18n';
@@ -16,6 +17,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <CartProvider>
         <FavoritesProvider>
           <BrowserRouter>
+            <AppDataProvider>
             <Toaster
               position="top-right"
               containerStyle={{ zIndex: 99999 }}
@@ -46,6 +48,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               }}
             />
             <App />
+            </AppDataProvider>
           </BrowserRouter>
         </FavoritesProvider>
       </CartProvider>

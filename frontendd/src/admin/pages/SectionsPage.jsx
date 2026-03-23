@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { adminApi } from '../api';
+import AdminModal from '../components/AdminModal';
 import AdminTableActions from '../components/AdminTableActions';
 import FormError from '../../components/FormError';
 
@@ -137,7 +138,7 @@ const SectionsPage = () => {
             {loading ? (
                 <div className="admin-muted">{t('admin.loading')}</div>
             ) : (
-                <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                <table className="admin-table">
                     <colgroup>
                         <col style={{ width: '50%' }} />
                         <col style={{ width: '25%' }} />
@@ -145,19 +146,19 @@ const SectionsPage = () => {
                     </colgroup>
                     <thead>
                         <tr>
-                            <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.name')}</th>
-                            <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.order') || 'Ordre'}</th>
-                            <th style={{ textAlign: 'left', padding: '12px 16px' }}>{t('admin.actions')}</th>
+                            <th>{t('admin.name')}</th>
+                            <th>{t('admin.order') || 'Ordre'}</th>
+                            <th>{t('admin.actions')}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {items.map((s) => (
                             <tr key={s.id}>
-                                <td style={{ padding: '12px 16px', verticalAlign: 'middle', textAlign: 'left' }}>
+                                <td>
                                     {t(`sections.${s.name.toLowerCase()}`, { defaultValue: s.name })}
                                 </td>
-                                <td style={{ padding: '12px 16px', verticalAlign: 'middle', textAlign: 'left' }}>{s.order}</td>
-                                <td style={{ padding: '12px 16px', verticalAlign: 'middle', textAlign: 'left' }}>
+                                <td>{s.order}</td>
+                                <td>
                                     <AdminTableActions
                                         onEdit={() => onEdit(s)}
                                         onDelete={() => onDelete(s)}
@@ -169,58 +170,47 @@ const SectionsPage = () => {
                 </table>
             )}
 
-            {open && (
-                <div style={{
-                    position: 'fixed', inset: 0, zIndex: 1000,
-                    backgroundColor: 'rgba(0,0,0,0.45)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                    <div style={{
-                        background: '#fff', borderRadius: 16, width: '100%', maxWidth: 480,
-                        padding: '32px 28px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-                        margin: '0 16px',
-                    }}>
-                        <h2 style={{ textAlign: 'center', marginBottom: 24, fontSize: '1.4rem', fontWeight: 700 }}>
-                            {editing ? t('admin.edit') : t('admin.add')}
-                        </h2>
+            <AdminModal
+                title={editing ? t('admin.edit') : t('admin.add')}
+                open={open}
+                onClose={() => setOpen(false)}
+                footer={
+                    <>
+                        <button className="admin-btn secondary" onClick={() => setOpen(false)}>{t('admin.cancel')}</button>
+                        <button className="admin-btn" onClick={onSubmit}>{editing ? t('admin.save') : t('admin.create')}</button>
+                    </>
+                }
+            >
+                <FormError error={errors.general} />
 
-                        <FormError error={errors.general} />
+                <div className="admin-form-grid" style={{ gridTemplateColumns: '1fr' }}>
+                    <div>
+                        <div className="admin-muted admin-field-label">{t('admin.name')}</div>
+                        <select
+                            className="admin-input"
+                            value={form.name}
+                            onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        >
+                            <option value="">{t('admin.select_section') || 'Sélectionner une section'}</option>
+                            <option value="FEMME">{t('sections.femme')}</option>
+                            <option value="HOMME">{t('sections.homme')}</option>
+                            <option value="ENFANT">{t('sections.enfant')}</option>
+                        </select>
+                        <FormError error={errors.name} />
+                    </div>
 
-                        <div style={{ marginBottom: 18 }}>
-                            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.name')}</div>
-                            <select
-                                className="admin-input"
-                                value={form.name}
-                                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                                style={{ width: '100%' }}
-                            >
-                                <option value="">{t('admin.select_section') || 'Sélectionner une section'}</option>
-                                <option value="FEMME">{t('sections.femme')}</option>
-                                <option value="HOMME">{t('sections.homme')}</option>
-                                <option value="ENFANT">{t('sections.enfant')}</option>
-                            </select>
-                            <FormError error={errors.name} />
-                        </div>
-
-                        <div style={{ marginBottom: 28 }}>
-                            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.display_order') || "Ordre d'affichage"}</div>
-                            <input
-                                className="admin-input"
-                                type="number"
-                                value={form.order}
-                                onChange={(e) => setForm({ ...form, order: e.target.value })}
-                                style={{ width: '100%' }}
-                            />
-                            <FormError error={errors.order} />
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-                            <button className="admin-btn secondary" onClick={() => setOpen(false)}>{t('admin.cancel')}</button>
-                            <button className="admin-btn" onClick={onSubmit}>{editing ? t('admin.save') : t('admin.create')}</button>
-                        </div>
+                    <div>
+                        <div className="admin-muted admin-field-label">{t('admin.display_order') || "Ordre d'affichage"}</div>
+                        <input
+                            className="admin-input"
+                            type="number"
+                            value={form.order}
+                            onChange={(e) => setForm({ ...form, order: e.target.value })}
+                        />
+                        <FormError error={errors.order} />
                     </div>
                 </div>
-            )}
+            </AdminModal>
         </div>
     );
 };

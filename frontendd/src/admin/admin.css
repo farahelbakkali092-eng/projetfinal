@@ -24,7 +24,6 @@
 
 :root {
   /* Couleurs */
-<<<<<<< HEAD
   --primary:      #2d0a0a;
   --accent:       #d4a373;
   --accent-light: #e6c8a8;
@@ -34,17 +33,6 @@
   --text-muted:   #7c6a6a;
   --border-light: #f0ebe4;
   --glass-bg:     rgba(255, 255, 255, 0.7);
-=======
-  --primary: #2d0a0a;
-  --accent: #d4a373;
-  --accent-light: #e6c8a8;
-  --bg-color: #fdfaf6;
-  --sidebar-bg: #ffffff;
-  --text-main: #2d0a0a;
-  --text-muted: #7c6a6a;
-  --border-light: #f0ebe4;
-  --glass-bg: rgba(255, 255, 255, 0.7);
->>>>>>> main
 
   /* Ombres */
   --shadow-sm: 0 2px 8px rgba(45, 10, 10, 0.05);
@@ -56,11 +44,7 @@
 
   /* Typographie */
   --font-heading: "Playfair Display", serif;
-<<<<<<< HEAD
   --font-body:    "Poppins", sans-serif;
-=======
-  --font-body: "Poppins", sans-serif;
->>>>>>> main
 }
 
 body {
@@ -80,10 +64,6 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> main
   to {
     opacity: 1;
     transform: translateY(0);
@@ -95,10 +75,6 @@ body {
     opacity: 0;
     transform: translateX(-30px);
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> main
   to {
     opacity: 1;
     transform: translateX(0);
@@ -417,30 +393,69 @@ body {
 .admin-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* Padding et alignement identiques sur th ET td
+   → le contenu s'aligne parfaitement avec son en-tête */
+.admin-table th,
+.admin-table td {
+  padding: 12px 16px;
+  text-align: left;
+  vertical-align: middle;
+  box-sizing: border-box;
 }
 
 .admin-table th {
   background: var(--bg-color);
-  padding: 16px;
-  text-align: left;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-muted);
   font-weight: 700;
   border-bottom: 2px solid var(--border-light);
+  white-space: nowrap;
 }
 
 .admin-table td {
-  padding: 16px;
   border-bottom: 1px solid var(--border-light);
   font-size: 0.95rem;
   transition: background 0.2s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Colonne Actions (dernière colonne) : centrée, sans coupure de contenu */
+.admin-table th:last-child,
+.admin-table td:last-child {
+  text-align: center;
+  overflow: visible;   /* les boutons ne doivent PAS être tronqués */
+  white-space: normal;
+}
+
+/* Conteneur flex des boutons Modifier / Supprimer */
+.admin-table-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+/* Variante compacte du bouton — taille réduite pour tenir dans le tableau */
+.admin-btn--sm {
+  padding: 7px 14px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  white-space: nowrap;
 }
 
 .admin-table tr:hover td {
   background: #fdfaf8;
 }
+
+
 
 
 /* ============================================================
@@ -507,11 +522,14 @@ body {
 
 /* Overlay plein ecran avec blur */
 .admin-modal-overlay {
+  position: fixed;          /* couvre tout l'ecran, quelle que soit la page */
   inset: 0;
-  background: rgba(45, 10, 10, 0.4);
-  backdrop-filter: blur(8px);
+  background: rgba(45, 10, 10, 0.45);
+  backdrop-filter: blur(6px);
   display: flex;
+  align-items: center;      /* centrage vertical */
   justify-content: center;
+  align-items: flex-start;
   z-index: 2000;
   padding: 20px;
   overflow-y: auto;
@@ -527,15 +545,44 @@ body {
   margin: auto;
   box-shadow: var(--shadow-lg);
   position: relative;
-  animation: fadeInUp 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+  animation: fadeInUp 0.35s cubic-bezier(0.165, 0.84, 0.44, 1) both;
 }
 
+/* Titre du modal */
 .admin-modal h2 {
   font-family: var(--font-heading);
   color: var(--primary);
-  font-size: 2rem;
+  font-size: 1.8rem;
   margin-bottom: 25px;
   text-align: center;
+  padding-right: 32px;     /* espace pour ne pas chevauchir le bouton fermer */
+}
+
+/* Bouton fermer (✕) en haut a droite */
+.admin-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-light);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+}
+
+.admin-modal-close:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+  transform: scale(1.1);
 }
 
 /* Pied de modal avec boutons Annuler / Confirmer */
@@ -568,10 +615,14 @@ body {
   flex-wrap: wrap;
 }
 
-
 /* Dans admin-actions, les inputs respectent leur maxWidth sans prendre toute la largeur */
 .admin-actions .admin-input {
   width: auto;
+}
+
+/* Cellule ACTIONS dans les tableaux — force les boutons sur une seule ligne */
+.admin-table td:last-child {
+  white-space: nowrap;
 }
 
 /* ============================================================
@@ -590,4 +641,159 @@ body {
   .admin-form-grid {
     grid-template-columns: 1fr;
   }
+}
+
+
+/* ============================================================
+   14. PRODUCTS PAGE — classes utilitaires dedicees
+   ============================================================ */
+
+/* En-tete produits : deux lignes empilees (titre+actions / CSV tools) */
+.admin-page-header--stacked {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+/* Premiere ligne : h1 a gauche, actions a droite */
+.admin-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Deuxieme ligne : boutons CSV alignes a droite */
+.admin-csv-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* Bouton avec icone centree */
+.admin-btn--icon {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+/* Panneau d'erreurs d'importation CSV */
+.admin-import-errors {
+  background: #fff1f1;
+  border: 1px solid #fecaca;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.admin-import-errors__header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #991b1b;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-import-errors__clear {
+  background: none;
+  border: none;
+  color: #991b1b;
+  cursor: pointer;
+  font-size: 11px;
+  text-decoration: underline;
+}
+
+.admin-import-errors__list {
+  margin: 0;
+  padding: 0 0 0 20px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.admin-import-errors__item {
+  font-size: 12px;
+  color: #991b1b;
+  margin-bottom: 4px;
+}
+
+/* Colonne de tableau : tronquage texte */
+.admin-table td.col-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Cellule reference — texte plus petit et grise */
+.admin-table td.col-ref {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: #666;
+}
+
+/* Miniature produit dans la table */
+.admin-product-thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+}
+
+/* Pagination produits */
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.admin-pagination__label {
+  align-self: center;
+}
+
+/* Encart promotion (prix solde) dans le modal */
+.admin-promo-box {
+  grid-column: 1 / -1;
+  background: #fff8f0;
+  border: 1px solid #f5dfc8;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.admin-promo-box__title {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: #c0675a;
+}
+
+.admin-promo-box__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.admin-promo-box__readonly {
+  opacity: 0.7;
+}
+
+/* Champ label dans le modal ("Nom", "Prix"…) */
+.admin-field-label {
+  margin-bottom: 6px;
+}
+
+/* Champ qui occupe les deux colonnes de la grille */
+.admin-form-grid__full {
+  grid-column: 1 / -1;
+}
+
+/* Input de recherche dans le header — largeur limitee */
+.admin-search-input {
+  max-width: 220px;
 }

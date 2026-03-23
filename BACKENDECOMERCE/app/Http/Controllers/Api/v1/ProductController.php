@@ -10,7 +10,11 @@ use App\Http\Requests\Products\ProductRequest;
 use App\Models\Category;
 use App\Models\Brand;
 use App\Models\Section;
+use App\Models\ProductImage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Intervention\Image\Laravel\Facades\Image;
 
 class ProductController extends Controller
 {
@@ -68,24 +72,61 @@ class ProductController extends Controller
     }
 
     /**
+     * Store a product image: resize to 800x800 WebP + thumbnail 400x400
+     * Falls back to direct storage if GD/Intervention Image is unavailable.
+     */
+    private function storeProductImage($file, $product, $isMain = false): void
+    {
+        $webpFull  = null;
+        $webpThumb = null;
+
+        if (extension_loaded('gd')) {
+            try {
+                $baseName = 'products/' . Str::uuid();
+
+                // Full image — max 800x800, WebP quality 80
+                $img = Image::read($file);
+                $img->scaleDown(800, 800);
+                $webpFull = $baseName . '.webp';
+                Storage::disk('public')->put($webpFull, $img->toWebp(80));
+
+                // Thumbnail — 400x400 cover crop, WebP quality 75
+                $imgThumb = Image::read($file);
+                $imgThumb->cover(400, 400);
+                $webpThumb = $baseName . '_thumb.webp';
+                Storage::disk('public')->put($webpThumb, $imgThumb->toWebp(75));
+            } catch (\Throwable $e) {
+                // WebP conversion failed — fall through to direct storage
+                \Log::warning('Image WebP conversion failed, storing original: ' . $e->getMessage());
+                $webpFull  = null;
+                $webpThumb = null;
+            }
+        }
+
+        // Fallback: store original file as-is
+        if (!$webpFull) {
+            $webpFull = $file->store('products', 'public');
+        }
+
+        $product->images()->create([
+            'image_path' => $webpFull,
+            'thumb_path' => $webpThumb,
+            'is_main'    => $isMain,
+        ]);
+    }
+
+    /**
      * Create product (Admin only)
      */
     public function store(ProductRequest $request)
     {
-        // Création des données de base
         $product = $this->productRepository->create($request->validated());
-        
-        // Gestion des images (Supporte l'upload multiple si le front envoie un tableau 'images')
+
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
-                // On suppose que la relation images() existe (table product_images)
-                $product->images()->create(['image_path' => $path]);
+            foreach ($request->file('images') as $index => $image) {
+                $this->storeProductImage($image, $product, $index === 0);
             }
         }
-        // Note : Si votre front envoie une seule image sous le nom 'image', il faudra adapter ici.
-
-        // CORRECTION : Suppression du bloc ingredients
 
         return $this->successResponse($product->load(['images']), 'Product created successfully', 201);
     }
@@ -103,23 +144,12 @@ class ProductController extends Controller
 
         $product->update($request->validated());
 
-        // Handle new images if provided
         if ($request->hasFile('images')) {
-            // Logique pour définir l'image principale si elle n'existe pas
             $hasMain = $product->images()->where('is_main', true)->exists();
-            $first = true;
-
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
-                $product->images()->create([
-                    'image_path' => $path,
-                    'is_main' => (!$hasMain && $first),
-                ]);
-                $first = false;
+            foreach ($request->file('images') as $index => $image) {
+                $this->storeProductImage($image, $product, !$hasMain && $index === 0);
             }
         }
-
-        // CORRECTION : Suppression du bloc ingredients
 
         return $this->successResponse($product->load(['images']), 'Product updated successfully');
     }
@@ -136,6 +166,32 @@ class ProductController extends Controller
         }
         
         return $this->successResponse(null, 'Product deleted successfully');
+    }
+
+    /**
+     * Delete a single product image (Admin only)
+     */
+    public function destroyImage($imageId)
+    {
+        $image = ProductImage::find($imageId);
+
+        if (!$image) {
+            return $this->errorResponse('Image not found', 404);
+        }
+
+        // Delete full image from disk
+        if ($image->image_path && Storage::disk('public')->exists($image->image_path)) {
+            Storage::disk('public')->delete($image->image_path);
+        }
+
+        // Delete thumbnail from disk if it exists
+        if ($image->thumb_path && Storage::disk('public')->exists($image->thumb_path)) {
+            Storage::disk('public')->delete($image->thumb_path);
+        }
+
+        $image->delete();
+
+        return $this->successResponse(null, 'Image deleted successfully');
     }
 
     /**

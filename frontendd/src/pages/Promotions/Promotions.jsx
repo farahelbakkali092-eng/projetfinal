@@ -10,17 +10,23 @@ const Promotions = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchPromos = async () => {
       try {
-        const res = await api.get('/products/on-sale?limit=20');
+        const res = await api.get('/products/on-sale?limit=20', { signal: controller.signal });
         setPromoProducts(res.data.data || []);
       } catch (error) {
-        console.error("Error fetching promos", error);
+        if (error.name !== 'CanceledError' && error.code !== 'ERR_CANCELED') {
+          console.error('Error fetching promos', error);
+        }
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchPromos();
+    return () => controller.abort();
   }, []);
 
   if (isLoading) {

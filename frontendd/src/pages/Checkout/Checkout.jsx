@@ -14,7 +14,6 @@ const Checkout = () => {
     const { isAdmin } = useAuth();
     const { cartItems, subtotal, clearCart } = useCart();
 
-    // All hooks must be declared at the top level
     const [paymentMethod, setPaymentMethod] = useState('cod');
     const [isOrdered, setIsOrdered] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -45,28 +44,46 @@ const Checkout = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const buildOrderPayload = () => ({
+        shipping_address: `${formData.address}, ${formData.city}, ${formData.postalCode}`,
+        payment_method: paymentMethod,
+        items: cartItems.map(item => ({
+            product_id: item.id,
+            quantity: item.quantity,
+        })),
+    });
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsProcessing(true);
 
-        const orderPayload = {
-            shipping_address: `${formData.address}, ${formData.city}, ${formData.postalCode}`,
-            phone: formData.phone,
-            payment_method: paymentMethod,
-            items: cartItems.map(item => ({
-                product_id: item.id,
-                quantity: item.quantity
-            }))
-        };
-
         try {
-            await api.post('/orders', orderPayload);
+            const orderRes = await api.post('/orders', buildOrderPayload());
+            const order = orderRes?.data?.data;
+
+            if (!order?.id) {
+                throw new Error('Commande creee mais identifiant introuvable');
+            }
+
+            if (paymentMethod === 'stripe') {
+                const payRes = await api.post(`/orders/${order.id}/pay`);
+                const checkoutUrl = payRes?.data?.data?.checkout_url;
+
+                if (!checkoutUrl) {
+                    throw new Error('URL Stripe Checkout introuvable');
+                }
+
+                clearCart();
+                window.location.href = checkoutUrl;
+                return;
+            }
+
             clearCart();
             setIsOrdered(true);
-            toast.success('Commande validée avec succès !');
+            toast.success('Commande validee avec succes !');
         } catch (error) {
             console.error(error);
-            toast.error(error.response?.data?.message || 'Erreur lors de la création de la commande');
+            toast.error(error.response?.data?.message || error.message || 'Erreur lors de la creation de la commande');
         } finally {
             setIsProcessing(false);
         }
@@ -91,7 +108,6 @@ const Checkout = () => {
 
     return (
         <div className="checkout-container">
-            {/* Header */}
             <div className="checkout-header">
                 <button onClick={() => navigate('/cart')} className="back-to-cart">
                     <ChevronLeft size={20} /> {t('checkout.backToCart')}
@@ -101,9 +117,8 @@ const Checkout = () => {
             </div>
 
             <div className="checkout-layout">
-                {/* Order Summary */}
                 <aside className="checkout-summary">
-                    <h3 className="summary-title">Récapitulatif</h3>
+                    <h3 className="summary-title">Recapitulatif</h3>
                     <div className="summary-items">
                         {cartItems.map(item => (
                             <div key={item.id} className="summary-item">
@@ -132,9 +147,7 @@ const Checkout = () => {
                     </div>
                 </aside>
 
-                {/* Form */}
                 <form onSubmit={handleSubmit} className="checkout-form">
-                    {/* Delivery Section */}
                     <section className="form-section">
                         <h2>{t('checkout.shipping')}</h2>
                         <div className="input-row">
@@ -193,7 +206,6 @@ const Checkout = () => {
                         </div>
                     </section>
 
-                    {/* Payment Section */}
                     <section className="payment-section">
                         <h2>{t('checkout.payment')}</h2>
                         <div className="payment-options">
@@ -204,17 +216,17 @@ const Checkout = () => {
                                 <div className="payment-icon"><Truck size={24} /></div>
                                 <div className="payment-text">
                                     <span className="payment-title">{t('checkout.cod')}</span>
-                                    <span className="payment-desc">Payez à la réception</span>
+                                    <span className="payment-desc">Payez a la reception</span>
                                 </div>
                             </div>
                             <div
-                                className={`payment-card ${paymentMethod === 'online' ? 'selected' : ''}`}
-                                onClick={() => setPaymentMethod('online')}
+                                className={`payment-card ${paymentMethod === 'stripe' ? 'selected' : ''}`}
+                                onClick={() => setPaymentMethod('stripe')}
                             >
                                 <div className="payment-icon"><CreditCard size={24} /></div>
                                 <div className="payment-text">
-                                    <span className="payment-title">{t('checkout.online')}</span>
-                                    <span className="payment-desc">Carte bancaire sécurisée</span>
+                                    <span className="payment-title">Stripe</span>
+                                    <span className="payment-desc">Carte bancaire securisee</span>
                                 </div>
                             </div>
                         </div>
@@ -224,7 +236,7 @@ const Checkout = () => {
                         {isProcessing ? (
                             <Loader2 className="animate-spin" size={20} style={{ margin: '0 auto' }} />
                         ) : (
-                            paymentMethod === 'online'
+                            paymentMethod === 'stripe'
                                 ? `${t('checkout.pay')} ${subtotal.toFixed(2)} MAD`
                                 : t('checkout.placeOrder')
                         )}

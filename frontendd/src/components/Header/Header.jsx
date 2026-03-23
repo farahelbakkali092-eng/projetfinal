@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Heart, ShoppingBag, User, Menu, X } from "lucide-react";
 import { useTranslation } from 'react-i18next';
-import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
+import { useAppData } from '../../context/AppDataContext';
 import './Header.css';
 
 const Header = ({ onLoginClick, onCartClick }) => {
@@ -16,11 +16,11 @@ const Header = ({ onLoginClick, onCartClick }) => {
   const { favorites } = useFavorites();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [categories, setCategories] = useState([]);
-  const [sections, setSections] = useState([]);
+  // Consume shared app data — already fetched by AppDataContext (no duplicate API calls)
+  const { categories, sections, advertisingText } = useAppData();
+
   const [activeSection, setActiveSection] = useState(null);
   const [showSubMenu, setShowSubMenu] = useState(false);
-  const [advertisingText, setAdvertisingText] = useState(" ");
 
   const currentLang = i18n.language?.startsWith('en') ? 'en' : 'fr';
 
@@ -30,30 +30,9 @@ const Header = ({ onLoginClick, onCartClick }) => {
     localStorage.setItem('lang', newLang);
   };
 
-  useEffect(() => {
-    const fetchMenuData = async () => {
-      try {
-        const [catRes, secRes, settingsRes] = await Promise.all([
-          api.get('/products/categories'),
-          api.get('/sections'),
-          api.get('/settings')
-        ]);
-
-        setCategories(Array.isArray(catRes?.data?.data) ? catRes.data.data : []);
-        setSections(Array.isArray(secRes?.data?.data) ? secRes.data.data : []);
-
-        if (settingsRes?.data?.data?.advertising_text) {
-          setAdvertisingText(settingsRes.data.data.advertising_text);
-        }
-      } catch (error) {
-        console.error("Error fetching menu data in Header:", error);
-      }
-    };
-    fetchMenuData();
-  }, []);
-
   const cartCount = cartItems.length;
   const favoritesCount = favorites.length;
+
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();

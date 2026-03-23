@@ -8,14 +8,17 @@ use App\Http\Controllers\Api\v1\OrderController;
 use App\Http\Controllers\Api\v1\PaymentController;
 use App\Http\Controllers\Api\v1\ContactMessageController;
 use App\Http\Controllers\Api\v1\DiagnosticController;
+use App\Http\Controllers\Api\v1\IaRecommandationController;
 use App\Http\Controllers\Api\v1\BrandController;
+use App\Http\Controllers\Api\v1\PasswordResetController;
+use App\Http\Controllers\Api\v1\SettingController;
 use App\Http\Controllers\Api\v1\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\v1\Admin\BrandController as AdminBrandController;
 use App\Http\Controllers\Api\v1\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\v1\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\v1\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Api\v1\Admin\SectionController as AdminSectionController;
-use App\Http\Controllers\Api\v1\PasswordResetController;
+use App\Http\Controllers\Api\v1\ChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,47 +26,50 @@ use App\Http\Controllers\Api\v1\PasswordResetController;
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('v1')->middleware('throttle:api')->group(function () {
+Route::group(['prefix' => 'v1', 'middleware' => ['throttle:api']], function () {
     
     // --- 🟢 ROUTES PUBLIQUES (Accessibles à tous) ---
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login'])->name('login');
-    
-    // ✅ Routes de réinitialisation de mot de passe (DÉPLACÉES ICI)
+
+    // Routes de reinitialisation de mot de passe
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('/reset-password', [PasswordResetController::class, 'reset']);
-    
-    // Produits & Catégories
+
+    // Produits & Categories
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);
     Route::get('/products/on-sale', [ProductController::class, 'onSale']);
     Route::get('/products/categories', [CategoryController::class, 'index']);
     Route::get('/products/{id}', [ProductController::class, 'show']);
-    Route::get('/settings', [\App\Http\Controllers\Api\v1\SettingController::class, 'index']);
-    
+    Route::get('/settings', [SettingController::class, 'index']);
+
     // Routes pour les marques (BrandController)
     Route::get('/brands', [BrandController::class, 'index']);
     Route::get('/brands/{slug}/products', [BrandController::class, 'products']);
 
     // Sections publiques
-    Route::get('/sections', [\App\Http\Controllers\Api\v1\Admin\SectionController::class, 'index']);
+    Route::get('/sections', [AdminSectionController::class, 'index']);
 
     // Contact messages (public)
     Route::post('/contact/messages', [ContactMessageController::class, 'store']);
 
+    // Chatbot — Recommandation produits par IA
+    Route::post('/chat/recommend', [ChatController::class, 'recommend']);
+
     // Diagnostic (Public - DiagnosticController)
     Route::post('/diagnostic', [DiagnosticController::class, 'store']);
+    Route::post('/routine/recommend', [IaRecommandationController::class, 'generateRoutine']);
 
     // Webhook Stripe/Paiements
     Route::post('/payments/webhook', [PaymentController::class, 'handleWebhook']);
 
-
-    // --- 🔴 ROUTES PRIVÉES (Connexion obligatoire via Sanctum) ---
+    // --- ROUTES PRIVEES (Connexion obligatoire via Sanctum) ---
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
         Route::patch('/me/password', [AuthController::class, 'updatePassword']);
         Route::post('/logout', [AuthController::class, 'logout']);
-        
+
         // Orders
         Route::get('/orders', [OrderController::class, 'index']);
         Route::post('/orders', [OrderController::class, 'store']);
@@ -71,14 +77,16 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
 
         // Payments
         Route::post('/orders/{id}/pay', [PaymentController::class, 'initiatePayment']);
+        Route::get('/payments/stripe/session', [PaymentController::class, 'processStripeSession']);
 
-        // --- 🛡️ ROUTES ADMIN (Connexion + Rôle Admin obligatoire) ---
+        // ROUTES ADMIN (Connexion + Role Admin obligatoire)
         Route::middleware('admin')->group(function () {
             Route::post('/products', [ProductController::class, 'store']);
+            Route::post('/products/import', [ProductController::class, 'bulkImport']);
             Route::put('/products/{id}', [ProductController::class, 'update']);
             Route::delete('/products/{id}', [ProductController::class, 'destroy']);
-            Route::post('/products/import', [ProductController::class, 'bulkImport']);
-            
+            Route::delete('/products/images/{imageId}', [ProductController::class, 'destroyImage']);
+
             Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
 
             // Dashboard stats
@@ -117,8 +125,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             Route::patch('/admin/messages/{id}/read', [AdminContactMessageController::class, 'markRead']);
 
             // Settings
-            Route::patch('/admin/settings', [\App\Http\Controllers\Api\v1\SettingController::class, 'update']);
-            
+            Route::patch('/admin/settings', [SettingController::class, 'update']);
         });
     });
 });

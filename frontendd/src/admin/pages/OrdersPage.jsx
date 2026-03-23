@@ -48,6 +48,14 @@ const OrdersPage = () => {
         <div className="admin-muted">{t('admin.loading')}</div>
       ) : (
         <table className="admin-table">
+          <colgroup>
+            <col style={{ width: '16%' }} />
+            <col style={{ width: '26%' }} />
+            <col style={{ width: '12%' }} />
+            <col style={{ width: '15%' }} />
+            <col style={{ width: '15%' }} />
+            <col style={{ width: '16%' }} />
+          </colgroup>
           <thead>
             <tr>
               <th>{t('admin.orderNumber')}</th>
@@ -76,7 +84,7 @@ const OrdersPage = () => {
       )}
 
       {meta && meta.last_page > 1 && (
-        <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+        <div className="admin-pagination">
           <button
             className="admin-btn secondary"
             disabled={meta.current_page <= 1}
@@ -84,7 +92,7 @@ const OrdersPage = () => {
           >
             {t('admin.prev')}
           </button>
-          <div className="admin-muted" style={{ alignSelf: 'center' }}>
+          <div className="admin-muted admin-pagination__label">
             Page {meta.current_page} / {meta.last_page}
           </div>
           <button

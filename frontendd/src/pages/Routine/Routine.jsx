@@ -3,11 +3,14 @@ import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
 import FormError from '../../components/FormError';
+import { useCart } from '../../context/CartContext';
 
 import './Routine.css';
 
 const Routine = () => {
   const { t, i18n } = useTranslation();
+  // Récupération de la fonction d'ajout au panier depuis le contexte
+  const { addToCart } = useCart();
   // --- État initial ---
   const [formData, setFormData] = useState({
     nom: '',
@@ -23,6 +26,10 @@ const Routine = () => {
   // État pour la validation et le chargement
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  // Nouveaux états pour l'IA
+  const [recommendations, setRecommendations] = useState([]);
+  const [iaError, setIaError] = useState('');
 
   // --- Gestionnaires d'input ---
   const handleInputChange = (e) => {
@@ -94,19 +101,20 @@ const Routine = () => {
     }
 
     setLoading(true);
+    setRecommendations([]);
+    setIaError('');
 
     try {
-      // Route vers ton controller DiagnosticController.php
+      // 1. Sauvegarder le diagnostic en BDD
       await api.post('/diagnostic', formData);
 
-      toast.success(t('routine.successMsg'));
+      // 2. Interroger l'IA pour obtenir la routine
+      const iaResponse = await api.post('/routine/recommend', formData);
 
-      // Reset du formulaire
-      setFormData({
-        nom: '', prenom: '', age: '', email: '', type_peau: '',
-        problematiques: [], preferences: [], budget: ''
-      });
-      setErrors({});
+      if (iaResponse.data.success) {
+        setRecommendations(iaResponse.data.recommendations);
+        toast.success(i18n.language === 'fr' ? "Votre routine est prête !" : "Your routine is ready!");
+      }
 
     } catch (error) {
       console.error(error);
@@ -114,7 +122,7 @@ const Routine = () => {
         // Gestion des erreurs Laravel (Validation Backend)
         setErrors(error.response.data.errors);
       } else {
-        setErrors({ general: [error.response?.data?.message || (i18n.language === 'fr' ? "Une erreur est survenue lors de l'envoi." : "An error occurred during sending.")] });
+        setIaError(error.response?.data?.message || (i18n.language === 'fr' ? "Une erreur est survenue lors de l'appel à l'IA." : "An ai error occurred."));
       }
     } finally {
       setLoading(false);
@@ -257,6 +265,59 @@ const Routine = () => {
 
           </form>
         </section>
+
+        {/* --- SECTION DES RÉSULTATS IA --- */}
+        {loading && (
+          <div className="reco-loading">
+            <div className="loader-spinner"></div>
+            <p>{i18n.language === 'fr' ? "Notre IA génère votre routine sur-mesure..." : "Our AI is analyzing your profile..."}</p>
+          </div>
+        )}
+
+        {iaError && !loading && (
+          <div className="reco-error">
+            <p>{iaError}</p>
+          </div>
+        )}
+
+        {recommendations.length > 0 && !loading && (
+          <section className="recommendations-section">
+            <div className="reco-header">
+              <h3>{i18n.language === 'fr' ? "Votre Routine Personnalisée" : "Your Custom Routine"}</h3>
+              <p>{i18n.language === 'fr' ? "Sélectionnée par notre intelligence artificielle" : "Selected by our artificial intelligence"}</p>
+            </div>
+
+            <div className="reco-grid">
+              {recommendations.map((product, index) => (
+                <div key={product.id} className="reco-card" style={{ animationDelay: `${index * 0.15}s` }}>
+                  <div className="reco-badge">{i18n.language === 'fr' ? `Étape ${index + 1}` : `Step ${index + 1}`}</div>
+                  <div className="reco-image-wrapper">
+                    <img src={product.image} alt={product.nom} className="reco-image" />
+                  </div>
+                  <div className="reco-content">
+                    <h4>{product.nom}</h4>
+                    <p className="reco-desc">{product.description}</p>
+                    <div className="reco-footer">
+                      <span className="reco-price">{Number(product.prix).toFixed(2)} dhs</span>
+                      <button
+                        className="btn-add-cart"
+                        onClick={() => addToCart({
+                          id: product.id,
+                          name: product.nom,
+                          price: product.prix,
+                          image: product.image,
+                          quantity: 1
+                        })}
+                      >
+                        {i18n.language === 'fr' ? "Ajouter" : "Add"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );
