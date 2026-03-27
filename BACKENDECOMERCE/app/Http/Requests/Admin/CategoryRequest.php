@@ -18,7 +18,10 @@ class CategoryRequest extends BaseApiRequest
                 'min:3',
                 'max:50',
                 'regex:/^(?![0-9]+$)[\pL\pN\s\-\'\.,&\+\(\)À-ÿ]+$/u',
-                Rule::unique('categories', 'name')->ignore($categoryId),
+                // Unicité du nom uniquement au sein de la même section
+                Rule::unique('categories', 'name')
+                    ->where('section_id', $this->input('section_id'))
+                    ->ignore($categoryId),
             ],
             'description' => [
                 'required',

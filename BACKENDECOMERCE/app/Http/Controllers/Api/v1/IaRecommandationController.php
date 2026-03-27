@@ -3,12 +3,26 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Traits\ApiResponseTrait;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Models\Product;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
+/**
+ * IaRecommandationController
+ *
+ * Responsabilité : Générer des recommandations de produits skincare personnalisées.
+ *
+ * Flux :
+ *  1. Validation des données du formulaire.
+ *  2. Appel Gemini AI pour obtenir des termes de recherche ciblés (avec fallback local).
+ *  3. Recherche des produits dans la base de données selon le profil et le budget.
+ *  4. Retour des recommandations formatées à React.
+ */
 class IaRecommandationController extends Controller
 {
     use ApiResponseTrait;
@@ -34,45 +48,85 @@ class IaRecommandationController extends Controller
      * Mapping problématiques → mots-clés produits
      */
     private const CONCERN_KEYWORDS = [
-        'acné'             => ['purifiant', 'anti-imperfections', 'nettoyant', 'salicylique'],
-        'imperfections'    => ['purifiant', 'anti-imperfections', 'nettoyant'],
-        'rides'            => ['anti-âge', 'lissant', 'fermeté', 'collagène', 'rétinol'],
-        'âge'              => ['anti-âge', 'lissant', 'fermeté', 'collagène'],
-        'taches'           => ['éclat', 'unifiant', 'correcteur', 'sérum', 'vitamine c'],
-        'pigmentaires'     => ['éclat', 'unifiant', 'correcteur'],
-        'déshydratation'   => ['hydratant', 'hyaluronique', 'sérum', 'eau'],
-        'rougeurs'         => ['apaisant', 'calmant', 'anti-rougeur', 'doux'],
-        'pores'            => ['pores', 'purifiant', 'matifiant', 'nettoyant'],
+        'acné'           => ['purifiant', 'anti-imperfections', 'nettoyant', 'salicylique'],
+        'imperfections'  => ['purifiant', 'anti-imperfections', 'nettoyant'],
+        'rides'          => ['anti-âge', 'lissant', 'fermeté', 'collagène', 'rétinol'],
+        'âge'            => ['anti-âge', 'lissant', 'fermeté', 'collagène'],
+        'taches'         => ['éclat', 'unifiant', 'correcteur', 'sérum', 'vitamine c'],
+        'pigmentaires'   => ['éclat', 'unifiant', 'correcteur'],
+        'déshydratation' => ['hydratant', 'hyaluronique', 'sérum', 'eau'],
+        'rougeurs'       => ['apaisant', 'calmant', 'anti-rougeur', 'doux'],
+        'pores'          => ['pores', 'purifiant', 'matifiant', 'nettoyant'],
     ];
 
     /**
-     * Génère une routine personnalisée via IA et retourne des produits du catalogue.
+     * Génère une routine beauté personnalisée et retourne des produits du catalogue.
+     *
+     * Route : POST /api/v1/routine/recommend
+     *
+     * Body JSON attendu (depuis React) :
+     * {
+     *   "type_peau":      "Grasse",
+     *   "budget":          200,
+     *   "problematiques": ["Acné & Imperfections", "Pores Dilatés"],
+     *   "preferences":    ["Bio / Naturel", "Vegan"],
+     *   "nom":            "Douae",      // optionnel
+     *   "prenom":         "B",          // optionnel
+     *   "age":            25            // optionnel
+     * }
+     *
+     * @param  Request  $request
+     * @return JsonResponse
      */
-    public function generateRoutine(Request $request)
+    public function generateRoutine(Request $request): JsonResponse
     {
-        $request->validate([
-            'type_peau'      => 'required|string|max:50',
-            'problematiques' => 'required|array|min:1',
-            'preferences'    => 'nullable|array',
-            'budget'         => 'required|numeric|min:1',
-            'nom'            => 'nullable|string|max:100',
-            'prenom'         => 'nullable|string|max:100',
-            'age'            => 'nullable|integer|min:10|max:120',
+        // ═══════════════════════════════════════════════
+        // ÉTAPE 1 — Validation stricte des données entrantes
+        // ═══════════════════════════════════════════════
+        $validator = Validator::make($request->all(), [
+            'type_peau'        => 'required|string|max:100',
+            'budget'           => 'required|numeric|min:1|max:100000',
+            'problematiques'   => 'required|array|min:1',
+            'problematiques.*' => 'string|max:100',
+            'preferences'      => 'nullable|array',
+            'preferences.*'    => 'string|max:100',
+            'nom'              => 'nullable|string|max:100',
+            'prenom'           => 'nullable|string|max:100',
+            'age'              => 'nullable|integer|min:10|max:120',
+        ], [
+            'type_peau.required'      => 'Le type de peau est obligatoire.',
+            'budget.required'         => 'Le budget est obligatoire.',
+            'budget.numeric'          => 'Le budget doit être un nombre.',
+            'budget.min'              => 'Le budget doit être supérieur à 0.',
+            'problematiques.required' => 'Veuillez choisir au moins une problématique.',
+            'problematiques.min'      => 'Veuillez choisir au moins une problématique.',
         ]);
 
-        $typePeau      = $request->input('type_peau');
-        $problematiques = $request->input('problematiques', []);
-        $preferences   = $request->input('preferences', []);
-        $budget        = (float) $request->input('budget');
-        $apiKey        = config('services.gemini.key');
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Données du formulaire invalides.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
 
-        // ── Étape 1 : Appel Gemini pour obtenir des search_terms ciblés ────────
-        $searchTerms = [];
+        $data = $validator->validated();
+
+        $typePeau       = $data['type_peau'];
+        $problematiques = $data['problematiques'];
+        $preferences    = $data['preferences'] ?? [];
+        $budget         = (float) $data['budget'];
+        $apiKey         = config('services.gemini.key');
+
+        // ═══════════════════════════════════════════════
+        // ÉTAPE 2 — Appel Gemini AI pour des termes de recherche ciblés
+        // ═══════════════════════════════════════════════
+        $searchTerms   = [];
         $routineAdvice = null;
 
         if ($apiKey) {
-            $problemList   = implode(', ', $problematiques);
-            $prefList      = implode(', ', $preferences);
+            $problemList = implode(', ', $problematiques);
+            $prefList    = implode(', ', $preferences);
 
             $prompt = <<<EOT
 Tu es une experte dermatologue et conseillère en cosmétiques. Une cliente remplit un formulaire de diagnostic.
@@ -118,15 +172,18 @@ EOT;
 
                     if (is_array($parsed)) {
                         $searchTerms   = $parsed['search_terms'] ?? [];
-                        $routineAdvice = $parsed['advice'] ?? null;
+                        $routineAdvice = $parsed['advice']        ?? null;
                     }
                 }
             } catch (\Throwable $e) {
-                Log::warning('IaRecommandation - Gemini error: ' . $e->getMessage());
+                Log::warning('[IaRecommandation] Gemini indisponible : ' . $e->getMessage());
             }
         }
 
-        // ── Étape 2 : Fallback local si Gemini indisponible ───────────────────
+        // ═══════════════════════════════════════════════
+        // ÉTAPE 3 — Fallback local si Gemini indisponible
+        // Utilisé côté serveur uniquement, sans dépendance externe.
+        // ═══════════════════════════════════════════════
         if (empty($searchTerms)) {
             $lower = mb_strtolower($typePeau);
             foreach (self::SKIN_TYPE_KEYWORDS as $key => $terms) {
@@ -147,7 +204,9 @@ EOT;
 
         $searchTerms = array_unique(array_filter($searchTerms));
 
-        // ── Étape 3 : Recherche produits dans le catalogue ────────────────────
+        // ═══════════════════════════════════════════════
+        // ÉTAPE 4 — Recherche des produits dans le catalogue
+        // ═══════════════════════════════════════════════
         $query = Product::with(['images', 'category', 'brand'])
             ->where('stock', '>', 0);
 
@@ -180,7 +239,7 @@ EOT;
 
         $products = $query->limit(6)->get();
 
-        // Fallback : si strict (avec préfs + budget) ne retourne rien, relâcher les préfs
+        // Fallback 1 : relâcher les préférences si aucun résultat
         if ($products->isEmpty() && !empty($preferences)) {
             $fallback = Product::with(['images', 'category', 'brand'])
                 ->where('stock', '>', 0)
@@ -199,7 +258,7 @@ EOT;
             $products = $fallback->isNotEmpty() ? $fallback : $products;
         }
 
-        // Fallback final : budget uniquement
+        // Fallback 2 : budget uniquement si toujours vide
         if ($products->isEmpty()) {
             $products = Product::with(['images', 'category', 'brand'])
                 ->where('stock', '>', 0)
@@ -209,11 +268,20 @@ EOT;
                 ->get();
         }
 
-        // ── Étape 4 : Formater la réponse ─────────────────────────────────────
+        // Aucun produit trouvé même après tous les fallbacks
+        if ($products->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Aucun produit adapté à votre profil et budget pour le moment.',
+            ], 200);
+        }
+
+        // ═══════════════════════════════════════════════
+        // ÉTAPE 5 — Formatage de la réponse pour React
+        // ═══════════════════════════════════════════════
         $formattedProducts = $products->map(function ($p) {
             $mainImg = $p->images->firstWhere('is_main', true) ?? $p->images->first();
 
-            // Build image URL
             $imageUrl = null;
             if ($mainImg) {
                 $imageUrl = $mainImg->image_url
@@ -223,7 +291,7 @@ EOT;
             return [
                 'id'          => $p->id,
                 'nom'         => $p->name,
-                'description' => \Str::limit($p->description ?? '', 100),
+                'description' => Str::limit($p->description ?? '', 100),
                 'prix'        => $p->price,
                 'prix_promo'  => $p->price_sold,
                 'image'       => $imageUrl,
@@ -232,10 +300,16 @@ EOT;
             ];
         });
 
+        Log::info('[IaRecommandation] Routine générée', [
+            'type_peau' => $typePeau,
+            'count'     => $formattedProducts->count(),
+            'via_gemini'=> !empty($apiKey),
+        ]);
+
         return $this->successResponse([
             'success'         => true,
             'recommendations' => $formattedProducts,
-            'advice'          => $routineAdvice ?? "Votre routine personnalisée a été générée selon votre profil de peau.",
+            'advice'          => $routineAdvice ?? 'Votre routine personnalisée a été générée selon votre profil de peau.',
             'count'           => $formattedProducts->count(),
         ], 'Routine générée avec succès');
     }

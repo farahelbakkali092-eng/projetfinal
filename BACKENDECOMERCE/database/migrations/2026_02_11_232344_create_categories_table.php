@@ -9,16 +9,20 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+   public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->string('slug')->unique();
+            // 1. On enlève le ->unique() ici
+            $table->string('name'); 
+            $table->string('slug');
             $table->text('description')->nullable();
             $table->string('image')->nullable();
             $table->foreignId('section_id')->nullable()->constrained()->onDelete('set null');
             $table->timestamps();
+
+            // 2. On ajoute l'unicité composite à la fin
+            $table->unique(['name', 'section_id']);
         });
     }
 

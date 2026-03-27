@@ -76,12 +76,13 @@ export const AuthProvider = ({ children }) => {
     const forgotPassword = async (email) => {
         setLoading(true);
         try {
-
             await api.post('/forgot-password', { email });
             toast.success('Si cet email existe, un lien vous a été envoyé.');
-            return true;
+            return { success: true };
         } catch (error) {
-            return false;
+            const errors = error.response?.data?.errors;
+            const message = error.response?.data?.message || 'Erreur lors de l\'envoi du lien';
+            return { success: false, message, errors: errors || { general: [message] } };
         } finally {
             setLoading(false);
         }

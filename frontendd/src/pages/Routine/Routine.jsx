@@ -114,6 +114,9 @@ const Routine = () => {
       if (iaResponse.data.success) {
         setRecommendations(iaResponse.data.recommendations);
         toast.success(i18n.language === 'fr' ? "Votre routine est prête !" : "Your routine is ready!");
+      } else {
+        // Cas : l'IA a répondu mais sans produits adaptés (success: false, HTTP 200)
+        setIaError(iaResponse.data.message || (i18n.language === 'fr' ? "Aucun produit skincare adapté à votre profil pour le moment." : "No suitable skincare products found for your profile."));
       }
 
     } catch (error) {
