@@ -1,0 +1,199 @@
+File Tree: BACKENDECOMERCE
+Generated on: 3/4/2026, 2:52:43 AM
+Root path: c:\Users\douae\projetfinal\BACKENDECOMERCE
+
+────────────────────────────────────────────────────────────────────────────────
+
+├── 📁 app/
+│   ├── 📁 Http/
+│   │   ├── 📁 Controllers/
+│   │   │   ├── 📁 Api/
+│   │   │   │   └── 📁 v1/
+│   │   │   │       ├── 📁 Admin/
+│   │   │   │       │   ├── 🐘 BrandController.php
+│   │   │   │       │   ├── 🐘 CategoryController.php
+│   │   │   │       │   ├── 🐘 ContactMessageController.php
+│   │   │   │       │   ├── 🐘 DashboardController.php
+│   │   │   │       │   ├── 🐘 SectionController.php
+│   │   │   │       │   └── 🐘 UserController.php
+│   │   │   │       ├── 🐘 AuthController.php
+│   │   │   │       ├── 🐘 BrandController.php
+│   │   │   │       ├── 🐘 CategoryController.php
+│   │   │   │       ├── 🐘 ContactMessageController.php
+│   │   │   │       ├── 🐘 DiagnosticController.php
+│   │   │   │       ├── 🐘 OrderController.php
+│   │   │   │       ├── 🐘 PasswordResetController.php
+│   │   │   │       ├── 🐘 PaymentController.php
+│   │   │   │       ├── 🐘 ProductController.php
+│   │   │   │       └── 🐘 SettingController.php
+│   │   │   └── 🐘 Controller.php
+│   │   ├── 📁 Middleware/
+│   │   │   ├── 🐘 AdminMiddleware.php
+│   │   │   └── 🐘 SanitizeInputMiddleware.php
+│   │   └── 📁 Requests/
+│   │       ├── 📁 Admin/
+│   │       │   ├── 🐘 BrandRequest.php
+│   │       │   ├── 🐘 CategoryRequest.php
+│   │       │   ├── 🐘 SectionRequest.php
+│   │       │   ├── 🐘 UpdateUserRoleRequest.php
+│   │       │   └── 🐘 UpdateUserStatusRequest.php
+│   │       ├── 📁 Auth/
+│   │       │   ├── 🐘 LoginRequest.php
+│   │       │   ├── 🐘 RegisterRequest.php
+│   │       │   └── 🐘 UpdatePasswordRequest.php
+│   │       ├── 📁 Contact/
+│   │       │   └── 🐘 StoreContactMessageRequest.php
+│   │       ├── 📁 Orders/
+│   │       │   └── 🐘 OrderRequest.php
+│   │       ├── 📁 Products/
+│   │       │   └── 🐘 ProductRequest.php
+│   │       ├── 🐘 BaseApiRequest.php
+│   │       └── 🐘 StoreDiagnosticRequest.php
+│   ├── 📁 Models/
+│   │   ├── 🐘 Address.php
+│   │   ├── 🐘 Brand.php
+│   │   ├── 🐘 Cart.php
+│   │   ├── 🐘 CartItem.php
+│   │   ├── 🐘 Category.php
+│   │   ├── 🐘 ContactMessage.php
+│   │   ├── 🐘 Diagnostic.php
+│   │   ├── 🐘 Order.php
+│   │   ├── 🐘 OrderItem.php
+│   │   ├── 🐘 Payment.php
+│   │   ├── 🐘 Product.php
+│   │   ├── 🐘 ProductImage.php
+│   │   ├── 🐘 Role.php
+│   │   ├── 🐘 Section.php
+│   │   ├── 🐘 Setting.php
+│   │   └── 🐘 User.php
+│   ├── 📁 Notifications/
+│   │   └── 🐘 ResetPasswordNotification.php
+│   ├── 📁 Providers/
+│   │   └── 🐘 AppServiceProvider.php
+│   ├── 📁 Repositories/
+│   │   ├── 🐘 BaseRepository.php
+│   │   └── 🐘 ProductRepository.php
+│   ├── 📁 Services/
+│   │   ├── 🐘 OrderService.php
+│   │   ├── 🐘 PaymentService.php
+│   │   └── 🐘 StockService.php
+│   └── 📁 Traits/
+│       └── 🐘 ApiResponseTrait.php
+├── 📁 bootstrap/
+│   ├── 🐘 app.php
+│   └── 🐘 providers.php
+├── 📁 config/
+│   ├── 🐘 app.php
+│   ├── 🐘 auth.php
+│   ├── 🐘 cache.php
+│   ├── 🐘 cors.php
+│   ├── 🐘 database.php
+│   ├── 🐘 filesystems.php
+│   ├── 🐘 logging.php
+│   ├── 🐘 mail.php
+│   ├── 🐘 queue.php
+│   ├── 🐘 sanctum.php
+│   ├── 🐘 services.php
+│   └── 🐘 session.php
+├── 📁 database/
+│   ├── 📁 factories/
+│   │   └── 🐘 UserFactory.php
+│   ├── 📁 migrations/
+│   │   ├── 🐘 0001_01_01_000001_create_cache_table.php
+│   │   ├── 🐘 0001_01_01_000002_create_jobs_table.php
+│   │   ├── 🐘 2026_02_11_203838_create_roles_table.php
+│   │   ├── 🐘 2026_02_11_203839_create_users_table.php
+│   │   ├── 🐘 2026_02_11_232343_create_sections_table.php
+│   │   ├── 🐘 2026_02_11_232344_create_brands_table.php
+│   │   ├── 🐘 2026_02_11_232344_create_categories_table.php
+│   │   ├── 🐘 2026_02_11_232346_create_products_table.php
+│   │   ├── 🐘 2026_02_11_232347_create_orders_table.php
+│   │   ├── 🐘 2026_02_11_232347_create_product_images_table.php
+│   │   ├── 🐘 2026_02_11_232348_create_order_items_table.php
+│   │   ├── 🐘 2026_02_11_232348_create_payments_table.php
+│   │   ├── 🐘 2026_02_12_004141_create_personal_access_tokens_table.php
+│   │   ├── 🐘 2026_02_13_000001_create_contact_messages_table.php.php
+│   │   ├── 🐘 2026_02_13_155522_create_addresses_table.php.php
+│   │   ├── 🐘 2026_02_13_155524_create_diagnostics_table.php
+│   │   ├── 🐘 2026_02_13_155526_create_carts_table.php.php
+│   │   ├── 🐘 2026_02_13_155527_create_cart_items_table.php.php
+│   │   ├── 🐘 2026_02_24_120336_create_settings_table.php
+│   │   ├── 🐘 2026_02_28_013303_add_nom_to_diagnostics_table.php
+│   │   ├── 🐘 2026_02_28_021902_add_promo_fields_to_products_table.php
+│   │   └── 🐘 2026_03_01_160933_add_capacity_and_reference_to_products_table.php
+│   ├── 📁 seeders/
+│   │   ├── 🐘 BrandSeeder.php
+│   │   ├── 🐘 CategorySeeder.php
+│   │   ├── 🐘 DatabaseSeeder.php
+│   │   ├── 🐘 RoleSeeder.php
+│   │   ├── 🐘 SectionSeeder.php
+│   │   ├── 🐘 SettingSeeder.php
+│   │   └── 🐘 UserSeeder.php
+│   └── ⚙️ .gitignore
+├── 📁 public/
+│   ├── ⚙️ .htaccess
+│   ├── 📄 favicon.ico
+│   ├── 🐘 index.php
+│   └── 📄 robots.txt
+├── 📁 resources/
+│   ├── 📁 css/
+│   │   └── 🎨 app.css
+│   ├── 📁 js/
+│   │   ├── 📄 app.js
+│   │   └── 📄 bootstrap.js
+│   └── 📁 views/
+│       └── 🐘 welcome.blade.php
+├── 📁 routes/
+│   ├── 🐘 api.php
+│   ├── 🐘 console.php
+│   └── 🐘 web.php
+├── 📁 storage/
+│   ├── 📁 app/
+│   │   ├── 📁 private/
+│   │   │   └── ⚙️ .gitignore
+│   │   ├── 📁 public/
+│   │   │   └── ⚙️ .gitignore
+│   │   └── ⚙️ .gitignore
+│   ├── 📁 framework/
+│   │   ├── 📁 sessions/
+│   │   │   └── ⚙️ .gitignore
+│   │   ├── 📁 testing/
+│   │   │   └── ⚙️ .gitignore
+│   │   ├── 📁 views/
+│   │   │   ├── ⚙️ .gitignore
+│   │   │   ├── 🐘 05104f723d5dd823e3b2b5a3f9034401.php
+│   │   │   ├── 🐘 4324e095859069febc58a6ba6c400b5d.php
+│   │   │   ├── 🐘 5244e998640223f5bab9e0ac84a6b9ef.php
+│   │   │   ├── 🐘 aa67dc9579337e8ebabaadfb32fc64ae.php
+│   │   │   ├── 🐘 bd218f0db8aeb0e257574e0d58e304c7.php
+│   │   │   ├── 🐘 d39663ff0a3a82b1342a1548302ac622.php
+│   │   │   └── 🐘 e5fa2f4d61cf3b5d90d26be2f2a59eed.php
+│   │   └── ⚙️ .gitignore
+│   └── 📁 logs/
+│       └── ⚙️ .gitignore
+├── 📁 tests/
+│   ├── 📁 Feature/
+│   │   ├── 🐘 ExampleTest.php
+│   │   └── 🐘 SearchTest.php
+│   ├── 📁 Unit/
+│   │   └── 🐘 ExampleTest.php
+│   └── 🐘 TestCase.php
+├── ⚙️ .editorconfig
+├── ⚙️ .env.example
+├── ⚙️ .gitattributes
+├── ⚙️ .gitignore
+├── 📝 README.md
+├── 📄 artisan
+├── 🐘 check_admin.php
+├── ⚙️ composer.json
+├── 🐘 debug_admin.php
+├── 🐘 fix_admin_login.php
+├── 📄 match_result.txt
+├── 📄 output.txt
+├── ⚙️ package.json
+├── ⚙️ phpunit.xml
+├── 📄 test_output.txt
+└── 📄 vite.config.js
+
+────────────────────────────────────────────────────────────────────────────────
+Generated by FileTree Pro Extension

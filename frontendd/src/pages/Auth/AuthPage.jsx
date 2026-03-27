@@ -80,7 +80,8 @@ const AuthPage = ({ isOpen, onClose, initialView = 'signin' }) => {
       else if (res.errors) setErrors(res.errors);
     } else if (view === 'forgot') {
       res = await forgotPassword(formData.email);
-      if (res) setView('signin');
+      if (res.success) setView('signin');
+      else if (res.errors) setErrors(res.errors);
     }
   };
 
