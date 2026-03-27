@@ -3,6 +3,7 @@ import api from '../api/axios';
 export const adminApi = {
   // Dashboard
   getStats: () => api.get('/admin/dashboard/stats'),
+  getMetabaseDashboardUrl: () => api.get('/admin/dashboard/metabase'),
 
   // Products
   listProducts: (params) => api.get('/products', { params }),
