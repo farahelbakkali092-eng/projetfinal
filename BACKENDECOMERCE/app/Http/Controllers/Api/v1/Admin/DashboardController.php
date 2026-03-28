@@ -47,6 +47,8 @@ class DashboardController extends Controller
 
         return $this->successResponse([
             'iframe_url' => $iframeUrl,
-        ], 'Metabase embed URL generated successfully');
+            'token' => $token,
+            'site_url' => $siteUrl,
+        ], 'Metabase embed data generated successfully');
     }
 }

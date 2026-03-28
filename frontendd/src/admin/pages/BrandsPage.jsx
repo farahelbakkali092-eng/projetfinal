@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { adminApi } from '../api';
 import AdminModal from '../components/AdminModal';
 import AdminTableActions from '../components/AdminTableActions';
@@ -8,6 +9,7 @@ import FormError from '../../components/FormError';
 const emptyForm = { name: '', description: '' };
 
 const BrandsPage = () => {
+  const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,7 +19,7 @@ const BrandsPage = () => {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [errors, setErrors] = useState({});
-  const title = useMemo(() => (editing ? 'Modifier une marque' : 'Ajouter une marque'), [editing]);
+  const title = useMemo(() => (editing ? t('admin.edit_brand') : t('admin.add_brand')), [editing, t]);
 
   const load = async (page = 1) => {
     setLoading(true);
@@ -30,7 +32,7 @@ const BrandsPage = () => {
       }
     } catch (e) {
       console.error(e);
-      toast.error('Impossible de charger les marques');
+      toast.error(t('admin.loading_error') || 'Impossible de charger');
     } finally {
       setLoading(false);
     }
@@ -49,15 +51,15 @@ const BrandsPage = () => {
 
       const newErrors = {};
       if (name.length < 3 || name.length > 50) {
-        newErrors.name = ["Le nom doit contenir entre 3 et 50 caractères."];
+        newErrors.name = [t('admin.name_error')];
       } else if (/^[0-9]+$/.test(name)) {
-        newErrors.name = ["Le nom ne peut pas être composé uniquement de chiffres."];
+        newErrors.name = [t('admin.name_num_error')];
       }
 
       if (desc.length < 10 || desc.length > 300) {
-        newErrors.description = ["La description doit contenir entre 10 et 300 caractères."];
+        newErrors.description = [t('admin.desc_error')];
       } else if (/^[0-9]+$/.test(desc)) {
-        newErrors.description = ["La description ne peut pas être composée uniquement de chiffres."];
+        newErrors.description = [t('admin.desc_num_error')];
       }
 
       if (Object.keys(newErrors).length > 0) {
@@ -71,10 +73,10 @@ const BrandsPage = () => {
 
       if (editing) {
         await adminApi.updateBrand(editing.id, fd);
-        toast.success('Marque mise à jour');
+        toast.success(t('admin.updated_success'));
       } else {
         await adminApi.createBrand(fd);
-        toast.success('Marque créée');
+        toast.success(t('admin.created_success'));
       }
 
       setOpen(false);
@@ -99,14 +101,14 @@ const BrandsPage = () => {
   };
 
   const onDelete = async (item) => {
-    if (!confirm(`Supprimer la marque "${item.name}" ?`)) return;
+    if (!confirm(`${t('admin.delete')} "${item.name}" ?`)) return;
     try {
       await adminApi.deleteBrand(item.id);
-      toast.success('Marque supprimée');
+      toast.success(t('admin.deleted_success'));
       await load(meta?.current_page || 1);
     } catch (e) {
       console.error(e);
-      toast.error(e.response?.data?.message || 'Suppression impossible');
+      toast.error(e.response?.data?.message || t('admin.delete_error'));
     }
   };
 
@@ -114,12 +116,12 @@ const BrandsPage = () => {
     <div className="animate-fade-in">
       <div className="admin-page-header">
         <div>
-          <h1>Marques</h1>
+          <h1>{t('admin.brands')}</h1>
         </div>
         <div className="admin-actions">
           <input
             className="admin-input"
-            placeholder="Rechercher..."
+            placeholder={t('admin.search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ maxWidth: 260 }}
@@ -128,7 +130,7 @@ const BrandsPage = () => {
             className="admin-btn secondary"
             onClick={() => load(1)}
           >
-            Filtrer
+            {t('admin.filter')}
           </button>
           <button
             className="admin-btn"
@@ -139,13 +141,13 @@ const BrandsPage = () => {
               setOpen(true);
             }}
           >
-            Ajouter
+            {t('admin.add')}
           </button>
         </div>
       </div>
 
       {loading ? (
-        <div className="admin-muted">Chargement...</div>
+        <div className="admin-muted">{t('admin.loading')}</div>
       ) : (
         <table className="admin-table">
           <colgroup>
@@ -155,9 +157,9 @@ const BrandsPage = () => {
           </colgroup>
           <thead>
             <tr>
-              <th>Nom</th>
+              <th>{t('admin.name')}</th>
               <th>Slug</th>
-              <th>Actions</th>
+              <th>{t('admin.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -184,7 +186,7 @@ const BrandsPage = () => {
             disabled={meta.current_page <= 1}
             onClick={() => load(meta.current_page - 1)}
           >
-            Précédent
+            {t('admin.prev')}
           </button>
           <div className="admin-muted admin-pagination__label">
             Page {meta.current_page} / {meta.last_page}
@@ -194,7 +196,7 @@ const BrandsPage = () => {
             disabled={meta.current_page >= meta.last_page}
             onClick={() => load(meta.current_page + 1)}
           >
-            Suivant
+            {t('admin.next')}
           </button>
         </div>
       )}
@@ -205,15 +207,15 @@ const BrandsPage = () => {
         onClose={() => setOpen(false)}
         footer={(
           <>
-            <button className="admin-btn secondary" onClick={() => setOpen(false)}>Annuler</button>
-            <button className="admin-btn" onClick={onSubmit}>{editing ? 'Enregistrer' : 'Créer'}</button>
+            <button className="admin-btn secondary" onClick={() => setOpen(false)}>{t('admin.cancel')}</button>
+            <button className="admin-btn" onClick={onSubmit}>{editing ? t('admin.save') : t('admin.create')}</button>
           </>
         )}
       >
         <div className="admin-form-grid">
           <div style={{ gridColumn: '1 / -1' }}><FormError error={errors.general} /></div>
           <div>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>Nom</div>
+            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.name')}</div>
             <input className="admin-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             <FormError error={errors.name} />
           </div>

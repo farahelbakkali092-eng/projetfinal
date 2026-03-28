@@ -1,10 +1,13 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Bell, Search } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import AdminLanguageSwitcher from './components/AdminLanguageSwitcher';
 import './admin.css';
 
 const AdminHeader = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   return (
     <div style={{
@@ -32,10 +35,11 @@ const AdminHeader = () => {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <AdminLanguageSwitcher />
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '5px 15px', background: '#fff', borderRadius: 12, border: '1px solid var(--border-light)' }}>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary)' }}>{user?.name || 'Administrateur'}</div>
+                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary)' }}>{user?.name || t('admin.administrator')}</div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}></div>
               </div>
               <div style={{ width: 32, height: 32, borderRadius: 10, background: 'var(--primary)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
