@@ -146,7 +146,7 @@ const Checkout = () => {
             const order = orderRes?.data?.data;
 
             if (!order?.id) {
-                throw new Error('Commande creee mais identifiant introuvable');
+                throw new Error(t('checkout.errorCreate') || 'Commande creee mais identifiant introuvable');
             }
 
             if (paymentMethod === 'stripe') {
@@ -154,7 +154,7 @@ const Checkout = () => {
                 const checkoutUrl = payRes?.data?.data?.checkout_url;
 
                 if (!checkoutUrl) {
-                    throw new Error('URL Stripe Checkout introuvable');
+                    throw new Error(t('checkout.errorStripe') || 'URL Stripe Checkout introuvable');
                 }
 
                 clearCart();
@@ -164,7 +164,7 @@ const Checkout = () => {
 
             clearCart();
             setIsOrdered(true);
-            toast.success('Commande validee avec succes !');
+            toast.success(t('checkout.successToast') || 'Commande validee avec succes !');
         } catch (error) {
             console.error(error);
             const status = error.response?.status;
@@ -183,7 +183,7 @@ const Checkout = () => {
                     errData?.data?.message ||
                     errData?.message ||
                     error.message ||
-                    'Erreur lors de la création de la commande'
+                    (t('checkout.errorGeneric') || 'Erreur lors de la création de la commande')
                 );
             }
         } finally {
@@ -220,7 +220,7 @@ const Checkout = () => {
 
             <div className="checkout-layout">
                 <aside className="checkout-summary">
-                    <h3 className="summary-title">Recapitulatif</h3>
+                    <h3 className="summary-title">{t('checkout.summaryTitle') || 'Recapitulatif'}</h3>
                     <div className="summary-items">
                         {cartItems.map(item => (
                             <div key={item.id} className="summary-item">
@@ -244,7 +244,7 @@ const Checkout = () => {
                     </div>
                     <div className="summary-divider" />
                     <div className="summary-total-row">
-                        <span>Total</span>
+                        <span>{t('checkout.summaryTotal') || 'Total'}</span>
                         <span className="summary-total-price">{subtotal.toFixed(2)} MAD</span>
                     </div>
                 </aside>
@@ -327,7 +327,7 @@ const Checkout = () => {
                                 <div className="payment-icon"><Truck size={24} /></div>
                                 <div className="payment-text">
                                     <span className="payment-title">{t('checkout.cod')}</span>
-                                    <span className="payment-desc">Payez a la reception</span>
+                                    <span className="payment-desc">{t('checkout.codDesc') || 'Payez a la reception'}</span>
                                 </div>
                             </div>
                             <div
@@ -337,7 +337,7 @@ const Checkout = () => {
                                 <div className="payment-icon"><CreditCard size={24} /></div>
                                 <div className="payment-text">
                                     <span className="payment-title">Stripe</span>
-                                    <span className="payment-desc">Carte bancaire securisee</span>
+                                    <span className="payment-desc">{t('checkout.stripeDesc') || 'Carte bancaire securisee'}</span>
                                 </div>
                             </div>
                         </div>

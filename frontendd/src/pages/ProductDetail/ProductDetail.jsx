@@ -5,11 +5,13 @@ import api from '../../api/axios';
 import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import './ProductDetail.css';
 
 const ProductDetail = () => {
     const { id } = useParams();
     const { isAdmin } = useAuth();
+    const { t } = useTranslation();
     const { addToCart } = useCart();
     const { toggleFavorite, isFavorite } = useFavorites();
 
@@ -32,7 +34,7 @@ const ProductDetail = () => {
             } catch (err) {
                 if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED') {
                     console.error('Error fetching product:', err);
-                    setError("Oups ! Nous n'avons pas pu charger les détails du produit.");
+                    setError(t('product.loadError') || "Oups ! Nous n'avons pas pu charger les détails du produit.");
                 }
             } finally {
                 setIsLoading(false);
@@ -60,9 +62,9 @@ const ProductDetail = () => {
     if (error || !product) {
         return (
             <div className="product-detail-error container">
-                <h2>Erreur</h2>
-                <p>{error || "Produit introuvable."}</p>
-                <Link to="/" className="btn btn-gold">Retour à l'accueil</Link>
+                <h2>{t('product.error') || 'Erreur'}</h2>
+                <p>{error || (t('product.notFound') || "Produit introuvable.")}</p>
+                <Link to="/" className="btn btn-gold">{t('product.backHome') || "Retour à l'accueil"}</Link>
             </div>
         );
     }
@@ -84,7 +86,7 @@ const ProductDetail = () => {
         <div className="product-detail-page container">
             {/* Breadcrumbs */}
             <nav className="breadcrumbs">
-                <Link to="/">Accueil</Link>
+                <Link to="/">{t('product.home') || 'Accueil'}</Link>
                 <span className="separator">/</span>
                 {product.category && (
                     <>
@@ -117,7 +119,7 @@ const ProductDetail = () => {
                         )}
                         {isOutOfStock && (
                             <div className="image-badges">
-                                <span className="badge-stock">Sur commande</span>
+                                <span className="badge-stock">{t('product.onOrder') || 'Sur commande'}</span>
                             </div>
                         )}
                         <img src={images[selectedImage]} alt={product.name} />
@@ -144,9 +146,9 @@ const ProductDetail = () => {
 
                     <div className="stock-info">
                         {isOutOfStock ? (
-                            <span className="out-of-stock-text">Sur commande</span>
+                            <span className="out-of-stock-text">{t('product.onOrder') || 'Sur commande'}</span>
                         ) : (
-                            <span className="in-stock-text">En stock ({product.stock} disponibles)</span>
+                            <span className="in-stock-text">{t('product.inStock') || 'En stock'} ({product.stock} {t('product.available') || 'disponibles'})</span>
                         )}
                     </div>
 
@@ -164,7 +166,7 @@ const ProductDetail = () => {
                                 onClick={() => addToCart({ ...product, quantity })}
                             >
                                 <ShoppingBag size={20} />
-                                <span>Ajouter au panier</span>
+                                <span>{t('product.addToCart') || 'Ajouter au panier'}</span>
                             </button>
 
                             <button
@@ -179,15 +181,15 @@ const ProductDetail = () => {
                     <div className="product-features-list">
                         <div className="feature-item">
                             <Truck size={20} />
-                            <span>Livraison disponible</span>
+                            <span>{t('product.delivery') || 'Livraison disponible'}</span>
                         </div>
                         <div className="feature-item">
                             <RotateCcw size={20} />
-                            <span>Retours acceptés</span>
+                            <span>{t('product.returns') || 'Retours acceptés'}</span>
                         </div>
                         <div className="feature-item">
                             <ShieldCheck size={20} />
-                            <span>Produit authentique garanti</span>
+                            <span>{t('product.authentic') || 'Produit authentique garanti'}</span>
                         </div>
                     </div>
                 </div>

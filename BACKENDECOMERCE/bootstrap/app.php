@@ -23,7 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         // Enables stateful frontend requests for Sanctum (SPA auth)
-        $middleware->statefulApi();
+        // $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

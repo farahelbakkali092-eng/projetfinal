@@ -25,7 +25,7 @@ const OrdersPage = () => {
         const errs = e.response.data.errors;
         Object.values(errs).flat().forEach((msg) => toast.error(String(msg)));
       } else {
-        toast.error(e.response?.data?.message || 'Erreur lors de la mise à jour');
+        toast.error(e.response?.data?.message || t('admin.update_error'));
       }
     } finally {
       setLoading(false);

@@ -43,11 +43,11 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
 const DashboardPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-
-  const [stats,     setStats]     = useState(null);
-  const [iframeUrl, setIframeUrl] = useState('');
-  const [mbError,   setMbError]   = useState('');
-  const [loading,   setLoading]   = useState(true);
+  
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [embedData, setEmbedData] = useState(null);
+  const [mbError, setMbError] = useState('');
 
   useEffect(() => {
     const load = async () => {
@@ -60,12 +60,7 @@ const DashboardPage = () => {
       // 2️⃣ Load Metabase signed URL (primary goal)
       try {
         const res = await adminApi.getMetabaseDashboardUrl();
-        const url = res.data?.data?.iframe_url || '';
-        if (url) {
-          setIframeUrl(url);
-        } else {
-          setMbError('URL Metabase vide — vérifiez la configuration.');
-        }
+        setEmbedData(res.data?.data);
       } catch (e) {
         const msg = e.response?.data?.message || e.message || '';
         setMbError(
@@ -81,12 +76,31 @@ const DashboardPage = () => {
   }, []);
 
   const statCards = [
-    { icon: ShoppingBag, label: 'Commandes',   value: stats?.orders,     color: '#d4af37' },
-    { icon: Package,     label: 'Produits',     value: stats?.products,   color: '#60a5fa' },
-    { icon: Users,       label: 'Utilisateurs', value: stats?.users,      color: '#34d399' },
-    { icon: Tag,         label: 'Marques',      value: stats?.brands,     color: '#f472b6' },
-    { icon: Layers,      label: 'Catégories',   value: stats?.categories, color: '#a78bfa' },
+    { icon: ShoppingBag, label: t('admin.orders') || 'Commandes',   value: stats?.orders,     color: '#d4af37' },
+    { icon: Package,     label: t('admin.products') || 'Produits',     value: stats?.products,   color: '#60a5fa' },
+    { icon: Users,       label: t('admin.users') || 'Utilisateurs', value: stats?.users,      color: '#34d399' },
+    { icon: Tag,         label: t('admin.brands') || 'Marques',      value: stats?.brands,     color: '#f472b6' },
+    { icon: Layers,      label: t('admin.categories') || 'Catégories',   value: stats?.categories, color: '#a78bfa' },
   ];
+
+  useEffect(() => {
+    if (embedData?.site_url) {
+      window.metabaseConfig = {
+        theme: { preset: 'light' },
+        isGuest: true,
+        instanceUrl: embedData.site_url
+      };
+
+      const scriptId = 'metabase-embed-script';
+      if (!document.getElementById(scriptId)) {
+        const script = document.createElement('script');
+        script.id = scriptId;
+        script.src = `${embedData.site_url}/app/embed.js`;
+        script.defer = true;
+        document.body.appendChild(script);
+      }
+    }
+  }, [embedData]);
 
   return (
     <div className="animate-fade-in">
@@ -103,25 +117,18 @@ const DashboardPage = () => {
         boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)',
       }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <h1 style={{
-            fontFamily: 'Georgia,serif', fontSize: '2.2rem', fontWeight: '800',
-            margin: '0 0 10px', color: '#fff', letterSpacing: '-0.02em',
-          }}>
-            Bon retour,{' '}
-            <span style={{ color: '#d4af37' }}>{user?.first_name || 'Administrateur'}</span> 👋
+          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '2.4rem', fontWeight: '800', margin: '0 0 12px 0', color: '#ffffff', letterSpacing: '-0.02em' }}>
+            {t('admin.welcome_back')}, <span style={{ color: '#d4af37' }}>{user?.first_name || t('admin.administrator')}</span> 👋
           </h1>
-          <p style={{ margin: 0, color: '#a3a3a3', fontSize: '1.05rem', lineHeight: 1.6 }}>
-            Aperçu en temps réel de votre boutique — données live depuis Metabase &amp; Laravel.
+          <p style={{ margin: 0, color: '#a3a3a3', fontSize: '1.2rem', maxWidth: '600px', lineHeight: '1.6' }}>
+            {t('admin.welcome_desc')}
           </p>
         </div>
         <div style={{ position: 'absolute', right: '-5%', top: '-20%', width: '300px', height: '300px', background: 'radial-gradient(circle,rgba(212,175,55,0.2) 0%,rgba(0,0,0,0) 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '60px', color: '#888' }}>
-          <BarChart2 size={40} color="#d4af37" style={{ opacity: .5, display: 'block', margin: '0 auto 12px' }} />
-          <p>Chargement du dashboard…</p>
-        </div>
+        <div className="admin-muted">{t('admin.loading')}</div>
       ) : (
         <>
           {/* ── Cartes statistiques rapides ─────────────────────────── */}
@@ -136,20 +143,14 @@ const DashboardPage = () => {
             </div>
           )}
 
-          {/* ── Iframe Metabase (priorité) ───────────────────────────── */}
-          {iframeUrl ? (
-            <div className="admin-card" style={{
-              padding: 0,
-              overflow: 'hidden',
-              borderRadius: '16px',
-              border: '1px solid rgba(212,175,55,0.12)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-            }}>
-              <iframe
-                title="Metabase Dashboard"
-                src={iframeUrl}
-                style={{ width: '100%', height: '1100px', border: '0', display: 'block' }}
-                allowtransparency="true"
+          {/* ── Dashboard Metabase (priorité) ────────────────────────── */}
+          {embedData?.token ? (
+            <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
+              <metabase-dashboard
+                token={embedData.token}
+                with-title="true"
+                with-downloads="true"
+                style={{ display: 'block', width: '100%', height: '1100px' }}
               />
             </div>
           ) : (
@@ -168,9 +169,8 @@ const DashboardPage = () => {
                 <p style={{ margin: 0, fontWeight: 700, fontSize: '1rem' }}>Dashboard Metabase indisponible</p>
                 <p style={{ margin: '6px 0 0', fontSize: '0.88rem', color: '#f87171' }}>{mbError}</p>
                 <p style={{ margin: '10px 0 0', fontSize: '0.82rem', color: '#666' }}>
-                  Assurez-vous que Metabase tourne sur <code>http://localhost:3000</code>,
-                  que l'embedding est activé (<em>Settings → Embedding</em>) et que
-                  <code> METABASE_DASHBOARD_ID=2</code> correspond à un dashboard existant.
+                  Assurez-vous que Metabase tourne sur <code>{embedData?.site_url || 'votre instance'}</code>,
+                  que l'embedding est activé et que le dashboard est public.
                 </p>
               </div>
             </div>

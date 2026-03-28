@@ -31,7 +31,7 @@ const AccountInfoPage = () => {
     return score;
   };
 
-  const strengthLabels = ['', 'Faible', 'Moyen', 'Fort', 'Très fort'];
+  const strengthLabels = ['', t('auth.weak') || 'Faible', t('auth.medium') || 'Moyen', t('auth.strong') || 'Fort', t('auth.veryStrong') || 'Très fort'];
   const strengthColors = ['', '#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
   const strength = getPasswordStrength(form.password);
 
@@ -48,7 +48,7 @@ const AccountInfoPage = () => {
     setSaving(true);
     try {
       await api.patch('/me/password', form);
-      toast.success('Mot de passe mis à jour', {
+      toast.success(t('auth.pass_success') || 'Mot de passe mis à jour', {
         style: { background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0' },
         iconTheme: { primary: '#16a34a', secondary: '#fff' },
       });
@@ -82,9 +82,9 @@ const AccountInfoPage = () => {
   );
 
   const fields = [
-    { key: 'current_password', label: 'Mot de passe actuel', showKey: 'current' },
-    { key: 'password', label: 'Nouveau mot de passe', showKey: 'new' },
-    { key: 'password_confirmation', label: 'Confirmer', showKey: 'confirm' },
+    { key: 'current_password', label: t('auth.currentPass') || 'Mot de passe actuel', showKey: 'current' },
+    { key: 'password', label: t('auth.newPass') || 'Nouveau mot de passe', showKey: 'new' },
+    { key: 'password_confirmation', label: t('auth.confirmPass') || 'Confirmer', showKey: 'confirm' },
   ];
 
   const infoRows = [
@@ -337,12 +337,12 @@ const AccountInfoPage = () => {
         <div className="account-page-header">
           <div>
             <h1 className="ai-page-title">
-              {isAdmin ? t('admin.changePass') : 'Informations personnelles'}
+              {isAdmin ? t('admin.changePass') : (t('account.personalInfo') || 'Informations personnelles')}
             </h1>
             <div className="ai-page-sub">
               {isAdmin
-                ? 'Mettez à jour votre mot de passe administrateur'
-                : 'Consultez vos informations et modifiez votre mot de passe'}
+                ? (t('admin.changePassDesc') || 'Mettez à jour votre mot de passe administrateur')
+                : (t('account.personalInfoDesc') || 'Consultez vos informations et modifiez votre mot de passe')}
             </div>
           </div>
         </div>
@@ -354,8 +354,8 @@ const AccountInfoPage = () => {
         {!isAdmin && (
           <div className="ai-card">
             <div className="ai-card-head">
-              <p className="ai-card-head-title">Profil</p>
-              <p className="ai-card-head-sub">Vos informations de compte</p>
+              <p className="ai-card-head-title">{t('account.profile') || 'Profil'}</p>
+              <p className="ai-card-head-sub">{t('account.accountInfo') || 'Vos informations de compte'}</p>
             </div>
             <div className="ai-card-body">
               <table className="ai-info-table">
@@ -376,7 +376,7 @@ const AccountInfoPage = () => {
         <div className="ai-card">
           <div className="ai-card-head">
             <p className="ai-card-head-title">{t('admin.changePass')}</p>
-            <p className="ai-card-head-sub">Choisissez un mot de passe d'au moins 8 caractères</p>
+            <p className="ai-card-head-sub">{t('account.passRequirement') || "Choisissez un mot de passe d'au moins 8 caractères"}</p>
           </div>
           <div className="ai-card-body">
             <form onSubmit={onChangePassword}>
@@ -420,8 +420,8 @@ const AccountInfoPage = () => {
                   {key === 'password_confirmation' && form.password_confirmation && (
                     <div className="ai-match">
                       {form.password === form.password_confirmation
-                        ? <span style={{ color: '#10b981' }}>✓ Les mots de passe correspondent</span>
-                        : <span style={{ color: '#ef4444' }}>✗ Ne correspondent pas</span>
+                        ? <span style={{ color: '#10b981' }}>✓ {t('auth.passMatch') || 'Les mots de passe correspondent'}</span>
+                        : <span style={{ color: '#ef4444' }}>✗ {t('auth.passNoMatch') || 'Ne correspondent pas'}</span>
                       }
                     </div>
                   )}
@@ -432,7 +432,7 @@ const AccountInfoPage = () => {
 
               <button className="ai-submit-btn" type="submit" disabled={saving}>
                 {saving
-                  ? <><div className="ai-spinner" /> Enregistrement...</>
+                  ? <><div className="ai-spinner" /> {t('account.saving') || 'Enregistrement...'}</>
                   : t('admin.save') || 'Enregistrer'
                 }
               </button>
