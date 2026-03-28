@@ -42,7 +42,10 @@ class OrderService
                 $loadedProducts[$product->id] = $product; // <-- On le garde en mémoire
             }
 
-            // 2. Create Order
+            // 2. Prepare aggregated shipping address string
+            $shipping_address = $data['fullName'] . " | " . $data['phone'] . " | " . $data['address'] . ", " . $data['city'] . " " . $data['postalCode'];
+
+            // 3. Create Order
             $order = Order::create([
                 'order_number' => 'ORD-' . strtoupper(Str::random(10)),
                 'user_id' => $user->id,
@@ -50,10 +53,10 @@ class OrderService
                 'status' => 'pending',
                 'payment_method' => $data['payment_method'],
                 'payment_status' => 'pending',
-                'shipping_address' => json_encode($data['shipping_address']) // Attention, souvent un tableau depuis le frontend, il faut le transformer en texte/json
+                'shipping_address' => $shipping_address
             ]);
 
-            // 3. Create Order Items & Decrement Stock
+            // 4. Create Order Items & Decrement Stock
             foreach ($items as $item) {
                 $product = $loadedProducts[$item['product_id']]; // <-- On récupère le produit sans refaire de requête SQL !
                 

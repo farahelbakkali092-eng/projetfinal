@@ -67,8 +67,8 @@ const CategoriesPage = () => {
         newErrors.name = ["Le nom ne peut pas être composé uniquement de chiffres."];
       }
 
-      if (desc.length < 10 || desc.length > 300) {
-        newErrors.description = ["La description doit contenir entre 10 et 300 caractères."];
+      if (desc.length < 10 || desc.length > 500) {
+        newErrors.description = ["La description doit contenir entre 10 et 500 caractères."];
       } else if (/^[0-9]+$/.test(desc)) {
         newErrors.description = ["La description ne peut pas être composée uniquement de chiffres."];
       }

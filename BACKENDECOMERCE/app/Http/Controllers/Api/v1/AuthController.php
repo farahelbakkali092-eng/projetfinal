@@ -78,23 +78,33 @@ class AuthController extends Controller
             'email.exists' => 'Aucun compte ne correspond à cette adresse email.'
         ]);
 
-        // 2. On demande à Laravel de générer et d'envoyer le lien de réinitialisation
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        try {
+            // 2. On demande à Laravel de générer et d'envoyer le lien de réinitialisation
+            $status = Password::sendResetLink(
+                $request->only('email')
+            );
 
-        // 3. On retourne la réponse au frontend React
-        if ($status === Password::RESET_LINK_SENT) {
+            // 3. On retourne la réponse au frontend React
+            if ($status === Password::RESET_LINK_SENT) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Un lien de réinitialisation vous a été envoyé par email.'
+                ]);
+            }
+
             return response()->json([
-                'status' => 'success',
-                'message' => 'Un lien de réinitialisation vous a été envoyé par email.'
-            ]);
+                'status' => 'error',
+                'message' => 'Impossible d\'envoyer le lien. Veuillez réessayer.'
+            ], 400);
+        } catch (\Exception $e) {
+            // Enregistrez l'erreur dans les logs pour le débogage (vrai problème SMTP)
+            \Log::error('Erreur SMTP Password Reset: ' . $e->getMessage());
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Erreur de connexion au serveur d\'email. Veuillez réessayer plus tard.'
+            ], 500);
         }
-
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Impossible d\'envoyer le lien. Veuillez réessayer.'
-        ], 400);
     }
 
     /**
