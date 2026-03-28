@@ -69,7 +69,7 @@ const CategoriesPage = () => {
         newErrors.name = [t('admin.name_num_error')];
       }
 
-      if (desc.length < 10 || desc.length > 300) {
+      if (desc.length < 10 || desc.length > 500) {
         newErrors.description = [t('admin.desc_error')];
       } else if (/^[0-9]+$/.test(desc)) {
         newErrors.description = [t('admin.desc_num_error')];

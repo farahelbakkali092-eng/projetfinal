@@ -41,15 +41,16 @@ const ProductsPage = () => {
   const [existingImages, setExistingImages] = useState([]);
 
   const downloadTemplate = () => {
-    const headers = ['name', 'description', 'price', 'price_sold', 'discount', 'stock', 'category', 'brand', 'section'];
-    const example = ['Product Name', 'Short description', '100.00', '80.00', '20', '50', 'Makeup', 'L\'Oreal', 'FEMME'];
+    const headers = ['name', 'description', 'price', 'price_sold', 'discount', 'stock', 'category', 'brand', 'section', 'capacity', 'reference', 'image_url'];
+    const example = ['Crème hydratante', 'Hydrate la peau en profondeur', '199.00', '159.00', '20', '50', 'Soin Visage', "L'Oreal", 'FEMME', '', 'CRH-001', 'https://example.com/image.jpg'];
     const csvContent = [headers.join(','), example.join(',')].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
     link.setAttribute('download', 'products_template.csv');
     link.click();
+    URL.revokeObjectURL(url);
   };
 
   const title = useMemo(() => (editing ? `${t('admin.edit')} ${t('admin.products').toLowerCase()}` : `${t('admin.create')} ${t('admin.products').toLowerCase()}`), [editing, t]);
@@ -357,7 +358,7 @@ const ProductsPage = () => {
 
           <label
             className="admin-btn secondary admin-btn--icon"
-            title="Importer un fichier CSV"
+            title="Importer un fichier CSV. Colonnes: name, description, price, stock, category, brand, section, price_sold, discount, capacity, reference, image_url (optionnel)"
           >
             <Upload size={15} />
             Importer CSV
@@ -415,15 +416,18 @@ const ProductsPage = () => {
           <tbody>
             {items.map((p) => {
               const mainImg = (p.images || []).find((im) => im.is_main) || (p.images || [])[0];
-              const url = mainImg?.image_url;
+              // Use thumbnail_url (400x400 WebP) for list performance — NOT image_url (800x800)
+              const thumbSrc = mainImg?.thumbnail_url || mainImg?.image_url;
               return (
                 <tr key={p.id}>
                   <td>
-                    {url ? (
+                    {thumbSrc ? (
                       <img
-                        src={url}
+                        src={thumbSrc}
                         alt={p.name}
                         className="admin-product-thumb"
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <span className="admin-muted">-</span>

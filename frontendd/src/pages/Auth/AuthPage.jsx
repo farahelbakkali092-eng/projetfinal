@@ -61,6 +61,61 @@ const AuthPage = ({ isOpen, onClose, initialView = 'signin' }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Regex communes réutilisable
+  const PHONE_SUFFIX = /^0?[67]\d{8}$/; // suffixe après +212
+  const LETTERS_ONLY = /^[\p{L}\-']+$/u;
+
+  // Validation complète du formulaire d'inscription
+  const validateSignup = () => {
+    const errs = {};
+    const fn = formData.first_name.trim();
+    const ln = formData.last_name.trim();
+    const ph = formData.phone.trim();
+
+    // Prénom
+    if (!fn) {
+      errs.first_name = ['Le prénom est obligatoire.'];
+    } else if (!LETTERS_ONLY.test(fn)) {
+      errs.first_name = ['Le prénom ne doit contenir que des lettres.'];
+    } else if (fn.length < 2) {
+      errs.first_name = ['Le prénom doit contenir au moins 2 caractères.'];
+    } else if (fn.length > 20) {
+      errs.first_name = ['Le prénom ne peut pas dépasser 20 caractères.'];
+    }
+
+    // Nom
+    if (!ln) {
+      errs.last_name = ['Le nom est obligatoire.'];
+    } else if (!LETTERS_ONLY.test(ln)) {
+      errs.last_name = ['Le nom ne doit contenir que des lettres.'];
+    } else if (ln.length < 2) {
+      errs.last_name = ['Le nom doit contenir au moins 2 caractères.'];
+    } else if (ln.length > 20) {
+      errs.last_name = ['Le nom ne peut pas dépasser 20 caractères.'];
+    }
+
+    // Email
+    if (!formData.email.trim()) {
+      errs.email = ["L'adresse email est obligatoire."];
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      errs.email = ['Veuillez entrer une adresse email valide.'];
+    }
+
+    // Téléphone — vérification du suffixe uniquement (+212 est préfixé automatiquement)
+    if (!ph) {
+      errs.phone = ['Le numéro est obligatoire. Ex: 0612345678 ou 612345678'];
+    } else if (!PHONE_SUFFIX.test(ph)) {
+      errs.phone = ['Format invalide. Ex: 0612345678 ou 612345678 (après +212)'];
+    }
+
+    // Mot de passe
+    if (formData.password !== formData.password_confirmation) {
+      errs.password_confirmation = ['Les mots de passe ne correspondent pas.'];
+    }
+
+    return errs;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -71,11 +126,14 @@ const AuthPage = ({ isOpen, onClose, initialView = 'signin' }) => {
       if (res.success) handleClose();
       else if (res.errors) setErrors(res.errors);
     } else if (view === 'signup') {
-      if (formData.password !== formData.password_confirmation) {
-        setErrors({ password_confirmation: ["Les mots de passe ne correspondent pas"] });
+      // Validate frontend first — avoid useless API calls
+      const frontendErrors = validateSignup();
+      if (Object.keys(frontendErrors).length > 0) {
+        setErrors(frontendErrors);
         return;
       }
-      res = await register(formData);
+      // Assemble full phone: +212 + suffix before sending to backend
+      res = await register({ ...formData, phone: '+212' + formData.phone.trim() });
       if (res.success) handleClose();
       else if (res.errors) setErrors(res.errors);
     } else if (view === 'forgot') {
@@ -124,7 +182,17 @@ const AuthPage = ({ isOpen, onClose, initialView = 'signin' }) => {
 
           {view === 'signup' && (
             <div className="form-group">
-              <input type="tel" name="phone" placeholder="Téléphone (optionnel)" value={formData.phone} onChange={handleChange} />
+              <div className="phone-prefix-wrapper">
+                <span className="phone-prefix">+212</span>
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="0612345678"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  maxLength={10}
+                />
+              </div>
               <FormError error={errors.phone} />
             </div>
           )}

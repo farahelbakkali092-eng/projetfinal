@@ -108,11 +108,15 @@ const Routine = () => {
       // 1. Sauvegarder le diagnostic en BDD
       await api.post('/diagnostic', formData);
 
-      // 2. Interroger l'IA pour obtenir la routine
+      // 2. Interroger le microservice IA via Laravel
       const iaResponse = await api.post('/routine/recommend', formData);
 
-      if (iaResponse.data.success) {
-        setRecommendations(iaResponse.data.recommendations);
+      // La réponse Laravel est enveloppée : { status, data: { success, recommendations, message, count } }
+      const payload = iaResponse.data?.data ?? iaResponse.data;
+      const recs    = payload?.recommendations ?? [];
+
+      if (recs.length > 0) {
+        setRecommendations(recs);
         toast.success(t('routine.readyToast') || "Votre routine est prête !");
       } else {
         // Cas : l'IA a répondu mais sans produits adaptés (success: false, HTTP 200)
@@ -121,11 +125,23 @@ const Routine = () => {
 
     } catch (error) {
       console.error(error);
-      if (error.response && error.response.status === 422) {
-        // Gestion des erreurs Laravel (Validation Backend)
-        setErrors(error.response.data.errors);
+      const status = error.response?.status;
+      if (status === 422) {
+        // Erreurs de validation Laravel
+        setErrors(error.response.data.errors ?? {});
+      } else if (status === 503) {
+        setIaError(
+          i18n.language === 'fr'
+            ? "Le service IA est temporairement indisponible. Veuillez réessayer."
+            : "The AI service is temporarily unavailable. Please try again."
+        );
       } else {
-        setIaError(error.response?.data?.message || (t('routine.aiErrorGeneric') || "Une erreur est survenue lors de l'appel à l'IA."));
+        setIaError(
+          error.response?.data?.data?.message ||
+          error.response?.data?.message ||
+          error.message ||
+          (t('routine.aiErrorGeneric') || "Une erreur est survenue lors de l'appel à l'IA.")
+        );
       }
     } finally {
       setLoading(false);
