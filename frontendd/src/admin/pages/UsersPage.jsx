@@ -29,7 +29,7 @@ const UsersPage = () => {
       setRoles(rolesRes?.data?.data || []);
     } catch (e) {
       console.error(e);
-      toast.error(t('admin.loading_error') || 'Impossible de charger les utilisateurs');
+      toast.error(t('admin.loading_error') || 'Impossible de charger');
     } finally {
       setLoading(false);
     }
@@ -51,7 +51,7 @@ const UsersPage = () => {
         const errs = e.response.data.errors;
         Object.values(errs).flat().forEach((msg) => toast.error(String(msg)));
       } else {
-        toast.error(e.response?.data?.message || 'Erreur changement rôle');
+        toast.error(e.response?.data?.message || t('admin.save_error'));
       }
     }
   };
@@ -67,7 +67,7 @@ const UsersPage = () => {
         const errs = e.response.data.errors;
         Object.values(errs).flat().forEach((msg) => toast.error(String(msg)));
       } else {
-        toast.error(e.response?.data?.message || 'Erreur changement statut');
+        toast.error(e.response?.data?.message || t('admin.save_error'));
       }
     }
   };

@@ -74,19 +74,19 @@ const Routine = () => {
     const newErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!formData.nom.trim()) newErrors.nom = i18n.language === 'fr' ? "Le nom est requis." : "Last name is required.";
-    if (!formData.prenom.trim()) newErrors.prenom = i18n.language === 'fr' ? "Le prénom est requis." : "First name is required.";
-    if (!formData.age) newErrors.age = i18n.language === 'fr' ? "L'âge est requis." : "Age is required.";
-    else if (formData.age < 12 || formData.age > 120) newErrors.age = i18n.language === 'fr' ? "Âge invalide." : "Invalid age.";
+    if (!formData.nom.trim()) newErrors.nom = t('errors.lastNameRequired') || "Le nom est requis.";
+    if (!formData.prenom.trim()) newErrors.prenom = t('errors.firstNameRequired') || "Le prénom est requis.";
+    if (!formData.age) newErrors.age = t('errors.ageRequired') || "L'âge est requis.";
+    else if (formData.age < 12 || formData.age > 120) newErrors.age = t('errors.ageInvalid') || "Âge invalide.";
 
-    if (!formData.email.trim()) newErrors.email = i18n.language === 'fr' ? "L'email est requis." : "Email is required.";
-    else if (!emailRegex.test(formData.email)) newErrors.email = i18n.language === 'fr' ? "Format invalide." : "Invalid format.";
+    if (!formData.email.trim()) newErrors.email = t('errors.emailRequired') || "L'email est requis.";
+    else if (!emailRegex.test(formData.email)) newErrors.email = t('errors.emailInvalid') || "Format invalide.";
 
-    if (!formData.type_peau) newErrors.type_peau = i18n.language === 'fr' ? "Sélectionnez un type de peau." : "Select a skin type.";
-    if (formData.problematiques.length === 0) newErrors.problematiques = i18n.language === 'fr' ? "Choisissez au moins une option." : "Choose at least one option.";
-    if (formData.preferences.length === 0) newErrors.preferences = i18n.language === 'fr' ? "Choisissez au moins une option." : "Choose at least one option.";
-    if (!formData.budget.toString().trim()) newErrors.budget = i18n.language === 'fr' ? "Le budget est requis." : "Budget is required.";
-    else if (isNaN(Number(formData.budget)) || Number(formData.budget) <= 0) newErrors.budget = i18n.language === 'fr' ? "Entrez un budget valide (ex: 200)." : "Enter a valid budget (e.g. 200).";
+    if (!formData.type_peau) newErrors.type_peau = t('errors.skinTypeRequired') || "Sélectionnez un type de peau.";
+    if (formData.problematiques.length === 0) newErrors.problematiques = t('errors.optionsRequired') || "Choisissez au moins une option.";
+    if (formData.preferences.length === 0) newErrors.preferences = t('errors.optionsRequired') || "Choisissez au moins une option.";
+    if (!formData.budget.toString().trim()) newErrors.budget = t('errors.budgetRequired') || "Le budget est requis.";
+    else if (isNaN(Number(formData.budget)) || Number(formData.budget) <= 0) newErrors.budget = t('errors.budgetInvalid') || "Entrez un budget valide (ex: 200).";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -113,10 +113,10 @@ const Routine = () => {
 
       if (iaResponse.data.success) {
         setRecommendations(iaResponse.data.recommendations);
-        toast.success(i18n.language === 'fr' ? "Votre routine est prête !" : "Your routine is ready!");
+        toast.success(t('routine.readyToast') || "Votre routine est prête !");
       } else {
         // Cas : l'IA a répondu mais sans produits adaptés (success: false, HTTP 200)
-        setIaError(iaResponse.data.message || (i18n.language === 'fr' ? "Aucun produit skincare adapté à votre profil pour le moment." : "No suitable skincare products found for your profile."));
+        setIaError(iaResponse.data.message || (t('routine.noProductsError') || "Aucun produit skincare adapté à votre profil pour le moment."));
       }
 
     } catch (error) {
@@ -125,7 +125,7 @@ const Routine = () => {
         // Gestion des erreurs Laravel (Validation Backend)
         setErrors(error.response.data.errors);
       } else {
-        setIaError(error.response?.data?.message || (i18n.language === 'fr' ? "Une erreur est survenue lors de l'appel à l'IA." : "An ai error occurred."));
+        setIaError(error.response?.data?.message || (t('routine.aiErrorGeneric') || "Une erreur est survenue lors de l'appel à l'IA."));
       }
     } finally {
       setLoading(false);
@@ -141,10 +141,19 @@ const Routine = () => {
     { key: 'oily', label: t('routine.oily') }
   ];
   const concernsList = [
-    'Acné & Imperfections', 'Rides & Âge', 'Taches Pigmentaires', 'Déshydratation', 'Rougeurs', 'Pores Dilatés'
+    t('routine.concern1') || 'Acné & Imperfections', 
+    t('routine.concern2') || 'Rides & Âge', 
+    t('routine.concern3') || 'Taches Pigmentaires', 
+    t('routine.concern4') || 'Déshydratation', 
+    t('routine.concern5') || 'Rougeurs', 
+    t('routine.concern6') || 'Pores Dilatés'
   ];
   const preferencesList = [
-    'Bio / Naturel', 'Vegan', 'Made in France', 'Sans Parfum', 'Minimaliste'
+    t('routine.pref1') || 'Bio / Naturel', 
+    t('routine.pref2') || 'Vegan', 
+    t('routine.pref3') || 'Made in France', 
+    t('routine.pref4') || 'Sans Parfum', 
+    t('routine.pref5') || 'Minimaliste'
   ];
 
   return (
@@ -273,7 +282,7 @@ const Routine = () => {
         {loading && (
           <div className="reco-loading">
             <div className="loader-spinner"></div>
-            <p>{i18n.language === 'fr' ? "Notre IA génère votre routine sur-mesure..." : "Our AI is analyzing your profile..."}</p>
+            <p>{t('routine.generating') || "Notre IA génère votre routine sur-mesure..."}</p>
           </div>
         )}
 
@@ -286,14 +295,14 @@ const Routine = () => {
         {recommendations.length > 0 && !loading && (
           <section className="recommendations-section">
             <div className="reco-header">
-              <h3>{i18n.language === 'fr' ? "Votre Routine Personnalisée" : "Your Custom Routine"}</h3>
-              <p>{i18n.language === 'fr' ? "Sélectionnée par notre intelligence artificielle" : "Selected by our artificial intelligence"}</p>
+              <h3>{t('routine.customRoutineTitle') || "Votre Routine Personnalisée"}</h3>
+              <p>{t('routine.customRoutineSubtitle') || "Sélectionnée par notre intelligence artificielle"}</p>
             </div>
 
             <div className="reco-grid">
               {recommendations.map((product, index) => (
                 <div key={product.id} className="reco-card" style={{ animationDelay: `${index * 0.15}s` }}>
-                  <div className="reco-badge">{i18n.language === 'fr' ? `Étape ${index + 1}` : `Step ${index + 1}`}</div>
+                  <div className="reco-badge">{t('routine.step') || "Étape"} {index + 1}</div>
                   <div className="reco-image-wrapper">
                     <img src={product.image} alt={product.nom} className="reco-image" />
                   </div>
@@ -312,7 +321,7 @@ const Routine = () => {
                           quantity: 1
                         })}
                       >
-                        {i18n.language === 'fr' ? "Ajouter" : "Add"}
+                        {t('routine.addButton') || "Ajouter"}
                       </button>
                     </div>
                   </div>

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { adminApi } from '../api';
 import AdminModal from '../components/AdminModal';
 import AdminTableActions from '../components/AdminTableActions';
@@ -8,6 +9,7 @@ import FormError from '../../components/FormError';
 const emptyForm = { name: '', description: '', image: null, section_id: '' };
 
 const CategoriesPage = () => {
+  const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,7 +20,7 @@ const CategoriesPage = () => {
   const [form, setForm] = useState(emptyForm);
   const [errors, setErrors] = useState({});
   const [sections, setSections] = useState([]);
-  const title = useMemo(() => (editing ? 'Modifier une catégorie' : 'Ajouter une catégorie'), [editing]);
+  const title = useMemo(() => (editing ? t('admin.edit_category') : t('admin.add_category')), [editing, t]);
 
   const load = async (page = 1) => {
     setLoading(true);
@@ -42,7 +44,7 @@ const CategoriesPage = () => {
         const errs = e.response.data.errors;
         Object.values(errs).flat().forEach((msg) => toast.error(String(msg)));
       } else {
-        toast.error(e.response?.data?.message || 'Impossible de charger les catégories');
+        toast.error(e.response?.data?.message || t('admin.loading_error') || 'Impossible de charger');
       }
     } finally {
       setLoading(false);
@@ -62,15 +64,15 @@ const CategoriesPage = () => {
 
       const newErrors = {};
       if (name.length < 3 || name.length > 50) {
-        newErrors.name = ["Le nom doit contenir entre 3 et 50 caractères."];
+        newErrors.name = [t('admin.name_error')];
       } else if (/^[0-9]+$/.test(name)) {
-        newErrors.name = ["Le nom ne peut pas être composé uniquement de chiffres."];
+        newErrors.name = [t('admin.name_num_error')];
       }
 
       if (desc.length < 10 || desc.length > 300) {
-        newErrors.description = ["La description doit contenir entre 10 et 300 caractères."];
+        newErrors.description = [t('admin.desc_error')];
       } else if (/^[0-9]+$/.test(desc)) {
-        newErrors.description = ["La description ne peut pas être composée uniquement de chiffres."];
+        newErrors.description = [t('admin.desc_num_error')];
       }
 
       if (Object.keys(newErrors).length > 0) {
@@ -90,10 +92,10 @@ const CategoriesPage = () => {
 
       if (editing) {
         await adminApi.updateCategory(editing.id, fd);
-        toast.success('Catégorie mise à jour');
+        toast.success(t('admin.updated_success'));
       } else {
         await adminApi.createCategory(fd);
-        toast.success('Catégorie créée');
+        toast.success(t('admin.created_success'));
       }
 
       setOpen(false);
@@ -105,7 +107,7 @@ const CategoriesPage = () => {
       if (e.response?.data?.errors) {
         setErrors(e.response.data.errors);
       } else {
-        setErrors({ general: [e.response?.data?.message || 'Erreur lors de l\'enregistrement'] });
+        setErrors({ general: [e.response?.data?.message || t('admin.save_error') || 'Erreur'] });
       }
     }
   };
@@ -123,14 +125,14 @@ const CategoriesPage = () => {
   };
 
   const onDelete = async (item) => {
-    if (!confirm(`Supprimer la catégorie "${item.name}" ?`)) return;
+    if (!confirm(`${t('admin.delete')} "${item.name}" ?`)) return;
     try {
       await adminApi.deleteCategory(item.id);
-      toast.success('Catégorie supprimée');
+      toast.success(t('admin.deleted_success'));
       await load(meta?.current_page || 1);
     } catch (e) {
       console.error(e);
-      toast.error(e.response?.data?.message || 'Suppression impossible');
+      toast.error(e.response?.data?.message || t('admin.delete_error'));
     }
   };
 
@@ -138,12 +140,12 @@ const CategoriesPage = () => {
     <div className="animate-fade-in">
       <div className="admin-page-header">
         <div>
-          <h1>Catégories</h1>
+          <h1>{t('admin.categories')}</h1>
         </div>
         <div className="admin-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <input
             className="admin-input"
-            placeholder="Rechercher..."
+            placeholder={t('admin.search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ maxWidth: 260 }}
@@ -152,7 +154,7 @@ const CategoriesPage = () => {
             className="admin-btn secondary"
             onClick={() => load(1)}
           >
-            Filtrer
+            {t('admin.filter')}
           </button>
           <button
             className="admin-btn"
@@ -163,13 +165,13 @@ const CategoriesPage = () => {
               setOpen(true);
             }}
           >
-            Ajouter
+            {t('admin.add')}
           </button>
         </div>
       </div>
 
       {loading ? (
-        <div className="admin-muted">Chargement...</div>
+        <div className="admin-muted">{t('admin.loading')}</div>
       ) : (
         <table className="admin-table">
           <colgroup>
@@ -181,11 +183,11 @@ const CategoriesPage = () => {
           </colgroup>
           <thead>
             <tr>
-              <th>Image</th>
-              <th>Nom</th>
-              <th>Section</th>
+              <th>{t('admin.image')}</th>
+              <th>{t('admin.name')}</th>
+              <th>{t('admin.section')}</th>
               <th>Slug</th>
-              <th>Actions</th>
+              <th>{t('admin.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -207,7 +209,7 @@ const CategoriesPage = () => {
                   {c.section ? (
                     <span className="admin-badge secondary">{c.section.name}</span>
                   ) : (
-                    <span className="admin-muted">Aucune</span>
+                    <span className="admin-muted">{t('admin.none')}</span>
                   )}
                 </td>
                 <td><span className="admin-badge">{c.slug}</span></td>
@@ -230,7 +232,7 @@ const CategoriesPage = () => {
             disabled={meta.current_page <= 1}
             onClick={() => load(meta.current_page - 1)}
           >
-            Précédent
+            {t('admin.prev')}
           </button>
           <div className="admin-muted admin-pagination__label">
             Page {meta.current_page} / {meta.last_page}
@@ -240,7 +242,7 @@ const CategoriesPage = () => {
             disabled={meta.current_page >= meta.last_page}
             onClick={() => load(meta.current_page + 1)}
           >
-            Suivant
+            {t('admin.next')}
           </button>
         </div>
       )}
@@ -251,15 +253,15 @@ const CategoriesPage = () => {
         onClose={() => setOpen(false)}
         footer={(
           <>
-            <button className="admin-btn secondary" onClick={() => setOpen(false)}>Annuler</button>
-            <button className="admin-btn" onClick={onSubmit}>{editing ? 'Enregistrer' : 'Créer'}</button>
+            <button className="admin-btn secondary" onClick={() => setOpen(false)}>{t('admin.cancel')}</button>
+            <button className="admin-btn" onClick={onSubmit}>{editing ? t('admin.save') : t('admin.create')}</button>
           </>
         )}
       >
         <div className="admin-form-grid">
           <div style={{ gridColumn: '1 / -1' }}><FormError error={errors.general} /></div>
           <div>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>Nom</div>
+            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.name')}</div>
             <input className="admin-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             <FormError error={errors.name} />
           </div>
@@ -269,13 +271,13 @@ const CategoriesPage = () => {
             <FormError error={errors.description} />
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>Section parente</div>
+            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.parent_section')}</div>
             <select
               className="admin-input"
               value={form.section_id}
               onChange={(e) => setForm({ ...form, section_id: e.target.value })}
             >
-              <option value="">Sélectionner une session...</option>
+              <option value="">{t('admin.select_section')}</option>
               {sections.map(s => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
@@ -283,7 +285,7 @@ const CategoriesPage = () => {
             <FormError error={errors.section_id} />
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
-            <div className="admin-muted" style={{ marginBottom: 6 }}>Image</div>
+            <div className="admin-muted" style={{ marginBottom: 6 }}>{t('admin.image')}</div>
             <input
               className="admin-input"
               type="file"
@@ -293,7 +295,7 @@ const CategoriesPage = () => {
             <FormError error={errors.image} />
             {editing?.image_url && !form.image && (
               <div className="admin-muted" style={{ marginTop: 8 }}>
-                Image actuelle:
+                {t('admin.current_image')}:
                 <div style={{ marginTop: 6 }}>
                   <img
                     src={editing.image_url}

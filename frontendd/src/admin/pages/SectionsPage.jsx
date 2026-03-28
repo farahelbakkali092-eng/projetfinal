@@ -65,11 +65,11 @@ const SectionsPage = () => {
         if (!confirm(`${t('admin.delete')} "${s.name}" ?`)) return;
         try {
             await adminApi.deleteSection(s.id);
-            successToast('Supprimé avec succès');
+            successToast(t('admin.deleted_success'));
             load();
         } catch (e) {
             console.error(e);
-            errorToast(e.response?.data?.message || 'Erreur lors de la suppression');
+            errorToast(e.response?.data?.message || t('admin.delete_error'));
         }
     };
 
@@ -80,17 +80,17 @@ const SectionsPage = () => {
             const newErrors = {};
 
             if (!name) {
-                newErrors.name = ["Veuillez sélectionner une section."];
+                newErrors.name = [t('admin.select_section')];
             } else {
                 const exists = items.some(s => s.name.toUpperCase() === name.toUpperCase() && s.id !== editing?.id);
                 if (exists) {
-                    newErrors.name = ["Cette section existe déjà."];
+                    newErrors.name = [t('admin.already_exists')];
                 }
             }
 
             const orderValue = form.order;
             if (orderValue === '' || orderValue === null || isNaN(orderValue) || Number(orderValue) < 0) {
-                newErrors.order = ["Ordre d'affichage invalide. Il doit être un nombre positif, supérieur ou égal à 0."];
+                newErrors.order = [t('admin.order_error')];
             }
 
             if (Object.keys(newErrors).length > 0) {
@@ -100,10 +100,10 @@ const SectionsPage = () => {
 
             if (editing) {
                 await adminApi.updateSection(editing.id, form);
-                successToast('Modifié avec succès');
+                successToast(t('admin.updated_success'));
             } else {
                 await adminApi.createSection(form);
-                successToast('Ajouté avec succès');
+                successToast(t('admin.created_success'));
             }
 
             setOpen(false);
@@ -115,8 +115,8 @@ const SectionsPage = () => {
             if (e.response?.data?.errors) {
                 setErrors(e.response.data.errors);
             } else {
-                errorToast(e.response?.data?.message || 'Erreur lors de l\'enregistrement');
-                setErrors({ general: [e.response?.data?.message || 'Erreur'] });
+                errorToast(e.response?.data?.message || t('admin.save_error'));
+                setErrors({ general: [e.response?.data?.message || t('admin.save_error')] });
             }
         }
     };

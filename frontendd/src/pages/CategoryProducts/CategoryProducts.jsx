@@ -5,11 +5,13 @@ import ProductCard from '../../components/ProductCard/ProductCard';
 import api from '../../api/axios';
 import { useCart } from '../../context/CartContext';
 import { useAppData } from '../../context/AppDataContext';
+import { useTranslation } from 'react-i18next';
 import './CategoryProducts.css';
 
 const CategoryProducts = () => {
     const { id } = useParams();
     const { addToCart } = useCart();
+    const { t } = useTranslation();
     // Use categories already loaded by AppDataContext — no extra API call needed
     const { categories } = useAppData();
     const [products, setProducts] = useState([]);
@@ -25,7 +27,7 @@ const CategoryProducts = () => {
         );
 
         if (!currentCat) {
-            setError('Catégorie introuvable.');
+            setError(t('category.notFound') || 'Catégorie introuvable.');
             setIsLoading(false);
             return;
         }
@@ -46,7 +48,7 @@ const CategoryProducts = () => {
             } catch (err) {
                 if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED') {
                     console.error('Error fetching products:', err);
-                    setError('Impossible de charger les produits de cette catégorie.');
+                    setError(t('category.loadError') || 'Impossible de charger les produits de cette catégorie.');
                 }
             } finally {
                 setIsLoading(false);
@@ -61,7 +63,7 @@ const CategoryProducts = () => {
         return (
             <div className="cat-state-wrapper">
                 <Loader2 className="cat-spinner" size={48} />
-                <p className="cat-state-text">Chargement de la collection...</p>
+                <p className="cat-state-text">{t('category.loading') || 'Chargement de la collection...'}</p>
             </div>
         );
     }
@@ -71,10 +73,10 @@ const CategoryProducts = () => {
             <div className="cat-state-wrapper">
                 <div className="cat-error-card">
                     <ShoppingBag className="cat-error-icon" />
-                    <h2 className="cat-error-title">Oups !</h2>
-                    <p className="cat-error-msg">{error || "Catégorie introuvable."}</p>
+                    <h2 className="cat-error-title">{t('category.oops') || 'Oups !'}</h2>
+                    <p className="cat-error-msg">{error || (t('category.notFound') || "Catégorie introuvable.")}</p>
                     <Link to="/" className="cat-back-btn">
-                        <ArrowLeft size={15} /> Retour à l'accueil
+                        <ArrowLeft size={15} /> {t('category.backHome') || "Retour à l'accueil"}
                     </Link>
                 </div>
             </div>
@@ -88,7 +90,7 @@ const CategoryProducts = () => {
             <div className="category-header">
                 <div className="category-header-inner">
                     <Link to="/" className="back-link">
-                        <ArrowLeft size={16} /> Toutes les catégories
+                        <ArrowLeft size={16} /> {t('category.allCategories') || 'Toutes les catégories'}
                     </Link>
                     <div className="category-title-section">
                         <h1>{category.name}</h1>
@@ -104,7 +106,7 @@ const CategoryProducts = () => {
             <div className="category-products-section">
                 <div className="category-products-header">
                     <span className="product-count">
-                        Collection — {products.length} {products.length > 1 ? 'Articles' : 'Article'}
+                        {t('category.collection') || 'Collection'} — {products.length} {products.length > 1 ? (t('category.articles') || 'Articles') : (t('category.article') || 'Article')}
                     </span>
                 </div>
 
@@ -117,12 +119,12 @@ const CategoryProducts = () => {
                 ) : (
                     <div className="cat-empty">
                         <ShoppingBag className="cat-empty-icon" />
-                        <p className="cat-empty-title">Collection vide</p>
+                        <p className="cat-empty-title">{t('category.emptyTitle') || 'Collection vide'}</p>
                         <p className="cat-empty-text">
-                            Aucun produit n'est disponible dans cette catégorie pour le moment.
+                            {t('category.emptyText') || "Aucun produit n'est disponible dans cette catégorie pour le moment."}
                         </p>
                         <Link to="/" className="cat-back-btn">
-                            <ArrowLeft size={15} /> Retour à l'accueil
+                            <ArrowLeft size={15} /> {t('category.backHome') || "Retour à l'accueil"}
                         </Link>
                     </div>
                 )}

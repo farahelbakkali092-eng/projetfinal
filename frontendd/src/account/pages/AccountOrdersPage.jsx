@@ -38,7 +38,7 @@ const StatusBadge = ({ value }) => {
 };
 
 const AccountOrdersPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -195,7 +195,7 @@ const AccountOrdersPage = () => {
         <div>
           <h1>{t('admin.orders')}</h1>
           <div className="account-muted">
-            {'Historique de vos commandes passées'}
+            {t('account.orderHistory') || 'Historique de vos commandes passées'}
           </div>
         </div>
       </div>
@@ -234,7 +234,7 @@ const AccountOrdersPage = () => {
                   <td><StatusBadge value={o.payment_status} /></td>
                   <td>
                     <span className="order-date">
-                      {new Date(o.created_at).toLocaleDateString('fr-FR', {
+                      {new Date(o.created_at).toLocaleDateString(i18n.language === 'en' ? 'en-US' : 'fr-FR', {
                         day: '2-digit', month: 'short', year: 'numeric'
                       })}
                     </span>
