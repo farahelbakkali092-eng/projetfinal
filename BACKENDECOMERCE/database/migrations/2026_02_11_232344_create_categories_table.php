@@ -14,11 +14,7 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             // 1. On enlève le ->unique() ici
-<<<<<<< HEAD
-            $table->string('name'); 
-=======
             $table->string('name');
->>>>>>> 436bb6a (chore: update category validation rules and frontend sync)
             $table->string('slug');
             $table->text('description')->nullable();
             $table->string('image')->nullable();

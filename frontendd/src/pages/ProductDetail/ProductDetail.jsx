@@ -144,13 +144,23 @@ const ProductDetail = () => {
                         )}
                     </div>
 
-                    <div className="stock-info">
-                        {isOutOfStock ? (
-                            <span className="out-of-stock-text">{t('product.onOrder') || 'Sur commande'}</span>
-                        ) : (
-                            <span className="in-stock-text">{t('product.inStock') || 'En stock'} ({product.stock} {t('product.available') || 'disponibles'})</span>
-                        )}
-                    </div>
+                   <div className="stock-info">
+    {isOutOfStock ? (
+        <span className="out-of-stock-text">
+            {t('product.onOrder') || 'Sur commande'}
+        </span>
+    ) : product.stock <= 10 ? (
+        /* S'il reste 10 articles ou moins, on affiche la quantité pour créer l'urgence */
+        <span className="in-stock-text low-stock">
+            {t('product.lowStock') || 'Plus que'} {product.stock} {t('product.available') || 'disponibles !'}
+        </span>
+    ) : (
+        /* Si le stock est > 10, on affiche simplement "En stock" sans le chiffre */
+        <span className="in-stock-text">
+            {t('product.inStock') || 'En stock'}
+        </span>
+    )}
+</div>
 
                     {!isAdmin && (
                         <div className="purchase-controls">
