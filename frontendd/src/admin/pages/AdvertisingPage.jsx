@@ -4,6 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'react-hot-toast';
 import api from '../../api/axios';
 
+const toastSuccessStyle = {
+    style: { background: '#10b981', color: '#fff', textAlign: 'center' },
+    iconTheme: { primary: '#fff', secondary: '#10b981' }
+};
+
 const AdvertisingPage = () => {
     const { t } = useTranslation();
     const [advertisingText, setAdvertisingText] = useState("");
@@ -37,7 +42,7 @@ const AdvertisingPage = () => {
         setSaving(true);
         try {
             await api.patch('/admin/settings', { advertising_text: advertisingText });
-            toast.success("Publicité mise à jour avec succès !");
+            toast.success("Publicité mise à jour avec succès !", toastSuccessStyle);
         } catch (error) {
             console.error("Error updating settings:", error);
             toast.error(error.response?.data?.message || "Erreur lors de la mise à jour.");

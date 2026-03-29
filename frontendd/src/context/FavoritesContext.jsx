@@ -20,12 +20,9 @@ export const FavoritesProvider = ({ children }) => {
 
     const toggleFavorite = (product) => {
         const isFav = favorites.some(item => item.id === product.id);
-        // Toast called outside the updater to avoid setState-during-render warning
         if (isFav) {
-            toast.success(`${product.name} retiré des favoris`);
             setFavorites(prev => prev.filter(item => item.id !== product.id));
         } else {
-            toast.success(`${product.name} ajouté aux favoris`);
             setFavorites(prev => [...prev, product]);
         }
     };

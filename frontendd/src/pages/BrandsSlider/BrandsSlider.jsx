@@ -46,7 +46,7 @@ const BrandsSlider = () => {
     }
 
     .bs-marquee-track {
-      animation: marquee 32s linear infinite;
+      animation: marquee 60s linear infinite;
       will-change: transform;
     }
     .bs-marquee-track.paused {
