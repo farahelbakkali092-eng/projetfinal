@@ -391,3 +391,41 @@
   color: #b07865;
   text-decoration: underline;
 }
+
+/* ── Phone prefix wrapper (+212 fixe) ── */
+.phone-prefix-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #e5cfc9;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  transition: border-color 0.2s;
+}
+
+.phone-prefix-wrapper:focus-within {
+  border-color: #c9a49a;
+}
+
+.phone-prefix {
+  padding: 0 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #8c5a4e;
+  background: #fdf4f2;
+  border-right: 1.5px solid #e5cfc9;
+  white-space: nowrap;
+  user-select: none;
+  line-height: 42px;
+}
+
+.phone-prefix-wrapper input {
+  flex: 1;
+  border: none !important;
+  outline: none !important;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  background: transparent;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}

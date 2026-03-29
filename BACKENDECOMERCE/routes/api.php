@@ -91,6 +91,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:api']], function () {
 
             // Dashboard stats
             Route::get('/admin/dashboard/stats', [AdminDashboardController::class, 'stats']);
+            Route::get('/admin/dashboard/metabase', [AdminDashboardController::class, 'metabaseDashboardUrl']);
 
             // Brands
             Route::get('/admin/brands', [AdminBrandController::class, 'index']);

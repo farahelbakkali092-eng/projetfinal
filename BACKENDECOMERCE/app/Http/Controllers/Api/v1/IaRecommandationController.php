@@ -9,8 +9,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+<<<<<<< HEAD
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+=======
+>>>>>>> 436bb6a (chore: update category validation rules and frontend sync)
 
 /**
  * IaRecommandationController
@@ -28,6 +31,7 @@ class IaRecommandationController extends Controller
     use ApiResponseTrait;
 
     /**
+<<<<<<< HEAD
      * Mapping type de peau → mots-clés produits
      */
     private const SKIN_TYPE_KEYWORDS = [
@@ -77,9 +81,16 @@ class IaRecommandationController extends Controller
      *
      * @param  Request  $request
      * @return JsonResponse
+=======
+     * Proxy la requête vers le microservice Flask IA.
+     *
+     * POST /api/v1/routine/recommend
+     * → POST {FLASK_IA_URL}/api/routine
+>>>>>>> 436bb6a (chore: update category validation rules and frontend sync)
      */
     public function generateRoutine(Request $request): JsonResponse
     {
+<<<<<<< HEAD
         // ═══════════════════════════════════════════════
         // ÉTAPE 1 — Validation stricte des données entrantes
         // ═══════════════════════════════════════════════
@@ -127,43 +138,42 @@ class IaRecommandationController extends Controller
         if ($apiKey) {
             $problemList = implode(', ', $problematiques);
             $prefList    = implode(', ', $preferences);
+=======
+        // 1. Validation des champs du formulaire
+        $validated = $request->validate([
+            'type_peau'      => 'required|string|max:50',
+            'problematiques' => 'required|array|min:1',
+            'preferences'    => 'nullable|array',
+            'budget'         => 'required|numeric|min:1',
+            'nom'            => 'nullable|string|max:100',
+            'prenom'         => 'nullable|string|max:100',
+            'age'            => 'nullable|integer|min:10|max:120',
+        ]);
 
-            $prompt = <<<EOT
-Tu es une experte dermatologue et conseillère en cosmétiques. Une cliente remplit un formulaire de diagnostic.
+        // 2. Lecture de l'URL du microservice Flask depuis .env
+        $flaskUrl = rtrim(env('FLASK_IA_URL', 'http://127.0.0.1:5001'), '/');
+        $endpoint = $flaskUrl . '/api/routine';
 
-Données du profil :
-- Type de peau : {$typePeau}
-- Problématiques : {$problemList}
-- Préférences : {$prefList}
-- Budget : {$budget} dhs
+        // 3. Envoi de la requête HTTP POST vers Flask
+        try {
+            $response = Http::timeout(15)
+                ->acceptJson()
+                ->post($endpoint, $validated);
 
-Génère une réponse JSON stricte (sans markdown, sans texte autour) avec ce format :
-{
-  "search_terms": ["terme1", "terme2", "terme3", "terme4", "terme5", "terme6"],
-  "routine_steps": ["Étape matin : ...", "Étape soir : ..."],
-  "advice": "Conseil personnalisé court (2 phrases max)"
-}
+            // 4. Vérification de la réponse Flask
+            if ($response->failed()) {
+                Log::warning('Flask IA microservice returned an error', [
+                    'status'   => $response->status(),
+                    'body'     => $response->body(),
+                    'endpoint' => $endpoint,
+                ]);
+>>>>>>> 436bb6a (chore: update category validation rules and frontend sync)
 
-Règles :
-- search_terms : 5-8 mots-clés cosmétiques en français correspondant aux PRODUITS adaptés (types : sérum, crème, nettoyant, masque, exfoliant... + bénéfices : hydratant, purifiant, anti-âge...)
-- Ne pas répéter les symptômes, seulement les solutions produits
-- routine_steps : 2-3 étapes concrètes pour la routine
-- advice : conseil empathique et professionnel
-EOT;
-
-            try {
-                $response = Http::timeout(12)->post(
-                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}",
-                    [
-                        'contents' => [[
-                            'parts' => [['text' => $prompt]],
-                        ]],
-                        'generationConfig' => [
-                            'temperature'     => 0.4,
-                            'maxOutputTokens' => 400,
-                        ],
-                    ]
+                return $this->errorResponse(
+                    'Le microservice IA a retourné une erreur (HTTP ' . $response->status() . ').',
+                    $response->status() >= 500 ? 503 : 422
                 );
+<<<<<<< HEAD
 
                 if ($response->successful()) {
                     $rawText = $response->json('candidates.0.content.parts.0.text', '');
@@ -312,5 +322,51 @@ EOT;
             'advice'          => $routineAdvice ?? 'Votre routine personnalisée a été générée selon votre profil de peau.',
             'count'           => $formattedProducts->count(),
         ], 'Routine générée avec succès');
+=======
+            }
+
+            // 5. Récupération et retransmission de la réponse JSON Flask
+            $data = $response->json();
+
+            // Vérification que Flask a retourné success: true
+            if (empty($data['success'])) {
+                return $this->errorResponse(
+                    $data['message'] ?? "Le microservice IA n'a pas pu générer de recommandations.",
+                    422
+                );
+            }
+
+            // 6. Retour au frontend dans le format attendu
+            return $this->successResponse([
+                'success'         => true,
+                'recommendations' => $data['recommendations'] ?? [],
+                'message'         => $data['message'] ?? 'Recommandations générées.',
+                'count'           => $data['count'] ?? count($data['recommendations'] ?? []),
+            ]);
+
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            // 7. Flask inaccessible (service éteint, mauvais port…)
+            Log::error('Flask IA microservice unreachable', [
+                'endpoint' => $endpoint,
+                'error'    => $e->getMessage(),
+            ]);
+
+            return $this->errorResponse(
+                'Le microservice IA est inaccessible. Assurez-vous que Flask tourne sur ' . $flaskUrl . '.',
+                503
+            );
+
+        } catch (\Throwable $e) {
+            Log::error('Unexpected error calling Flask IA', [
+                'endpoint' => $endpoint,
+                'error'    => $e->getMessage(),
+            ]);
+
+            return $this->errorResponse(
+                'Erreur inattendue lors de la communication avec le microservice IA.',
+                500
+            );
+        }
+>>>>>>> 436bb6a (chore: update category validation rules and frontend sync)
     }
 }

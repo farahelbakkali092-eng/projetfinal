@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+return new class extends Migration 
 {
     /**
      * Run the migrations.
@@ -14,7 +14,11 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             // 1. On enlève le ->unique() ici
+<<<<<<< HEAD
             $table->string('name'); 
+=======
+            $table->string('name');
+>>>>>>> 436bb6a (chore: update category validation rules and frontend sync)
             $table->string('slug');
             $table->text('description')->nullable();
             $table->string('image')->nullable();

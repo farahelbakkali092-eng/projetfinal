@@ -93,7 +93,7 @@ const Home = () => {
               </div>
               <div>
                 <p className="routine-float-num">4.9</p>
-                <p className="routine-float-lbl">Note moyenne</p>
+                <p className="routine-float-lbl">{t('home.averageRating')}</p>
               </div>
             </div>
 
@@ -108,18 +108,18 @@ const Home = () => {
               </div>
               <div>
                 <p className="routine-float-num">2 500+</p>
-                <p className="routine-float-lbl">Clientes satisfaites</p>
+                <p className="routine-float-lbl">{t('home.happyClients')}</p>
               </div>
             </div>
           </div>
 
           {/* Colonne contenu */}
           <div className="routine-content">
-            <p className="routine-eyebrow">{ 'Diagnostic personnalisé'}</p>
+            <p className="routine-eyebrow">{t('home.customDiagnostic')}</p>
 
             <h2 className="routine-title">
-              {}{' '}
-              <em>{'sur-mesure'}</em>
+              {t('home.routineTitle')} <br/>
+              <em>{t('home.tailorMade')}</em>
             </h2>
 
             <p className="routine-desc">{t('home.routineDesc')}</p>
@@ -128,15 +128,15 @@ const Home = () => {
             <div className="routine-counters">
               <div className="routine-counter">
                 <span className="routine-counter-num" data-target="2500" data-suffix="+">0+</span>
-                <span className="routine-counter-lbl">Routines créées</span>
+                <span className="routine-counter-lbl">{t('home.routinesCreated')}</span>
               </div>
               <div className="routine-counter">
                 <span className="routine-counter-num" data-target="98" data-suffix="%">0%</span>
-                <span className="routine-counter-lbl">Satisfaction</span>
+                <span className="routine-counter-lbl">{t('home.satisfaction')}</span>
               </div>
               <div className="routine-counter">
                 <span className="routine-counter-num" data-target="12" data-suffix="">0</span>
-                <span className="routine-counter-lbl">Experts beauté</span>
+                <span className="routine-counter-lbl">{t('home.beautyExperts')}</span>
               </div>
             </div>
 
@@ -145,18 +145,18 @@ const Home = () => {
               {[
                 {
                   n: '1',
-                  title: 'Remplissez le diagnostic',
-                  desc:'Type de peau, préoccupations — 2 minutes suffisent.',
+                  title: t('home.step1Title'),
+                  desc: t('home.step1Desc'),
                 },
                 {
                   n: '2',
-                  title:'Nos experts analysent votre profil',
-                  desc:'Une sélection de produits pensée rien que pour vous.',
+                  title: t('home.step2Title'),
+                  desc: t('home.step2Desc'),
                 },
                 {
                   n: '3',
-                  title:'Recevez votre routine personnalisée',
-                  desc:'Des résultats visibles, des gestes simples.',
+                  title: t('home.step3Title'),
+                  desc: t('home.step3Desc'),
                 },
               ].map((step) => (
                 <div key={step.n} className="routine-step">
@@ -176,7 +176,7 @@ const Home = () => {
               </Link>
               <span className="routine-trust">
                 <span className="routine-trust-dot" />
-                Gratuit &amp; sans engagement
+                {t('home.freeNoCommitment')}
               </span>
             </div>
           </div>
@@ -242,7 +242,7 @@ const Home = () => {
 
             {categories.filter(cat => cat.section_id === selectedSection).length === 0 && (
               <div className="text-center py-10 admin-muted">
-                Aucune catégorie dans cette session pour le moment.
+                {t('home.noCategory')}
               </div>
             )}
           </div>

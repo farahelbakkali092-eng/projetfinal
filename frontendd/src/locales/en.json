@@ -1,4 +1,15 @@
 {
+    "promotions": {
+        "loading": "Loading promotions...",
+        "backHome": "Back to Home",
+        "title": "Exclusive Promotions",
+        "subtitle": "Enjoy our best current offers on a selection of exceptional products.",
+        "offers_count_one": "{{count}} offer available",
+        "offers_count_other": "{{count}} offers available",
+        "empty_title": "No active promotions",
+        "empty_text": "Check back soon to discover our upcoming exclusive offers.",
+        "explore": "Explore the shop"
+    },
     "nav": {
         "home": "New Arrivals",
         "offers": "Offers",
@@ -25,7 +36,22 @@
         "routineDesc": "Would you like a personalized routine for your skin? Fill out this form and let our experts guide you.",
         "routineLink": "Fill out the form",
         "exclusiveOffers": "Our exclusive offers await you",
-        "seeOffers": "See the sale"
+        "seeOffers": "See the sale",
+        "averageRating": "Average rating",
+        "happyClients": "Happy clients",
+        "customDiagnostic": "Personalized Diagnostic",
+        "tailorMade": "tailor-made",
+        "routinesCreated": "Routines created",
+        "satisfaction": "Satisfaction",
+        "beautyExperts": "Beauty experts",
+        "step1Title": "Fill out the diagnostic",
+        "step1Desc": "Skin type, concerns — takes just 2 minutes.",
+        "step2Title": "Our experts analyze your profile",
+        "step2Desc": "A product selection designed just for you.",
+        "step3Title": "Receive your personalized routine",
+        "step3Desc": "Visible results, simple steps.",
+        "freeNoCommitment": "Free & no commitment",
+        "noCategory": "No categories available in this section yet."
     },
     "product": {
         "addToCart": "Add to Cart",
@@ -38,7 +64,13 @@
         "returns": "Returns accepted",
         "authentic": "Authentic product guaranteed",
         "addToBag": "Add to Bag",
-        "noProducts": "No products available at the moment."
+        "noProducts": "No products available at the moment.",
+        "loadError": "Oops! We couldn't load the product details.",
+        "error": "Error",
+        "notFound": "Product not found.",
+        "backHome": "Back to Home",
+        "home": "Home",
+        "delivery": "Delivery available"
     },
     "cart": {
         "title": "Your Cart",
@@ -46,7 +78,8 @@
         "subtotal": "Subtotal",
         "shippingNote": "Shipping costs calculated at checkout",
         "checkout": "Checkout",
-        "continue": "Continue shopping"
+        "continue": "Continue shopping",
+        "loginRequired": "Please log in to checkout"
     },
     "checkout": {
         "title": "Complete Your Order",
@@ -67,7 +100,15 @@
         "emptyCart": "Your cart is empty",
         "backToShop": "Back to shop",
         "thankYou": "Thank you for your order!",
-        "successMsg": "Your order has been successfully processed and will be shipped soon."
+        "successMsg": "Your order has been successfully processed and will be shipped soon.",
+        "errorCreate": "Order created but identifier missing",
+        "errorStripe": "Stripe Checkout URL missing",
+        "successToast": "Order successfully placed!",
+        "errorGeneric": "Error creating the order",
+        "summaryTitle": "Summary",
+        "summaryTotal": "Total",
+        "codDesc": "Pay upon delivery",
+        "stripeDesc": "Secure card payment"
     },
     "favorites": {
         "title": "My Favorites",
@@ -98,7 +139,26 @@
         "submit": "Get My Routine",
         "loading": "Analyzing...",
         "successTitle": "Your request has been sent!",
-        "successMsg": "Our experts will analyze your profile and contact you with a personalized routine."
+        "successMsg": "Our experts will analyze your profile and contact you with a personalized routine.",
+        "generating": "Our AI is generating your custom routine...",
+        "customRoutineTitle": "Your Custom Routine",
+        "customRoutineSubtitle": "Selected by our artificial intelligence",
+        "step": "Step",
+        "addButton": "Add",
+        "readyToast": "Your routine is ready!",
+        "noProductsError": "No suitable skincare products found for your profile.",
+        "aiErrorGeneric": "An AI error occurred.",
+        "concern1": "Acne & Blemishes",
+        "concern2": "Wrinkles & Aging",
+        "concern3": "Pigmentation Spots",
+        "concern4": "Dehydration",
+        "concern5": "Redness",
+        "concern6": "Dilated Pores",
+        "pref1": "Organic / Natural",
+        "pref2": "Vegan",
+        "pref3": "Made in France",
+        "pref4": "Fragrance-Free",
+        "pref5": "Minimalist"
     },
     "search": {
         "title": "Results for",
@@ -106,13 +166,35 @@
         "noResults": "No product matches your search",
         "hint": "Try searching by name, brand, or category.",
         "whatLooking": "What are you looking for?",
-        "enterKeyword": "Enter a keyword in the search bar to find products."
+        "enterKeyword": "Enter a keyword in the search bar to find products.",
+        "errorGeneric": "An error occurred while searching.",
+        "backHome": "Back to Home",
+        "articlesFound": "items found",
+        "articleFound": "item found",
+        "loading": "Searching...",
+        "errorTitle": "An error occurred",
+        "noResultsTitle": "No results",
+        "noProducts": "No product matches",
+        "exploreShop": "Explore shop"
     },
     "auth": {
         "login": "Login",
         "register": "Sign Up",
         "logout": "Logout",
-        "account": "My Account"
+        "account": "My Account",
+        "fill_all": "Please fill all fields",
+        "pass_mismatch": "Passwords do not match",
+        "pass_success": "Password updated",
+        "pass_error": "Unable to change password",
+        "currentPass": "Current password",
+        "newPass": "New password",
+        "confirmPass": "Confirm",
+        "weak": "Weak",
+        "medium": "Medium",
+        "strong": "Strong",
+        "veryStrong": "Very strong",
+        "passMatch": "Passwords match",
+        "passNoMatch": "Do not match"
     },
     "footer": {
         "rights": "All rights reserved"
@@ -244,11 +326,67 @@
         "no": "No",
         "select_message": "Select a message to view content",
         "ads_desc": "This text appears in the brown bar at the very top of every page.",
-        "ads_placeholder": "Advertisement text"
+        "ads_placeholder": "Advertisement text",
+        "administrator": "Administrator",
+        "edit_brand": "Edit Brand",
+        "add_brand": "Add Brand",
+        "name_error": "Name must be between 3 and 50 characters.",
+        "name_num_error": "Name cannot be only numbers.",
+        "desc_error": "Description must be between 10 and 300 characters.",
+        "desc_num_error": "Description cannot be only numbers.",
+        "updated_success": "Successfully updated",
+        "created_success": "Successfully created",
+        "deleted_success": "Successfully deleted",
+        "delete_error": "Error deleting item",
+        "edit_category": "Edit Category",
+        "add_category": "Add Category",
+        "save_error": "Error saving data",
+        "already_exists": "This item already exists.",
+        "order_error": "Invalid order. It must be a positive number.",
+        "parent_section": "Parent Section",
+        "current_image": "Current Image",
+        "update_error": "Error updating item",
+        "mark_read_error": "Could not mark as read",
+        "welcome_back": "Welcome back",
+        "welcome_desc": "Here is a real-time overview of your activity. Global store statistics are presented below."
     },
     "sections": {
         "femme": "WOMEN",
         "homme": "MEN",
         "enfant": "CHILDREN"
+    },
+    "category": {
+        "notFound": "Category not found.",
+        "loadError": "Could not load products for this category.",
+        "loading": "Loading collection...",
+        "oops": "Oops!",
+        "backHome": "Back to Home",
+        "allCategories": "All categories",
+        "collection": "Collection",
+        "articles": "Items",
+        "article": "Item",
+        "emptyTitle": "Empty Collection",
+        "emptyText": "No products available in this category."
+    },
+    "errors": {
+        "lastNameRequired": "Last name is required.",
+        "firstNameRequired": "First name is required.",
+        "ageRequired": "Age is required.",
+        "ageInvalid": "Invalid age.",
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Invalid format.",
+        "skinTypeRequired": "Select a skin type.",
+        "optionsRequired": "Choose at least one option.",
+        "budgetRequired": "Budget is required.",
+        "budgetInvalid": "Enter a valid budget (e.g. 200)."
+    },
+    "account": {
+        "orderHistory": "Your past orders history",
+        "personalInfo": "Personal Information",
+        "personalInfoDesc": "View your information and change your password",
+        "profile": "Profile",
+        "accountInfo": "Your account information",
+        "passRequirement": "Choose a password of at least 8 characters",
+        "saving": "Saving..."
     }
 }

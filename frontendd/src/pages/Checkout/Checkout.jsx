@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { toast } from 'react-hot-toast';
 import api from '../../api/axios';
+import FormError from '../../components/FormError';
 import './Checkout.css';
 
 const Checkout = () => {
@@ -17,6 +18,7 @@ const Checkout = () => {
     const [paymentMethod, setPaymentMethod] = useState('cod');
     const [isOrdered, setIsOrdered] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
     const [formData, setFormData] = useState({
         fullName: '',
         phone: '',
@@ -24,6 +26,65 @@ const Checkout = () => {
         address: '',
         postalCode: '',
     });
+
+    // Validation règles
+    const PHONE_SUFFIX = /^0?[67]\d{8}$/; // suffixe après +212
+    const LETTERS_ONLY = /^[\p{L}\s\-']+$/u;
+
+    const validateShipping = () => {
+        const e = {};
+        const { fullName, phone, city, address, postalCode } = formData;
+
+        // Nom complet
+        if (!fullName.trim()) {
+            e.fullName = 'Le nom complet est obligatoire.';
+        } else if (!LETTERS_ONLY.test(fullName.trim())) {
+            e.fullName = 'Le nom complet ne doit contenir que des lettres.';
+        } else if (fullName.trim().length < 2) {
+            e.fullName = 'Le nom doit contenir au moins 2 caractères.';
+        } else if (fullName.trim().length > 20) {
+            e.fullName = 'Le nom ne peut pas dépasser 20 caractères.';
+        }
+
+        // Téléphone — suffixe uniquement (+212 fixé automatiquement)
+        if (!phone.trim()) {
+            e.phone = 'Le numéro est obligatoire.';
+        } else if (!PHONE_SUFFIX.test(phone.trim())) {
+            e.phone = 'Format invalide. Ex: 0612345678 ou 612345678 (après +212)';
+        }
+
+        // Code postal
+        if (!postalCode.trim()) {
+            e.postalCode = 'Le code postal est obligatoire.';
+        } else if (!/^\d{5,6}$/.test(postalCode.trim())) {
+            e.postalCode = 'Le code postal doit contenir 5 ou 6 chiffres uniquement.';
+        }
+
+        // Ville
+        if (!city.trim()) {
+            e.city = 'La ville est obligatoire.';
+        } else if (!LETTERS_ONLY.test(city.trim())) {
+            e.city = 'La ville ne doit contenir que des lettres.';
+        } else if (city.trim().length < 2) {
+            e.city = 'La ville doit contenir au moins 2 caractères.';
+        } else if (city.trim().length > 15) {
+            e.city = 'La ville ne peut pas dépasser 15 caractères.';
+        }
+
+        // Adresse
+        if (!address.trim()) {
+            e.address = "L'adresse est obligatoire.";
+        } else if (/^\d+$/.test(address.trim())) {
+            e.address = "L'adresse ne peut pas contenir uniquement des chiffres.";
+        } else if (address.trim().length < 2) {
+            e.address = "L'adresse doit contenir au moins 2 caractères.";
+        } else if (address.trim().length > 30) {
+            e.address = "L'adresse ne peut pas dépasser 30 caractères.";
+        }
+
+        return e;
+    };
+
 
     if (isAdmin) {
         return <Navigate to="/" replace />;
@@ -55,14 +116,37 @@ const Checkout = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Frontend validation first
+        const errors = validateShipping();
+        if (Object.keys(errors).length > 0) {
+            setFieldErrors(errors);
+            return;
+        }
+        setFieldErrors({});
         setIsProcessing(true);
 
+        // Assemble full phone before sending to backend
+        const fullPhone = '+212' + formData.phone.trim();
+        const payload = {
+            fullName: formData.fullName.trim(),
+            phone: fullPhone.trim(),
+            city: formData.city.trim(),
+            address: formData.address.trim(),
+            postalCode: formData.postalCode.trim(),
+            payment_method: paymentMethod,
+            items: cartItems.map(item => ({
+                product_id: item.id,
+                quantity: item.quantity,
+            })),
+        };
+
         try {
-            const orderRes = await api.post('/orders', buildOrderPayload());
+            const orderRes = await api.post('/orders', payload);
             const order = orderRes?.data?.data;
 
             if (!order?.id) {
-                throw new Error('Commande creee mais identifiant introuvable');
+                throw new Error(t('checkout.errorCreate') || 'Commande creee mais identifiant introuvable');
             }
 
             if (paymentMethod === 'stripe') {
@@ -70,7 +154,7 @@ const Checkout = () => {
                 const checkoutUrl = payRes?.data?.data?.checkout_url;
 
                 if (!checkoutUrl) {
-                    throw new Error('URL Stripe Checkout introuvable');
+                    throw new Error(t('checkout.errorStripe') || 'URL Stripe Checkout introuvable');
                 }
 
                 // Redirect to Stripe Checkout (don't clear cart yet, it'll be cleared on confirmation)
@@ -80,10 +164,28 @@ const Checkout = () => {
 
             clearCart();
             setIsOrdered(true);
-            toast.success('Commande validee avec succes !');
+            toast.success(t('checkout.successToast') || 'Commande validee avec succes !');
         } catch (error) {
             console.error(error);
-            toast.error(error.response?.data?.message || error.message || 'Erreur lors de la creation de la commande');
+            const status = error.response?.status;
+            const errData = error.response?.data;
+
+            if (status === 422) {
+                // Afficher les erreurs de validation détaillées
+                const validationErrors = errData?.errors ?? {};
+                const firstErrors = Object.values(validationErrors).flat();
+                const msg = firstErrors.length > 0
+                    ? firstErrors.join(' | ')
+                    : (errData?.message || 'Données de commande invalides.');
+                toast.error(msg);
+            } else {
+                toast.error(
+                    errData?.data?.message ||
+                    errData?.message ||
+                    error.message ||
+                    (t('checkout.errorGeneric') || 'Erreur lors de la création de la commande')
+                );
+            }
         } finally {
             setIsProcessing(false);
         }
@@ -118,7 +220,7 @@ const Checkout = () => {
 
             <div className="checkout-layout">
                 <aside className="checkout-summary">
-                    <h3 className="summary-title">Recapitulatif</h3>
+                    <h3 className="summary-title">{t('checkout.summaryTitle') || 'Recapitulatif'}</h3>
                     <div className="summary-items">
                         {cartItems.map(item => (
                             <div key={item.id} className="summary-item">
@@ -142,7 +244,7 @@ const Checkout = () => {
                     </div>
                     <div className="summary-divider" />
                     <div className="summary-total-row">
-                        <span>Total</span>
+                        <span>{t('checkout.summaryTotal') || 'Total'}</span>
                         <span className="summary-total-price">{subtotal.toFixed(2)} MAD</span>
                     </div>
                 </aside>
@@ -160,16 +262,22 @@ const Checkout = () => {
                                     onChange={handleInputChange}
                                     required
                                 />
+                                <FormError error={fieldErrors.fullName ? [fieldErrors.fullName] : undefined} />
                             </div>
                             <div className="input-group">
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    placeholder={t('checkout.phone')}
-                                    value={formData.phone}
-                                    onChange={handleInputChange}
-                                    required
-                                />
+                                <div className="phone-prefix-wrapper">
+                                    <span className="phone-prefix">+212</span>
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        placeholder="0612345678"
+                                        value={formData.phone}
+                                        onChange={handleInputChange}
+                                        maxLength={10}
+                                        required
+                                    />
+                                </div>
+                                <FormError error={fieldErrors.phone ? [fieldErrors.phone] : undefined} />
                             </div>
                         </div>
                         <div className="input-row">
@@ -182,6 +290,7 @@ const Checkout = () => {
                                     onChange={handleInputChange}
                                     required
                                 />
+                                <FormError error={fieldErrors.city ? [fieldErrors.city] : undefined} />
                             </div>
                             <div className="input-group">
                                 <input
@@ -192,6 +301,7 @@ const Checkout = () => {
                                     onChange={handleInputChange}
                                     required
                                 />
+                                <FormError error={fieldErrors.postalCode ? [fieldErrors.postalCode] : undefined} />
                             </div>
                         </div>
                         <div className="input-group">
@@ -203,6 +313,7 @@ const Checkout = () => {
                                 onChange={handleInputChange}
                                 required
                             />
+                            <FormError error={fieldErrors.address ? [fieldErrors.address] : undefined} />
                         </div>
                     </section>
 
@@ -216,7 +327,7 @@ const Checkout = () => {
                                 <div className="payment-icon"><Truck size={24} /></div>
                                 <div className="payment-text">
                                     <span className="payment-title">{t('checkout.cod')}</span>
-                                    <span className="payment-desc">Payez a la reception</span>
+                                    <span className="payment-desc">{t('checkout.codDesc') || 'Payez a la reception'}</span>
                                 </div>
                             </div>
                             <div
@@ -226,7 +337,7 @@ const Checkout = () => {
                                 <div className="payment-icon"><CreditCard size={24} /></div>
                                 <div className="payment-text">
                                     <span className="payment-title">Stripe</span>
-                                    <span className="payment-desc">Carte bancaire securisee</span>
+                                    <span className="payment-desc">{t('checkout.stripeDesc') || 'Carte bancaire securisee'}</span>
                                 </div>
                             </div>
                         </div>

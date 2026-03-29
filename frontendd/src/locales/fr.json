@@ -1,4 +1,15 @@
 {
+    "promotions": {
+        "loading": "Chargement des promotions...",
+        "backHome": "Retour à l'accueil",
+        "title": "Promotions Exclusives",
+        "subtitle": "Profitez de nos meilleures offres du moment sur une sélection de produits d'exception.",
+        "offers_count_one": "{{count}} offre disponible",
+        "offers_count_other": "{{count}} offres disponibles",
+        "empty_title": "Aucune promotion en cours",
+        "empty_text": "Revenez bientôt pour découvrir nos prochaines offres exclusives.",
+        "explore": "Explorer la boutique"
+    },
     "nav": {
         "home": "Nouveautés",
         "offers": "Offres",
@@ -25,7 +36,22 @@
         "routineDesc": "Vous souhaitez une routine personnalisée pour votre peau ? Remplissez ce formulaire et laissez nos experts vous guider.",
         "routineLink": "Remplir le formulaire",
         "exclusiveOffers": "Nos offres exclusives vous attendent",
-        "seeOffers": "Voir le solde"
+        "seeOffers": "Voir le solde",
+        "averageRating": "Note moyenne",
+        "happyClients": "Clientes satisfaites",
+        "customDiagnostic": "Diagnostic personnalisé",
+        "tailorMade": "sur-mesure",
+        "routinesCreated": "Routines créées",
+        "satisfaction": "Satisfaction",
+        "beautyExperts": "Experts beauté",
+        "step1Title": "Remplissez le diagnostic",
+        "step1Desc": "Type de peau, préoccupations — 2 minutes suffisent.",
+        "step2Title": "Nos experts analysent votre profil",
+        "step2Desc": "Une sélection de produits pensée rien que pour vous.",
+        "step3Title": "Recevez votre routine personnalisée",
+        "step3Desc": "Des résultats visibles, des gestes simples.",
+        "freeNoCommitment": "Gratuit & sans engagement",
+        "noCategory": "Aucune catégorie dans cette session pour le moment."
     },
     "product": {
         "addToCart": "Ajouter au panier",
@@ -37,8 +63,13 @@
         "shippingAvailable": "Livraison disponible",
         "returns": "Retours acceptés",
         "authentic": "Produit authentique garanti",
-        "addToBag": "Ajouter au panier",
-        "noProducts": "Aucun produit disponible pour le moment."
+        "noProducts": "Aucun produit disponible pour le moment.",
+        "loadError": "Impossible de charger les détails du produit.",
+        "error": "Erreur",
+        "notFound": "Produit introuvable.",
+        "backHome": "Retour à l'accueil",
+        "home": "Accueil",
+        "delivery": "Livraison disponible"
     },
     "cart": {
         "title": "Votre Panier",
@@ -46,7 +77,8 @@
         "subtotal": "Sous-total",
         "shippingNote": "Frais de port calculés à la caisse",
         "checkout": "Commander",
-        "continue": "Continuer mes achats"
+        "continue": "Continuer mes achats",
+        "loginRequired": "Veuillez vous connecter pour commander"
     },
     "checkout": {
         "title": "Finaliser la commande",
@@ -66,8 +98,15 @@
         "processing": "Traitement...",
         "emptyCart": "Votre panier est vide",
         "backToShop": "Retour à la boutique",
-        "thankYou": "Merci pour votre commande !",
-        "successMsg": "Votre commande a été traitée avec succès et sera expédiée très bientôt."
+        "successMsg": "Votre commande a été traitée avec succès et sera expédiée très bientôt.",
+        "errorCreate": "Commande créée mais identifiant introuvable",
+        "errorStripe": "URL Stripe Checkout introuvable",
+        "successToast": "Commande validée avec succès !",
+        "errorGeneric": "Erreur lors de la création de la commande",
+        "summaryTitle": "Récapitulatif",
+        "summaryTotal": "Total",
+        "codDesc": "Payez à la réception",
+        "stripeDesc": "Carte bancaire sécurisée"
     },
     "favorites": {
         "title": "Mes Favoris",
@@ -98,7 +137,26 @@
         "submit": "Obtenir ma Routine",
         "loading": "Analyse en cours...",
         "successTitle": "Votre demande est envoyée !",
-        "successMsg": "Nos experts analyseront votre profil et vous contacteront avec une routine personnalisée."
+        "successMsg": "Nos experts analyseront votre profil et vous contacteront avec une routine personnalisée.",
+        "generating": "Notre IA génère votre routine sur-mesure...",
+        "customRoutineTitle": "Votre Routine Personnalisée",
+        "customRoutineSubtitle": "Sélectionnée par notre intelligence artificielle",
+        "step": "Étape",
+        "addButton": "Ajouter",
+        "readyToast": "Votre routine est prête !",
+        "noProductsError": "Aucun produit skincare adapté à votre profil pour le moment.",
+        "aiErrorGeneric": "Une erreur est survenue lors de l'appel à l'IA.",
+        "concern1": "Acné & Imperfections",
+        "concern2": "Rides & Âge",
+        "concern3": "Taches Pigmentaires",
+        "concern4": "Déshydratation",
+        "concern5": "Rougeurs",
+        "concern6": "Pores Dilatés",
+        "pref1": "Bio / Naturel",
+        "pref2": "Vegan",
+        "pref3": "Made in France",
+        "pref4": "Sans Parfum",
+        "pref5": "Minimaliste"
     },
     "search": {
         "title": "Résultats pour",
@@ -106,13 +164,35 @@
         "noResults": "Aucun produit ne correspond à votre recherche",
         "hint": "Essayez de rechercher par nom, marque ou catégorie.",
         "whatLooking": "Que recherchez-vous ?",
-        "enterKeyword": "Entrez un mot-clé dans la barre de recherche pour trouver des produits."
+        "enterKeyword": "Entrez un mot-clé dans la barre de recherche pour trouver des produits.",
+        "errorGeneric": "Une erreur est survenue lors de la recherche.",
+        "backHome": "Retour à l'accueil",
+        "articlesFound": "articles trouvés",
+        "articleFound": "article trouvé",
+        "loading": "Recherche en cours...",
+        "errorTitle": "Une erreur est survenue",
+        "noResultsTitle": "Aucun résultat",
+        "noProducts": "Aucun produit ne correspond à",
+        "exploreShop": "Explorer la boutique"
     },
     "auth": {
         "login": "Connexion",
         "register": "Inscription",
         "logout": "Déconnexion",
-        "account": "Mon compte"
+        "account": "Mon compte",
+        "fill_all": "Veuillez remplir tous les champs",
+        "pass_mismatch": "Les mots de passe ne correspondent pas",
+        "pass_success": "Mot de passe mis à jour",
+        "pass_error": "Impossible de modifier le mot de passe",
+        "currentPass": "Mot de passe actuel",
+        "newPass": "Nouveau mot de passe",
+        "confirmPass": "Confirmer",
+        "weak": "Faible",
+        "medium": "Moyen",
+        "strong": "Fort",
+        "veryStrong": "Très fort",
+        "passMatch": "Les mots de passe correspondent",
+        "passNoMatch": "Ne correspondent pas"
     },
     "footer": {
         "rights": "Tous droits réservés"
@@ -235,11 +315,67 @@
         "no": "Non",
         "select_message": "Sélectionne un message pour voir le contenu",
         "ads_desc": "Ce texte apparaît dans la barre marron tout en haut de chaque page.",
-        "ads_placeholder": "Texte de la publicité"
+        "ads_placeholder": "Texte de la publicité",
+        "administrator": "Administrateur",
+        "edit_brand": "Modifier une marque",
+        "add_brand": "Ajouter une marque",
+        "name_error": "Le nom doit contenir entre 3 et 50 caractères.",
+        "name_num_error": "Le nom ne peut pas être composé uniquement de chiffres.",
+        "desc_error": "La description doit contenir entre 10 et 300 caractères.",
+        "desc_num_error": "La description ne peut pas être composée uniquement de chiffres.",
+        "updated_success": "Mise à jour réussie",
+        "created_success": "Création réussie",
+        "deleted_success": "Supprimé avec succès",
+        "delete_error": "Erreur lors de la suppression",
+        "edit_category": "Modifier une catégorie",
+        "add_category": "Ajouter une catégorie",
+        "save_error": "Erreur lors de l'enregistrement",
+        "already_exists": "Cet élément existe déjà.",
+        "order_error": "Ordre d'affichage invalide. Il doit être posifitf, >= 0.",
+        "parent_section": "Section parente",
+        "current_image": "Image actuelle",
+        "update_error": "Erreur lors de la mise à jour",
+        "mark_read_error": "Impossible de marquer comme lu",
+        "welcome_back": "Bon retour",
+        "welcome_desc": "Voici un aperçu en temps réel de votre activité. Les statistiques globales de la boutique sont présentées ci-dessous."
     },
     "sections": {
         "femme": "FEMME",
         "homme": "HOMME",
         "enfant": "ENFANT"
+    },
+    "category": {
+        "notFound": "Catégorie introuvable.",
+        "loadError": "Impossible de charger les produits de cette catégorie.",
+        "loading": "Chargement de la collection...",
+        "oops": "Oups !",
+        "backHome": "Retour à l'accueil",
+        "allCategories": "Toutes les catégories",
+        "collection": "Collection",
+        "articles": "Articles",
+        "article": "Article",
+        "emptyTitle": "Collection vide",
+        "emptyText": "Aucun produit n'est disponible dans cette catégorie pour le moment."
+    },
+    "errors": {
+        "lastNameRequired": "Le nom est requis.",
+        "firstNameRequired": "Le prénom est requis.",
+        "ageRequired": "L'âge est requis.",
+        "ageInvalid": "Âge invalide.",
+        "emailRequired": "L'email est requis.",
+        "emailInvalid": "Format invalide.",
+        "skinTypeRequired": "Sélectionnez un type de peau.",
+        "optionsRequired": "Choisissez au moins une option.",
+        "budgetRequired": "Le budget est requis.",
+        "budgetInvalid": "Entrez un budget valide (ex: 200)."
+    },
+    "account": {
+        "orderHistory": "Historique de vos commandes passées",
+        "personalInfo": "Informations personnelles",
+        "personalInfoDesc": "Consultez vos informations et modifiez votre mot de passe",
+        "profile": "Profil",
+        "accountInfo": "Vos informations de compte",
+        "passRequirement": "Choisissez un mot de passe d'au moins 8 caractères",
+        "saving": "Enregistrement..."
     }
 }

@@ -5,17 +5,19 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../api/axios';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import './Cart.css';
 
 const CartDrawer = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { cartItems, updateQuantity, removeFromCart, subtotal, clearCart } = useCart();
   const { user, isAdmin } = useAuth();
+  const { t } = useTranslation();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleCheckout = () => {
     if (!user) {
-      toast.error('Veuillez vous connecter pour commander');
+      toast.error(t('cart.loginRequired') || 'Veuillez vous connecter pour commander');
       return;
     }
 
@@ -36,7 +38,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
         <div className="cart-header">
           <div className="cart-header-title">
             <ShoppingBag size={20} />
-            <h2>Votre Panier <span className="cart-count">({cartItems.length})</span></h2>
+            <h2>{t('cart.title') || 'Votre Panier'} <span className="cart-count">({cartItems.length})</span></h2>
           </div>
           <button className="close-btn" onClick={onClose}>
             <X size={24} />
@@ -47,7 +49,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
           {cartItems.length === 0 ? (
             <div className="empty-cart">
               <ShoppingBag size={48} strokeWidth={1} color="#ccc" />
-              <p>Votre panier est vide</p>
+              <p>{t('cart.empty') || 'Votre panier est vide'}</p>
             </div>
           ) : (
             cartItems.map((item) => (
@@ -79,10 +81,10 @@ const CartDrawer = ({ isOpen, onClose }) => {
         {cartItems.length > 0 && (
           <div className="cart-footer">
             <div className="subtotal-row">
-              <span>Sous-total</span>
+              <span>{t('cart.subtotal') || 'Sous-total'}</span>
               <span className="subtotal-price">{subtotal.toFixed(2)} MAD</span>
             </div>
-            <p className="shipping-note">Frais de port calculés à la caisse</p>
+            <p className="shipping-note">{t('cart.shippingNote') || 'Frais de port calculés à la caisse'}</p>
 
             {!isAdmin && (
               <button
@@ -90,12 +92,12 @@ const CartDrawer = ({ isOpen, onClose }) => {
                 onClick={handleCheckout}
                 disabled={isProcessing}
               >
-                {isProcessing ? <Loader2 className="animate-spin mx-auto" /> : 'Commander'}
+                {isProcessing ? <Loader2 className="animate-spin mx-auto" /> : (t('cart.checkout') || 'Commander')}
               </button>
             )}
 
             <button className="continue-link" onClick={onClose}>
-              Continuer mes achats
+              {t('cart.continue') || 'Continuer mes achats'}
             </button>
           </div>
         )}

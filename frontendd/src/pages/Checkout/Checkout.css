@@ -439,3 +439,43 @@ input::placeholder {
         transform: translateY(0);
     }
 }
+
+/* ── Phone prefix wrapper (+212 fixe) ── */
+.phone-prefix-wrapper {
+    display: flex;
+    align-items: center;
+    border: 1px solid #e8e1da;
+    border-radius: 100px;
+    overflow: hidden;
+    background: #fbf8f6;
+    transition: all 0.25s ease;
+}
+
+.phone-prefix-wrapper:focus-within {
+    border-color: #c9a49a;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(201, 164, 154, 0.1);
+}
+
+.phone-prefix {
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #8e6458;
+    background: #fdf6f1;
+    border-right: 1px solid #e8e1da;
+    white-space: nowrap;
+    user-select: none;
+    line-height: 48px; /* Match height of input */
+}
+
+.phone-prefix-wrapper input {
+    flex: 1;
+    border: none !important;
+    outline: none !important;
+    padding: 13px 18px;
+    font-size: 14px;
+    background: transparent;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}

@@ -17,18 +17,21 @@ class CategoryRequest extends BaseApiRequest
                 'string',
                 'min:3',
                 'max:50',
-                'regex:/^(?![0-9]+$)[\pL\pN\s\-\'\.,&\+\(\)À-ÿ]+$/u',
+                // Permissive regex: Letters, Numbers, Spaces, and common punctuation
+                // Ensures not only digits
+                'regex:/^(?![0-9]+$)[\pL\pN\s\-\'\.,!?;:&\+\(\)À-ÿ\/@#\$%\*\=_]+$/u',
                 // Unicité du nom uniquement au sein de la même section
                 Rule::unique('categories', 'name')
-                    ->where('section_id', $this->input('section_id'))
+                    ->where(fn ($query) => $query->where('section_id', $this->section_id))
                     ->ignore($categoryId),
             ],
             'description' => [
                 'required',
                 'string',
                 'min:10',
-                'max:300',
-                'regex:/^(?![0-9]+$)[\pL\pN\s\-\'\.,!?;:&\+\(\)À-ÿ]+$/u'
+                'max:500', // Increased max length slightly
+                // More permissive for description
+                'regex:/^(?![0-9]+$)[\pL\pN\s\-\'\.,!?;:&\+\(\)À-ÿ\/\\@#\$%\*\=\+\"\[\]\{\}\|_\r\n]+$/u'
             ],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'section_id' => ['nullable', 'exists:sections,id'],

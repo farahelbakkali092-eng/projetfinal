@@ -39,7 +39,7 @@ const MessagesPage = () => {
         await load(meta?.current_page || 1);
       } catch (e) {
         console.error(e);
-        toast.error(t('admin.error') || 'Impossible de marquer comme lu');
+        toast.error(t('admin.mark_read_error'));
       }
     }
   };
