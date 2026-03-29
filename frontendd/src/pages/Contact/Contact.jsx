@@ -16,6 +16,7 @@ const Contact = () => {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -23,6 +24,9 @@ const Contact = () => {
 
     if (errors[id]) {
       setErrors({ ...errors, [id]: '' });
+    }
+    if (successMessage) {
+      setSuccessMessage('');
     }
   };
 
@@ -58,7 +62,7 @@ const Contact = () => {
     setLoading(true);
     try {
       await api.post('/contact/messages', formData);
-      toast.success(i18n.language === 'fr' ? 'Votre message a bien été envoyé !' : 'Your message has been sent!');
+      setSuccessMessage(i18n.language === 'fr' ? 'Message envoyé avec succès' : 'Message sent successfully');
       setFormData({ name: '', email: '', subject: '', message: '' }); // On vide le formulaire
     } catch (err) {
       console.error(err);
@@ -78,6 +82,11 @@ const Contact = () => {
       <main className="contact-main">
         <section className="contact-form-section">
           <h2>{t('contact.title')}</h2>
+          {successMessage && (
+            <div style={{ color: "#155724", backgroundColor: "#d4edda", padding: "12px", borderRadius: "8px", marginBottom: "20px", textAlign: "center", border: "1px solid #c3e6cb", fontWeight: "500", fontSize: "0.95rem" }}>
+              {successMessage}
+            </div>
+          )}
           <FormError error={errors.general} />
           {/* ⚠️ MODIFIÉ: Ajout de onSubmit={handleSubmit} */}
           <form onSubmit={handleSubmit}>

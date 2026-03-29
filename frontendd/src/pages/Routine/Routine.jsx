@@ -110,13 +110,19 @@ const Routine = () => {
 
       // 2. Interroger l'IA pour obtenir la routine
       const iaResponse = await api.post('/routine/recommend', formData);
+      const responseData = iaResponse.data;
 
-      if (iaResponse.data.success) {
-        setRecommendations(iaResponse.data.recommendations);
+      // Le backend utilise ApiResponseTrait pour le succès (returnData={"status": "success", "data": {"recommendations": []}})
+      // mais renvoie parfois un JSON direct pour le cas sans produits (returnData={"success": false, "message": "..."})
+      const isSuccess = responseData.status === 'success' || responseData.success === true;
+      const routineData = responseData.data || responseData;
+
+      if (isSuccess && routineData.recommendations) {
+        setRecommendations(routineData.recommendations);
         toast.success(i18n.language === 'fr' ? "Votre routine est prête !" : "Your routine is ready!");
       } else {
         // Cas : l'IA a répondu mais sans produits adaptés (success: false, HTTP 200)
-        setIaError(iaResponse.data.message || (i18n.language === 'fr' ? "Aucun produit skincare adapté à votre profil pour le moment." : "No suitable skincare products found for your profile."));
+        setIaError(responseData.message || routineData.message || (i18n.language === 'fr' ? "Aucun produit skincare adapté à votre profil pour le moment." : "No suitable skincare products found for your profile."));
       }
 
     } catch (error) {

@@ -7,6 +7,16 @@ import FormError from '../../components/FormError';
 
 const emptyForm = { name: '', description: '' };
 
+const toastSuccessStyle = {
+  style: { background: '#10b981', color: '#fff', textAlign: 'center' },
+  iconTheme: { primary: '#fff', secondary: '#10b981' }
+};
+
+const toastDeleteStyle = {
+  style: { background: '#ef4444', color: '#fff', textAlign: 'center' },
+  iconTheme: { primary: '#fff', secondary: '#ef4444' }
+};
+
 const BrandsPage = () => {
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
@@ -71,10 +81,10 @@ const BrandsPage = () => {
 
       if (editing) {
         await adminApi.updateBrand(editing.id, fd);
-        toast.success('Marque mise à jour');
+        toast.success('Marque mise à jour', toastSuccessStyle);
       } else {
         await adminApi.createBrand(fd);
-        toast.success('Marque créée');
+        toast.success('Marque créée', toastSuccessStyle);
       }
 
       setOpen(false);
@@ -102,7 +112,7 @@ const BrandsPage = () => {
     if (!confirm(`Supprimer la marque "${item.name}" ?`)) return;
     try {
       await adminApi.deleteBrand(item.id);
-      toast.success('Marque supprimée');
+      toast('Produit supprimé avec succès', { icon: '🗑️', ...toastDeleteStyle });
       await load(meta?.current_page || 1);
     } catch (e) {
       console.error(e);

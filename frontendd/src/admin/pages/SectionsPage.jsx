@@ -13,8 +13,13 @@ const emptyForm = {
 };
 
 const successToast = (message) => toast.success(message, {
-    style: { background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0' },
-    iconTheme: { primary: '#16a34a', secondary: '#fff' },
+    style: { background: '#10b981', color: '#fff', textAlign: 'center' },
+    iconTheme: { primary: '#fff', secondary: '#10b981' },
+});
+
+const deleteToast = (message) => toast(message, {
+    icon: '🗑️',
+    style: { background: '#ef4444', color: '#fff', textAlign: 'center' },
 });
 
 const errorToast = (message) => toast.error(message, {
@@ -65,7 +70,7 @@ const SectionsPage = () => {
         if (!confirm(`${t('admin.delete')} "${s.name}" ?`)) return;
         try {
             await adminApi.deleteSection(s.id);
-            successToast('Supprimé avec succès');
+            deleteToast('Produit supprimé avec succès');
             load();
         } catch (e) {
             console.error(e);

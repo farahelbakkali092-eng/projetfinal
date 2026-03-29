@@ -7,6 +7,16 @@ import FormError from '../../components/FormError';
 
 const emptyForm = { name: '', description: '', image: null, section_id: '' };
 
+const toastSuccessStyle = {
+  style: { background: '#10b981', color: '#fff', textAlign: 'center' },
+  iconTheme: { primary: '#fff', secondary: '#10b981' }
+};
+
+const toastDeleteStyle = {
+  style: { background: '#ef4444', color: '#fff', textAlign: 'center' },
+  iconTheme: { primary: '#fff', secondary: '#ef4444' }
+};
+
 const CategoriesPage = () => {
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
@@ -90,10 +100,10 @@ const CategoriesPage = () => {
 
       if (editing) {
         await adminApi.updateCategory(editing.id, fd);
-        toast.success('Catégorie mise à jour');
+        toast.success('Catégorie mise à jour', toastSuccessStyle);
       } else {
         await adminApi.createCategory(fd);
-        toast.success('Catégorie créée');
+        toast.success('Catégorie créée', toastSuccessStyle);
       }
 
       setOpen(false);
@@ -126,7 +136,7 @@ const CategoriesPage = () => {
     if (!confirm(`Supprimer la catégorie "${item.name}" ?`)) return;
     try {
       await adminApi.deleteCategory(item.id);
-      toast.success('Catégorie supprimée');
+      toast('Produit supprimé avec succès', { icon: '🗑️', ...toastDeleteStyle });
       await load(meta?.current_page || 1);
     } catch (e) {
       console.error(e);

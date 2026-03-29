@@ -27,7 +27,6 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('user', JSON.stringify(userData));
             setUser(userData);
 
-            toast.success('Bon retour !');
             return { success: true };
         } catch (error) {
             const message = error.response?.data?.message || 'Identifiants invalides';
@@ -49,7 +48,6 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('user', JSON.stringify(newUser));
             setUser(newUser);
 
-            toast.success('Bienvenue chez DAWSM !');
             return { success: true };
         } catch (error) {
             const errors = error.response?.data?.errors;
@@ -69,7 +67,6 @@ export const AuthProvider = ({ children }) => {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             setUser(null);
-            toast.success('Déconnecté avec succès');
         }
     };
 

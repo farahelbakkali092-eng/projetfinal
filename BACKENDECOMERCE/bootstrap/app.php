@@ -24,6 +24,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Enables stateful frontend requests for Sanctum (SPA auth)
         $middleware->statefulApi();
+
+        // Exempt Stripe webhook from CSRF protection
+        $middleware->validateCsrfTokens(except: [
+            'api/v1/payments/webhook',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

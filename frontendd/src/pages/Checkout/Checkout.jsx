@@ -73,7 +73,7 @@ const Checkout = () => {
                     throw new Error('URL Stripe Checkout introuvable');
                 }
 
-                clearCart();
+                // Redirect to Stripe Checkout (don't clear cart yet, it'll be cleared on confirmation)
                 window.location.href = checkoutUrl;
                 return;
             }

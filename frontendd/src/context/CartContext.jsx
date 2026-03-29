@@ -28,8 +28,7 @@ export const CartProvider = ({ children }) => {
             }
             return [...prev, { ...product, quantity: product.quantity || 1 }];
         });
-        // Toast called outside the updater to avoid setState-during-render warning
-        toast.success(`${product.name} ajouté au panier`);
+        // Toast has been removed per user request
     };
 
     const removeFromCart = (id) => {

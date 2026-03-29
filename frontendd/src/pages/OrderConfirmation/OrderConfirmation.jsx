@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { CheckCircle2, CircleX, Loader2 } from 'lucide-react';
 import api from '../../api/axios';
+import { useCart } from '../../context/CartContext';
 import './OrderConfirmation.css';
 
 const OrderConfirmation = () => {
@@ -12,6 +13,8 @@ const OrderConfirmation = () => {
   const [loading, setLoading] = useState(!canceled);
   const [error, setError] = useState('');
   const [order, setOrder] = useState(null);
+  
+  const { clearCart } = useCart();
 
   const title = useMemo(() => {
     if (canceled) return 'Paiement annule';
@@ -46,6 +49,11 @@ const OrderConfirmation = () => {
         }
 
         setOrder(nextOrder);
+        
+        // Clear cart securely upon successful validation
+        if (nextOrder.payment_status === 'paid' || nextOrder.status === 'processing') {
+            clearCart();
+        }
       } catch (e) {
         setError(e.response?.data?.message || e.message || 'Impossible de confirmer le paiement.');
       } finally {
@@ -54,7 +62,7 @@ const OrderConfirmation = () => {
     };
 
     confirmStripeSession();
-  }, [canceled, sessionId]);
+  }, [canceled, sessionId, clearCart]);
 
   return (
     <div className="order-confirmation-page">

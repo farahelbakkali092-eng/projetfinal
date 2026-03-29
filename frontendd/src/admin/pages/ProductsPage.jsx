@@ -22,6 +22,16 @@ const emptyForm = {
   image: null,
 };
 
+const toastSuccessStyle = {
+  style: { background: '#10b981', color: '#fff', textAlign: 'center' },
+  iconTheme: { primary: '#fff', secondary: '#10b981' }
+};
+
+const toastDeleteStyle = {
+  style: { background: '#ef4444', color: '#fff', textAlign: 'center' },
+  iconTheme: { primary: '#fff', secondary: '#ef4444' }
+};
+
 const ProductsPage = () => {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
@@ -136,7 +146,7 @@ const ProductsPage = () => {
     if (!confirm(`${t('admin.delete')} "${p.name}" ?`)) return;
     try {
       await adminApi.deleteProduct(p.id);
-      toast.success(t('admin.deleted_success') || 'Produit supprimé');
+      toast('Produit supprimé avec succès', { icon: '🗑️', ...toastDeleteStyle });
       await load(meta?.current_page || 1);
     } catch (e) {
       console.error(e);
@@ -253,10 +263,10 @@ const ProductsPage = () => {
 
       if (editing) {
         await adminApi.updateProduct(editing.id, fd);
-        toast.success('Produit mis à jour');
+        toast.success('Produit mis à jour', toastSuccessStyle);
       } else {
         await adminApi.createProduct(fd);
-        toast.success('Produit créé');
+        toast.success('Produit créé', toastSuccessStyle);
       }
 
       setOpen(false);
@@ -294,7 +304,7 @@ const ProductsPage = () => {
       }
 
       if (imported > 0) {
-        toast.success(`${imported} / ${total_processed || imported} produits importés !`);
+        toast.success(`${imported} / ${total_processed || imported} produits importés !`, toastSuccessStyle);
         load(1);
       }
     } catch (err) {
