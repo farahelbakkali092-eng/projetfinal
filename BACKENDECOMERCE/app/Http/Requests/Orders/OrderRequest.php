@@ -12,11 +12,11 @@ class OrderRequest extends BaseApiRequest
     public function rules(): array
     {
         return [
-            'fullName'         => ['required', 'string', 'min:2', 'max:20', 'regex:/^[\pL\s\-']+$/u'],
+            'fullName'         => ['required', 'string', 'min:2', 'max:20', "regex:/^[\pL\s\-']+$/u"],
             'phone'            => ['required', 'string', 'regex:/^\+212\s?(0?[67]\d{8})$/'],
             'postalCode'       => ['required', 'string', 'regex:/^\d{5,6}$/'],
-            'city'             => ['required', 'string', 'min:2', 'max:15', 'regex:/^[\pL\s\-']+$/u'],
-            'address'          => ['required', 'string', 'min:2', 'max:30', 'regex:/^(?![0-9]+$)[\pL\s0-9\-\',.#]+$/u'],
+            'city'             => ['required', 'string', 'min:2', 'max:15', "regex:/^[\pL\s\-']+$/u"],
+            'address'          => ['required', 'string', 'min:2', 'max:30', "regex:/^(?![0-9]+$)[\pL\s0-9\-\',.#]+$/u"],
             'payment_method'   => ['required', 'string', 'in:stripe,cod'],
             'items'            => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'exists:products,id'],
