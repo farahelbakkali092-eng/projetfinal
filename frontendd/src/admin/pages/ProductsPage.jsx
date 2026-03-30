@@ -19,7 +19,9 @@ const emptyForm = {
   section_id: '',
   capacity: '',
   reference: '',
-  image: null,
+  imageMain: null,
+  image2: null,
+  image3: null,
 };
 
 const toastSuccessStyle = {
@@ -126,7 +128,9 @@ const ProductsPage = () => {
       section_id: p.section_id || p.section?.id || '',
       capacity: p.capacity || '',
       reference: p.reference || '',
-      image: null,
+      imageMain: null,
+      image2: null,
+      image3: null,
     });
     setErrors({});
     setOpen(true);
@@ -256,8 +260,12 @@ const ProductsPage = () => {
       if (form.capacity) fd.append('capacity', form.capacity);
       if (form.reference) fd.append('reference', form.reference);
 
-      // Send all selected images (extraImages includes all files from the multi-select input)
-      const filesToUpload = form.extraImages?.length > 0 ? form.extraImages : (form.image ? [form.image] : []);
+      // Send selected images
+      const filesToUpload = [];
+      if (form.imageMain) filesToUpload.push(form.imageMain);
+      if (form.image2) filesToUpload.push(form.image2);
+      if (form.image3) filesToUpload.push(form.image3);
+
       filesToUpload.forEach((file) => {
         fd.append('images[]', file);
       });
@@ -637,15 +645,64 @@ const ProductsPage = () => {
           </div>
 
           <div className="admin-form-grid__full">
-            <div className="admin-muted admin-field-label">{t('admin.image')} (principale)</div>
-            <input
-              className="admin-input"
-              type="file"
-              accept="image/png,image/jpeg,image/jpg,image/webp"
-              multiple
-              onChange={(e) => setForm({ ...form, image: e.target.files?.[0] || null, extraImages: Array.from(e.target.files || []) })}
-            />
-            <FormError error={errors.image || errors['images.0']} />
+            <div className="admin-muted admin-field-label">Images du Produit</div>
+            
+            {/* Affichage et suppression des images existantes */}
+            {editing && existingImages.length > 0 && (
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' }}>
+                {existingImages.map(img => (
+                  <div key={img.id} style={{ position: 'relative', width: '80px', height: '80px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #ddd' }}>
+                    <img src={img.thumbnail_url || img.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteImage(img.id)}
+                      style={{ position: 'absolute', top: 0, right: 0, background: 'rgba(255,0,0,0.7)', color: 'white', border: 'none', borderRadius: '0 0 0 5px', cursor: 'pointer', fontSize: '10px', padding: '2px 5px', fontWeight: 'bold' }}
+                      title="Supprimer l'image"
+                    >
+                      X
+                    </button>
+                    {img.is_main && (
+                      <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', background: 'rgba(0,0,0,0.6)', color: 'white', fontSize: '10px', textAlign: 'center', padding: '2px 0' }}>Principale</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '15px', flexDirection: 'column' }}>
+              <div>
+                <div className="admin-muted admin-field-label">Photo Principale</div>
+                <input
+                  className="admin-input"
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  onChange={(e) => setForm({ ...form, imageMain: e.target.files[0] || null })}
+                />
+              </div>
+
+              <div>
+                <div className="admin-muted admin-field-label">Photo 2 (Optionnelle)</div>
+                <input
+                  className="admin-input"
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  onChange={(e) => setForm({ ...form, image2: e.target.files[0] || null })}
+                />
+              </div>
+
+              <div>
+                <div className="admin-muted admin-field-label">Photo 3 (Optionnelle)</div>
+                <input
+                  className="admin-input"
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  onChange={(e) => setForm({ ...form, image3: e.target.files[0] || null })}
+                />
+              </div>
+            </div>
+
+            <div className="admin-muted" style={{ fontSize: '11px', marginTop: '8px' }}>Formats acceptés : JPG, PNG, WEBP (Max 2MB/image)</div>
+            <FormError error={errors.images || errors.image || errors['images.0'] || errors['images.1'] || errors['images.2']} />
           </div>
         </div>
       </AdminModal>

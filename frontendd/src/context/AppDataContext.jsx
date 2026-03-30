@@ -66,8 +66,8 @@ export const AppDataProvider = ({ children }) => {
 
         return () => {
             cancelled = true;
-            // Reset the shared promise on unmount so a fresh mount re-fetches cleanly
-            initialFetchPromise = null;
+            // Removed to prevent double-fetching on React StrictMode mount/unmount cycle
+            // initialFetchPromise = null;
         };
     }, []); // Run only once on mount
 

@@ -40,7 +40,7 @@ class ProductRequest extends BaseApiRequest
             'section_id' => ['nullable', 'exists:sections,id'],
             'capacity' => ['nullable', 'string', Rule::in(['30 ml', '50 ml', '75 ml', '90 ml', '100 ml'])],
             'reference' => ['nullable', 'string', 'max:50'],
-            'images' => ['nullable', 'array'],
+            'images' => ['nullable', 'array', 'max:3'],
             'images.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
         ];
     }
