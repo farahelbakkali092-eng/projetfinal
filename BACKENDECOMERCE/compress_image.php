@@ -18,7 +18,6 @@ echo "Saving compressed image: $destination\n";
 // Quality 70 is a good balance for web
 if (imagejpeg($image, $destination, 70)) {
     echo "Success! Compressed to " . number_format(filesize($destination) / 1024, 2) . " KB\n";
-    imagedestroy($image);
     
     // Backup and replace
     $backup = $source . '.bak';
@@ -27,5 +26,4 @@ if (imagejpeg($image, $destination, 70)) {
     echo "Replaced original with compressed version. Backup saved as .bak\n";
 } else {
     echo "Failed to save compressed image.\n";
-    imagedestroy($image);
 }

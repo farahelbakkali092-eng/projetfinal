@@ -119,79 +119,143 @@ class IaRecommandationController extends Controller
         $apiKey         = config('services.gemini.key');
 
         // ═══════════════════════════════════════════════
-        // ÉTAPE 2 — Appel Gemini AI pour des termes de recherche ciblés
+        // ÉTAPE 2 — Obtenir les mots-clés (Gemini AI ou Local)
         // ═══════════════════════════════════════════════
-        $searchTerms   = [];
-        $routineAdvice = null;
+        $geminiData = $this->getGeminiRecommendation($typePeau, $problematiques, $preferences, $apiKey);
+        $searchTerms   = $geminiData['search_terms'];
+        $routineAdvice = $geminiData['advice'];
 
-        if ($apiKey) {
-            $problemList = implode(', ', $problematiques);
-            $prefList    = implode(', ', $preferences);
-
-            try {
-                $response = Http::withHeaders([
-                    'Content-Type' => 'application/json',
-                ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}", [
-                    'contents' => [
-                        [
-                            'parts' => [
-                                ['text' => "Tu es un expert beauté. Pour une peau {$typePeau}, problématiques: {$problemList}, préférences: {$prefList}. Retourne UNIQUEMENT un JSON avec les clés 'search_terms' (tableau de mots) et 'advice' (un conseil court)."]
-                            ]
-                        ]
-                    ]
-                ]);
-
-                if ($response->successful()) {
-                    $rawText = $response->json('candidates.0.content.parts.0.text', '');
-                    $rawText = preg_replace('/^```(?:json)?\s*|\s*```$/s', '', trim($rawText));
-                    $parsed  = json_decode($rawText, true);
-
-                    if (is_array($parsed)) {
-                        $searchTerms   = $parsed['search_terms'] ?? [];
-                        $routineAdvice = $parsed['advice']        ?? null;
-                    }
-                }
-            } catch (\Throwable $e) {
-                Log::warning('[IaRecommandation] Gemini indisponible : ' . $e->getMessage());
-            }
-        }
-
-        // ═══════════════════════════════════════════════
-        // ÉTAPE 3 — Fallback local si Gemini indisponible
-        // Utilisé côté serveur uniquement, sans dépendance externe.
-        // ═══════════════════════════════════════════════
         if (empty($searchTerms)) {
-            $lower = mb_strtolower($typePeau);
-            foreach (self::SKIN_TYPE_KEYWORDS as $key => $terms) {
-                if (str_contains($lower, $key)) {
-                    $searchTerms = array_merge($searchTerms, $terms);
-                    break;
-                }
-            }
-            foreach ($problematiques as $pb) {
-                $lowerPb = mb_strtolower($pb);
-                foreach (self::CONCERN_KEYWORDS as $key => $terms) {
-                    if (str_contains($lowerPb, $key)) {
-                        $searchTerms = array_merge($searchTerms, $terms);
-                    }
-                }
-            }
+            $searchTerms = $this->getLocalSearchTerms($typePeau, $problematiques);
         }
 
         $searchTerms = array_unique(array_filter($searchTerms));
 
         // ═══════════════════════════════════════════════
-        // ÉTAPE 4 — Recherche des produits dans le catalogue
+        // ÉTAPE 3 — Recherche des produits dans le catalogue
         // ═══════════════════════════════════════════════
-        $query = Product::with(['images', 'category', 'brand'])
-            ->where('stock', '>', 0);
+        $products = $this->findProducts($budget, $preferences, $searchTerms);
 
-        // Filtre budget
+        if ($products->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Aucun produit adapté à votre profil et budget pour le moment.',
+            ], 200);
+        }
+
+        // ═══════════════════════════════════════════════
+        // ÉTAPE 4 — Formatage de la réponse pour React
+        // ═══════════════════════════════════════════════
+        $formattedProducts = $this->formatProducts($products);
+
+        Log::info('[IaRecommandation] Routine générée', [
+            'type_peau' => $typePeau,
+            'count'     => $formattedProducts->count(),
+            'via_gemini'=> !empty($apiKey),
+        ]);
+
+        return $this->successResponse([
+            'success'         => true,
+            'recommendations' => $formattedProducts,
+            'advice'          => $routineAdvice ?? 'Votre routine personnalisée a été générée selon votre profil de peau.',
+            'count'           => $formattedProducts->count(),
+        ], 'Routine générée avec succès');
+    }
+
+    /**
+     * Call Gemini to analyze the skin profile.
+     */
+    private function getGeminiRecommendation(string $typePeau, array $problematiques, array $preferences, ?string $apiKey): array
+    {
+        if (empty($apiKey)) {
+            return ['search_terms' => [], 'advice' => null];
+        }
+
+        $problemList = implode(', ', $problematiques);
+        $prefList    = implode(', ', $preferences);
+
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}", [
+                'contents' => [
+                    [
+                        'parts' => [
+                            ['text' => "Tu es un expert beauté. Pour une peau {$typePeau}, problématiques: {$problemList}, préférences: {$prefList}. Retourne UNIQUEMENT un JSON avec les clés 'search_terms' (tableau de mots) et 'advice' (un conseil court)."]
+                        ]
+                    ]
+                ]
+            ]);
+
+            if ($response->successful()) {
+                $rawText = $response->json('candidates.0.content.parts.0.text', '');
+                $rawText = preg_replace('/^```(?:json)?\s*|\s*```$/s', '', trim($rawText));
+                $parsed  = json_decode($rawText, true);
+
+                if (is_array($parsed)) {
+                    return [
+                        'search_terms' => $parsed['search_terms'] ?? [],
+                        'advice'       => $parsed['advice'] ?? null,
+                    ];
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('[IaRecommandation] Gemini indisponible : ' . $e->getMessage());
+        }
+
+        return ['search_terms' => [], 'advice' => null];
+    }
+
+    /**
+     * Fallback to static mapping if Gemini fails or is disabled.
+     */
+    private function getLocalSearchTerms(string $typePeau, array $problematiques): array
+    {
+        $searchTerms = [];
+        $lower = mb_strtolower($typePeau);
+        
+        foreach (self::SKIN_TYPE_KEYWORDS as $key => $terms) {
+            if (str_contains($lower, $key)) {
+                $searchTerms = array_merge($searchTerms, $terms);
+                break;
+            }
+        }
+        
+        foreach ($problematiques as $pb) {
+            $lowerPb = mb_strtolower($pb);
+            foreach (self::CONCERN_KEYWORDS as $key => $terms) {
+                if (str_contains($lowerPb, $key)) {
+                    $searchTerms = array_merge($searchTerms, $terms);
+                }
+            }
+        }
+        
+        return $searchTerms;
+    }
+
+    /**
+     * Returns a base query restricted to "Soin du Visage" and in-stock items.
+     */
+    private function buildBaseQuery()
+    {
+        return Product::with(['images', 'category', 'brand'])
+            ->whereHas('category', function ($q) {
+                $q->where('name', 'ILIKE', '%soin%visage%');
+            })
+            ->where('stock', '>', 0);
+    }
+
+    /**
+     * Queries database with fallbacks for budget, preferences, and matched keywords.
+     */
+    private function findProducts(float $budget, array $preferences, array $searchTerms)
+    {
+        $query = $this->buildBaseQuery();
+
         if ($budget > 0) {
             $query->where('price', '<=', $budget);
         }
 
-        // Filtre préférences (bio, vegan…)
         if (!empty($preferences)) {
             $query->where(function ($q) use ($preferences) {
                 foreach ($preferences as $pref) {
@@ -201,7 +265,6 @@ class IaRecommandationController extends Controller
             });
         }
 
-        // Filtre search_terms
         if (!empty($searchTerms)) {
             $query->where(function ($q) use ($searchTerms) {
                 foreach ($searchTerms as $term) {
@@ -213,12 +276,11 @@ class IaRecommandationController extends Controller
             });
         }
 
-        $products = $query->limit(6)->get();
+        $products = $query->limit(3)->get();
 
-        // Fallback 1 : relâcher les préférences si aucun résultat
+        // Fallback 1: Relax preferences
         if ($products->isEmpty() && !empty($preferences)) {
-            $fallback = Product::with(['images', 'category', 'brand'])
-                ->where('stock', '>', 0)
+            $fallback = $this->buildBaseQuery()
                 ->where('price', '<=', $budget)
                 ->where(function ($q) use ($searchTerms) {
                     foreach ($searchTerms as $term) {
@@ -228,34 +290,30 @@ class IaRecommandationController extends Controller
                           ->orWhere('description', 'LIKE', "%{$term}%");
                     }
                 })
-                ->limit(6)
+                ->limit(3)
                 ->get();
 
             $products = $fallback->isNotEmpty() ? $fallback : $products;
         }
 
-        // Fallback 2 : budget uniquement si toujours vide
+        // Fallback 2: Random matching budget
         if ($products->isEmpty()) {
-            $products = Product::with(['images', 'category', 'brand'])
-                ->where('stock', '>', 0)
+            $products = $this->buildBaseQuery()
                 ->where('price', '<=', $budget)
                 ->inRandomOrder()
-                ->limit(4)
+                ->limit(3)
                 ->get();
         }
 
-        // Aucun produit trouvé même après tous les fallbacks
-        if ($products->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Aucun produit adapté à votre profil et budget pour le moment.',
-            ], 200);
-        }
+        return $products;
+    }
 
-        // ═══════════════════════════════════════════════
-        // ÉTAPE 5 — Formatage de la réponse pour React
-        // ═══════════════════════════════════════════════
-        $formattedProducts = $products->map(function ($p) {
+    /**
+     * Formats products into uniform array shapes.
+     */
+    private function formatProducts($products)
+    {
+        return $products->map(function ($p) {
             $mainImg = $p->images->firstWhere('is_main', true) ?? $p->images->first();
 
             $imageUrl = null;
@@ -275,18 +333,5 @@ class IaRecommandationController extends Controller
                 'marque'      => $p->brand?->name,
             ];
         });
-
-        Log::info('[IaRecommandation] Routine générée', [
-            'type_peau' => $typePeau,
-            'count'     => $formattedProducts->count(),
-            'via_gemini'=> !empty($apiKey),
-        ]);
-
-        return $this->successResponse([
-            'success'         => true,
-            'recommendations' => $formattedProducts,
-            'advice'          => $routineAdvice ?? 'Votre routine personnalisée a été générée selon votre profil de peau.',
-            'count'           => $formattedProducts->count(),
-        ], 'Routine générée avec succès');
     }
 }
