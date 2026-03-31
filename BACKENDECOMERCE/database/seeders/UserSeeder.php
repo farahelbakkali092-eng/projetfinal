@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
 
         if ($adminRole) {
             User::updateOrCreate(
-                ['email' => 'dawsmcosmetique@gmail.com'],
+                ['email' => 'admin@cosmetic.com'],
                 [
                     'first_name' => 'Admin',
                     'phone' => '0693607645',

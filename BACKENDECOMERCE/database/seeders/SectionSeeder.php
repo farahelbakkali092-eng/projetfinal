@@ -13,14 +13,14 @@ class SectionSeeder extends Seeder
     public function run(): void
     {
         $sessions = [
-            ['name' => 'Femmes', 'slug' => 'femmes', 'order' => 1],
-            ['name' => 'Hommes', 'slug' => 'hommes', 'order' => 2],
-            ['name' => 'Enfants', 'slug' => 'enfants', 'order' => 3],
+            ['id' => 1, 'name' => 'FEMME', 'slug' => 'femme', 'order' => 0, 'is_active' => true],
+            ['id' => 2, 'name' => 'HOMME', 'slug' => 'homme', 'order' => 1, 'is_active' => true],
+            ['id' => 3, 'name' => 'ENFANT', 'slug' => 'enfant', 'order' => 2, 'is_active' => true],
         ];
 
         foreach ($sessions as $session) {
             \App\Models\Section::updateOrCreate(
-                ['slug' => $session['slug']],
+                ['id' => $session['id']],
                 $session
             );
         }

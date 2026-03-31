@@ -111,12 +111,12 @@ const Routine = () => {
       // 2. Interroger l'IA pour obtenir la routine
       const iaResponse = await api.post('/routine/recommend', formData);
 
-      if (iaResponse.data.success) {
-        setRecommendations(iaResponse.data.recommendations);
+      if (iaResponse.data.data && iaResponse.data.data.success) {
+        setRecommendations(iaResponse.data.data.recommendations);
         toast.success(t('routine.readyToast') || "Votre routine est prête !");
       } else {
         // Cas : l'IA a répondu mais sans produits adaptés (success: false, HTTP 200)
-        setIaError(iaResponse.data.message || (t('routine.noProductsError') || "Aucun produit skincare adapté à votre profil pour le moment."));
+        setIaError(iaResponse.data.data?.message || iaResponse.data.message || (t('routine.noProductsError') || "Aucun produit skincare adapté à votre profil pour le moment."));
       }
 
     } catch (error) {

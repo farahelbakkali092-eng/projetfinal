@@ -17,6 +17,11 @@ class ProductImage extends Model
             return null;
         }
 
+        // Support for external URLs (Unsplash, etc.)
+        if (str_starts_with($this->image_path, 'http://') || str_starts_with($this->image_path, 'https://')) {
+            return $this->image_path;
+        }
+
         return Storage::disk('public')->url($this->image_path);
     }
 
@@ -26,6 +31,11 @@ class ProductImage extends Model
         $path = $this->thumb_path ?: $this->image_path;
         if (!$path) {
             return null;
+        }
+
+        // Support for external URLs
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
         }
 
         return Storage::disk('public')->url($path);

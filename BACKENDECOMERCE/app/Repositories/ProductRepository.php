@@ -48,6 +48,7 @@ class ProductRepository extends BaseRepository
     {
         return $this->model->query()
             ->with(['category', 'brand', 'images', 'section'])
+            ->orderByDesc('id')
             ->limit($limit)
             ->get();
     }
@@ -55,8 +56,9 @@ class ProductRepository extends BaseRepository
     public function onSale($limit = 8)
     {
         return $this->model->query()
-            ->onSale() // 2. MAGIQUE : On utilise le scope défini dans ton Modèle Product !
+            ->onSale() 
             ->with(['category', 'brand', 'images', 'section'])
+            ->orderByDesc('id')
             ->limit($limit)
             ->get();
     }

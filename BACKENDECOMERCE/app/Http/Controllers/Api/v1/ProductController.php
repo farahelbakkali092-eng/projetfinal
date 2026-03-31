@@ -274,7 +274,17 @@ class ProductController extends Controller
                     'discount' => (!empty($item['discount']) && $item['discount'] !== '') ? intval($item['discount']) : 0,
                 ];
 
-                $this->productRepository->create($productData);
+                $product = $this->productRepository->create($productData);
+
+                // Handle image_url if present
+                $imageUrl = $item['image_url'] ?? ($item['image'] ?? ($item['photo'] ?? null));
+                if ($imageUrl) {
+                    $product->images()->create([
+                        'image_path' => $imageUrl,
+                        'is_main' => true
+                    ]);
+                }
+
                 $imported++;
             } catch (\Exception $e) {
                 $errors[] = "Row " . ($index + 1) . ": " . $e->getMessage();
