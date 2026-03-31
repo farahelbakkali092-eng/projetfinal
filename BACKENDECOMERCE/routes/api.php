@@ -83,7 +83,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:api']], function () {
         Route::middleware('admin')->group(function () {
             Route::post('/products', [ProductController::class, 'store']);
             Route::post('/products/import', [ProductController::class, 'bulkImport']);
-            Route::post('/products/fix-images', [ProductController::class, 'fixImages']);
             Route::put('/products/{id}', [ProductController::class, 'update']);
             Route::delete('/products/{id}', [ProductController::class, 'destroy']);
             Route::delete('/products/images/{imageId}', [ProductController::class, 'destroyImage']);
